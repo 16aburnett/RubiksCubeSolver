@@ -5,14 +5,17 @@
 */
 
 // =======================================================================
+// Globals/constants
 
 // max number of moves
 const MAX_CROSS_MOVES = 8;
-const MAX_FIRST_LAYER_MOVES = 8;
-const MAX_F2L_MOVES = 8;
-const MAX_MOVES = 30;
+const MAX_F2L_MOVES = 11;
+const MAX_YELLOW_CROSS = 20;
+const MAX_YELLOW_CORNERS = 30;
+const MAX_YELLOW_EDGES = 40;
 
 // =======================================================================
+// goal state checks 
 
 function isCrossSolved (cube) {
     if (cube.data[DOWN + 1] != WHITE) return false;
@@ -92,11 +95,22 @@ function isYellowEdgesSolved(cube) {
     if (cube.data[BACK + 1] != GREEN) return false;
     return true;
 }
+
+// =======================================================================
+
 class CubeSolver {
 
     constructor() {
     }
 
+    // =======================================================================
+
+    // returns a list of moves to solve the cube from the current state
+    // this can fluctuate in time between instant and a few seconds
+    // I believe the slowest aspect is solving for the cross because It's 
+    // supposed to randomly move pieces until 4 pieces are in place
+    // an optimization could be splitting it up the 4 pieces to separate solves
+    // also, occasionally the third or fourth f2l stage fails 
     findSolution(cube) {
         // solve cross
         let solution = this.findSolutionToCross(cube, []);
@@ -116,6 +130,8 @@ class CubeSolver {
 
         return solution;
     }
+
+    // =======================================================================
 
     findSolutionToCross(cube, path, prevMove) {
         // solution found
@@ -245,6 +261,8 @@ class CubeSolver {
         return null;
     }
 
+    // =======================================================================
+
     solveFirstF2L(cube, path, prevMove) {
         // solution found
         if (isCrossSolved(cube) && isFirstF2LSolved(cube)) {
@@ -252,7 +270,7 @@ class CubeSolver {
         }
 
         // num moves exceeded
-        if (path.length > 8) {
+        if (path.length > MAX_F2L_MOVES) {
             return null;
         }
 
@@ -372,6 +390,8 @@ class CubeSolver {
         return null;
     }
 
+    // =======================================================================
+
     solveSecondF2L(cube, path, prevMove) {
         // solution found
         if (isCrossSolved(cube) 
@@ -381,7 +401,7 @@ class CubeSolver {
         }
 
         // num moves exceeded
-        if (path.length > 8) {
+        if (path.length > MAX_F2L_MOVES) {
             return null;
         }
 
@@ -465,6 +485,8 @@ class CubeSolver {
         return null;
     }
 
+    // =======================================================================
+
     solveThirdF2L(cube, path, prevMove) {
         // solution found
         if (isCrossSolved(cube) 
@@ -475,13 +497,31 @@ class CubeSolver {
         }
 
         // num moves exceeded
-        if (path.length > 8) {
+        if (path.length > MAX_F2L_MOVES) {
             return null;
         }
 
         // path not found
         // keep searching
         let result;
+        // front
+        if (prevMove != MOVE_FPRIME) {
+            cube.f();
+            path.push(MOVE_F);
+            result = this.solveThirdF2L(cube, path, MOVE_F);
+            if (result != null) return result;
+            cube.fPrime();
+            path.pop();
+        }
+        // front prime
+        if (prevMove != MOVE_F) {
+            cube.fPrime();
+            path.push(MOVE_FPRIME);
+            result = this.solveThirdF2L(cube, path, MOVE_FPRIME);
+            if (result != null) return result;
+            cube.f();
+            path.pop();
+        }
         // right 
         if (prevMove != MOVE_RPRIME) {
             cube.r();
@@ -541,6 +581,8 @@ class CubeSolver {
         return null;
     }
 
+    // =======================================================================
+
     solveFourthF2L(cube, path, prevMove) {
         // solution found
         if (isCrossSolved(cube) 
@@ -552,7 +594,7 @@ class CubeSolver {
         }
 
         // num moves exceeded
-        if (path.length > 10) {
+        if (path.length > MAX_F2L_MOVES) {
             return null;
         }
 
@@ -612,6 +654,8 @@ class CubeSolver {
         return null;
     }
 
+    // =======================================================================
+
     solveYellowCross(cube, path, prevMove) {
         // solution found
         if (isYellowCrossSolved(cube)) {
@@ -619,7 +663,7 @@ class CubeSolver {
         }
 
         // num moves exceeded
-        if (path.length > 30) {
+        if (path.length > MAX_YELLOW_CROSS) {
             return null;
         }
 
@@ -677,6 +721,8 @@ class CubeSolver {
         return null;
     }
 
+    // =======================================================================
+
     solveYellowFace(cube, path, prevMove) {
         // solution found
         if (isYellowCornersOrientated(cube)) {
@@ -684,31 +730,13 @@ class CubeSolver {
         }
 
         // num moves exceeded
-        if (path.length > 30) {
+        if (path.length > MAX_YELLOW_CORNERS) {
             return null;
         }
 
         // path not found
         // keep searching
         let result;
-        // up 
-        if (prevMove != MOVE_U && prevMove != MOVE_UPRIME) {
-            cube.u();
-            path.push(MOVE_U);
-            result = this.solveYellowFace(cube, path, MOVE_U);
-            if (result != null) return result;
-            cube.uPrime();
-            path.pop();
-        }
-        // up prime
-        if (prevMove != MOVE_U && prevMove != MOVE_UPRIME) {
-            cube.uPrime();
-            path.push(MOVE_UPRIME);
-            result = this.solveYellowFace(cube, path, MOVE_UPRIME);
-            if (result != null) return result;
-            cube.u();
-            path.pop();
-        }
         // Fishy alg
         cube.r();
         path.push(MOVE_R);
@@ -746,9 +774,30 @@ class CubeSolver {
         cube.rPrime();
         path.pop();
 
+        // up 
+        if (prevMove != MOVE_U && prevMove != MOVE_UPRIME) {
+            cube.u();
+            path.push(MOVE_U);
+            result = this.solveYellowFace(cube, path, MOVE_U);
+            if (result != null) return result;
+            cube.uPrime();
+            path.pop();
+        }
+        // up prime
+        if (prevMove != MOVE_U && prevMove != MOVE_UPRIME) {
+            cube.uPrime();
+            path.push(MOVE_UPRIME);
+            result = this.solveYellowFace(cube, path, MOVE_UPRIME);
+            if (result != null) return result;
+            cube.u();
+            path.pop();
+        }
+
         // no solution found
         return null;
     }
+
+    // =======================================================================
 
     solveYellowCorners(cube, path, prevMove) {
         // solution found
@@ -757,7 +806,7 @@ class CubeSolver {
         }
 
         // num moves exceeded
-        if (path.length > 30) {
+        if (path.length > MAX_YELLOW_CORNERS) {
             return null;
         }
 
@@ -852,6 +901,8 @@ class CubeSolver {
         return null;
     }
 
+    // =======================================================================
+
     solveYellowEdges(cube, path, prevMove) {
         // solution found
         if (isYellowCornersSolved(cube) && isYellowEdgesSolved(cube)) {
@@ -859,7 +910,7 @@ class CubeSolver {
         }
 
         // num moves exceeded
-        if (path.length > 60) {
+        if (path.length > MAX_YELLOW_EDGES) {
             return null;
         }
 
@@ -942,4 +993,9 @@ class CubeSolver {
         return null;
     }
 
+    // =======================================================================
+
 }
+
+
+// =======================================================================

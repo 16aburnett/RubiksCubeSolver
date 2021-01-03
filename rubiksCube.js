@@ -533,6 +533,7 @@ class RubiksCube {
         this.data[DOWN + 2] = this.data[DOWN + 8];
         this.data[DOWN + 8] = corner;
     }
+    // these are not yet implemented because they are not needed
     m() {
 
     }

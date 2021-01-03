@@ -4,6 +4,8 @@
     January 2 2020
 */
 
+// =======================================================================
+
 let rubiksCube; 
 let scrambled = false;
 let shouldScramble = false;
@@ -12,6 +14,8 @@ let amountToScramble = SCRAMBLE_LENGTH;
 let solver; 
 let isSolving = false;
 let solution = [];
+
+// =======================================================================
 
 function setup() {
     // setup canvas
@@ -22,6 +26,8 @@ function setup() {
     rubiksCube = new RubiksCube();
     solver = new CubeSolver();
 }
+
+// =======================================================================
 
 function draw() {
     background(130, 130, 250);
@@ -45,9 +51,12 @@ function draw() {
     }
 
     else if (isSolving) {
-        if (solution.length == 0) {
+        if (rubiksCube.isSolved()) {
             isSolving = false;
-            console.log("no solution");
+        }
+        else if (solution.length == 0) {
+            isSolving = false;
+            console.log("bot could not find a solution");
         }
         let move = solution[0];
         solution = solution.slice(1);
@@ -58,21 +67,38 @@ function draw() {
     rubiksCube.draw();
 }
 
+// =======================================================================
+
+// activates the bot and loads solution 
 function solve() {
+    console.log("Thinking...");
+
     isSolving = true;
     let tempCube = new RubiksCube();
     tempCube.data = rubiksCube.data.slice();
     solution = solver.findSolution(tempCube);
+
+    console.log("Solution found that has " + solution.length + " moves.")
+    console.log("Solving...")
+
 }
 
+// =======================================================================
+
+// activates scramble 
 function scramble () {
     shouldScramble = true;
     amountToScramble = SCRAMBLE_LENGTH;
     scrambled = true;
 }
 
+// =======================================================================
+
+// sets the cube to the solved state
 function reset () {
     rubiksCube.reset();
     scrambled = false;
     shouldScramble = false;
 }
+
+// =======================================================================

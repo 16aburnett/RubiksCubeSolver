@@ -23,7 +23,7 @@ main {
 }
 
 #controlsHeader {
-    background-color: #8888ff;
+    background-color: rgb(130, 130, 250);
     padding: 10px;
     border-bottom: 1px solid #222222;
 }

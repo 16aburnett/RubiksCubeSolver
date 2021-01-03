@@ -1,0 +1,47 @@
+/*
+    Rubiks Cube Solver
+    By Amy Burnett
+    January 2 2020
+*/
+
+body {
+    height: 100%;
+}
+
+main {
+    width: 50%;
+    float: left;
+}
+
+.controls {
+    background-color: #fff;
+    min-height: 700px;
+    float: right;
+    width: 50%;
+    height: 100%;
+    box-shadow: 2px 2px 5px #777;
+}
+
+#controlsHeader {
+    background-color: #8888ff;
+    padding: 10px;
+    border-bottom: 1px solid #222222;
+}
+
+#controlsContainer {
+    padding: 10px;
+}
+
+.controlGroup {
+    display: block;
+}
+
+button {
+    width: 49%;
+    font-size: large;
+    height: 60px;
+}
+
+button:hover {
+    cursor: pointer;
+}

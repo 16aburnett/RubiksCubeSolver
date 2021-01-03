@@ -1,0 +1,58 @@
+<!--
+    Rubiks Cube Solver
+    By Amy Burnett
+    January 2 2020
+-->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css">
+        <script type="text/javascript" src="p5.min.js"></script>
+        <script type="text/javascript" src="rubiksCube.js"></script>
+        <script type="text/javascript" src="cubeSolver.js"></script>
+        <script type="text/javascript" src="sketch.js"></script>
+    </head>
+    <body>
+        <main></main>
+        <div class="controls">
+            <div id="controlsHeader">
+                <h2>Rubik's Cube Solver</h2>
+                <h5 style="margin-top:-10px">Created by Amy Burnett</h5>
+            </div>
+            <div id="controlsContainer">
+                <div class="controlGroup">
+                    <button onclick="scramble()">Scramble</button>
+                    <button onclick="reset()">Reset</button>
+                </div>
+                <div class="controlGroup">
+                    <button onclick="rubiksCube.l()">L</button>
+                    <button onclick="rubiksCube.lPrime()">L'</button>
+                </div>
+                <div class="controlGroup">
+                    <button onclick="rubiksCube.f()">F</button>
+                    <button onclick="rubiksCube.fPrime()">F'</button>
+                </div>
+                <div class="controlGroup">
+                    <button onclick="rubiksCube.r()">R</button>
+                    <button onclick="rubiksCube.rPrime()">R'</button>
+                </div>
+                <div class="controlGroup">
+                    <button onclick="rubiksCube.u()">U</button>
+                    <button onclick="rubiksCube.uPrime()">U'</button>
+                </div>
+                <div class="controlGroup">
+                    <button onclick="rubiksCube.b()">B</button>
+                    <button onclick="rubiksCube.bPrime()">B'</button>
+                </div>
+                <div class="controlGroup">
+                    <button onclick="rubiksCube.d()">D</button>
+                    <button onclick="rubiksCube.dPrime()">D'</button>
+                </div>
+                <div class="controlGroup">
+                    <button onclick="solve()">Solve</button>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

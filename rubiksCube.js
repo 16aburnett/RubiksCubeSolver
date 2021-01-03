@@ -33,6 +33,9 @@ let MOVE_UPRIME = 9;
 let MOVE_D      = 10;
 let MOVE_DPRIME = 11;
 let NUM_VALID_MOVES = 12;
+// drawing
+let stickerSize = window.innerWidth / 35;
+let faceSize = stickerSize * 3;
 
 // =======================================================================
 
@@ -571,8 +574,6 @@ class RubiksCube {
 
         let startX = 50;
         let startY = 275;
-        let stickerSize = 50;
-        let faceSize = stickerSize * 3;
         strokeWeight(3);
         stroke('black');
 

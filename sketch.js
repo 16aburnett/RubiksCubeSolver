@@ -19,7 +19,7 @@ let solution = [];
 
 function setup() {
     // setup canvas
-    createCanvas(700, 700);
+    createCanvas(window.innerWidth / 2, 700);
     translate(0, 0);
     background(130, 130, 250);
     // setup rubiks cube model

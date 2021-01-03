@@ -9,9 +9,9 @@
 
 // max number of moves
 const MAX_CROSS_MOVES = 8;
-const MAX_F2L_MOVES = 11;
+const MAX_F2L_MOVES = 12;
 const MAX_YELLOW_CROSS = 20;
-const MAX_YELLOW_CORNERS = 30;
+const MAX_YELLOW_CORNERS = 40;
 const MAX_YELLOW_EDGES = 40;
 
 // =======================================================================
@@ -107,40 +107,91 @@ class CubeSolver {
 
     // returns a list of moves to solve the cube from the current state
     // this can fluctuate in time between instant and a few seconds
-    // I believe the slowest aspect is solving for the cross because It's 
-    // supposed to randomly move pieces until 4 pieces are in place
-    // an optimization could be splitting it up the 4 pieces to separate solves
-    // also, occasionally the third or fourth f2l stage fails 
     findSolution(cube) {
+        let solution = [];
         // solve cross
-        let solution = this.findSolutionToCross(cube, []);
+        for (var i = 2; i < MAX_CROSS_MOVES; ++i) {
+            let temp = this.findSolutionToCross(cube, [], -1, i);
+            if (temp != null) {
+                solution = solution.concat(temp);
+                break;
+            }
+        }
         // solve f2l 
-        solution = solution.concat(this.solveFirstF2L(cube, []));
-        solution = solution.concat(this.solveSecondF2L(cube, []));
-        solution = solution.concat(this.solveThirdF2L(cube, []));
-        solution = solution.concat(this.solveFourthF2L(cube, []));
+        for (var i = 2; i < MAX_F2L_MOVES; ++i) {
+            let temp = this.solveFirstF2L(cube, [], -1, i);
+            if (temp != null) {
+                solution = solution.concat(temp);
+                break;
+            }
+        }
+        for (var i = 2; i < MAX_F2L_MOVES; ++i) {
+            let temp = this.solveSecondF2L(cube, [], -1, i);
+            if (temp != null) {
+                solution = solution.concat(temp);
+                break;
+            }
+        }
+        for (var i = 2; i < MAX_F2L_MOVES; ++i) {
+            let temp = this.solveThirdF2L(cube, [], -1, i);
+            if (temp != null) {
+                solution = solution.concat(temp);
+                break;
+            }
+        }
+        for (var i = 2; i < MAX_F2L_MOVES; ++i) {
+            let temp = this.solveFourthF2L(cube, [], -1, i);
+            if (temp != null) {
+                solution = solution.concat(temp);
+                break;
+            }
+        }
         // OLL: yellow cross
-        solution = solution.concat(this.solveYellowCross(cube, [], -1));
+        for (var i = 2; i < MAX_YELLOW_CROSS; ++i) {
+            let temp = this.solveYellowCross(cube, [], -1, i);
+            if (temp != null) {
+                solution = solution.concat(temp);
+                break;
+            }
+        }
         // OLL: yellow face
-        solution = solution.concat(this.solveYellowFace(cube, [], -1));
+        for (var i = 2; i < MAX_YELLOW_CORNERS; ++i) {
+            let temp = this.solveYellowFace(cube, [], -1, i);
+            if (temp != null) {
+                solution = solution.concat(temp);
+                break;
+            }
+        }
         // PLL: yellow corners
-        solution = solution.concat(this.solveYellowCorners(cube, [], -1));
+        for (var i = 2; i < MAX_YELLOW_CORNERS; ++i) {
+            let temp = this.solveYellowCorners(cube, [], -1, i);
+            if (temp != null) {
+                solution = solution.concat(temp);
+                break;
+            }
+        }
         // PLL: yellow edges
-        solution = solution.concat(this.solveYellowEdges(cube, [], -1));
+        for (var i = 2; i < MAX_YELLOW_EDGES; ++i) {
+            let temp = this.solveYellowEdges(cube, [], -1, i);
+            if (temp != null) {
+                solution = solution.concat(temp);
+                break;
+            }
+        }
 
         return solution;
     }
 
     // =======================================================================
 
-    findSolutionToCross(cube, path, prevMove) {
+    findSolutionToCross(cube, path, prevMove, limit) {
         // solution found
         if (isCrossSolved(cube)) {
             return path;
         }
 
         // num moves exceeded
-        if (path.length > MAX_CROSS_MOVES) {
+        if (path.length > limit) {
             return null;
         }
 
@@ -152,7 +203,7 @@ class CubeSolver {
         if (prevMove != MOVE_LPRIME) {
             cube.l();
             path.push(MOVE_L);
-            result = this.findSolutionToCross(cube, path, MOVE_L);
+            result = this.findSolutionToCross(cube, path, MOVE_L, limit);
             if (result != null) return result;
             cube.lPrime();
             path.pop();
@@ -161,7 +212,7 @@ class CubeSolver {
         if (prevMove != MOVE_L) {
             cube.lPrime();
             path.push(MOVE_LPRIME);
-            result = this.findSolutionToCross(cube, path, MOVE_LPRIME);
+            result = this.findSolutionToCross(cube, path, MOVE_LPRIME, limit);
             if (result != null) return result;
             cube.l();
             path.pop();
@@ -170,7 +221,7 @@ class CubeSolver {
         if (prevMove != MOVE_FPRIME) {
             cube.f();
             path.push(MOVE_F);
-            result = this.findSolutionToCross(cube, path, MOVE_F);
+            result = this.findSolutionToCross(cube, path, MOVE_F, limit);
             if (result != null) return result;
             cube.fPrime();
             path.pop();
@@ -179,7 +230,7 @@ class CubeSolver {
         if (prevMove != MOVE_F) {
             cube.fPrime();
             path.push(MOVE_FPRIME);
-            result = this.findSolutionToCross(cube, path, MOVE_FPRIME);
+            result = this.findSolutionToCross(cube, path, MOVE_FPRIME, limit);
             if (result != null) return result;
             cube.f();
             path.pop();
@@ -188,7 +239,7 @@ class CubeSolver {
         if (prevMove != MOVE_RPRIME) {
             cube.r();
             path.push(MOVE_R);
-            result = this.findSolutionToCross(cube, path, MOVE_R);
+            result = this.findSolutionToCross(cube, path, MOVE_R, limit);
             if (result != null) return result;
             cube.rPrime();
             path.pop();
@@ -197,7 +248,7 @@ class CubeSolver {
         if (prevMove != MOVE_R) {
             cube.rPrime();
             path.push(MOVE_RPRIME);
-            result = this.findSolutionToCross(cube, path, MOVE_RPRIME);
+            result = this.findSolutionToCross(cube, path, MOVE_RPRIME, limit);
             if (result != null) return result;
             cube.r();
             path.pop();
@@ -206,7 +257,7 @@ class CubeSolver {
         if (prevMove != MOVE_BPRIME) {
             cube.b();
             path.push(MOVE_B);
-            result = this.findSolutionToCross(cube, path, MOVE_B);
+            result = this.findSolutionToCross(cube, path, MOVE_B, limit);
             if (result != null) return result;
             cube.bPrime();
             path.pop();
@@ -215,7 +266,7 @@ class CubeSolver {
         if (prevMove != MOVE_B) {
             cube.bPrime();
             path.push(MOVE_BPRIME);
-            result = this.findSolutionToCross(cube, path, MOVE_BPRIME);
+            result = this.findSolutionToCross(cube, path, MOVE_BPRIME, limit);
             if (result != null) return result;
             path.pop();
             cube.b();
@@ -224,7 +275,7 @@ class CubeSolver {
         if (prevMove != MOVE_UPRIME) {
             cube.u();
             path.push(MOVE_U);
-            result = this.findSolutionToCross(cube, path, MOVE_U);
+            result = this.findSolutionToCross(cube, path, MOVE_U, limit);
             if (result != null) return result;
             cube.uPrime();
             path.pop();
@@ -233,7 +284,7 @@ class CubeSolver {
         if (prevMove != MOVE_U) {
             cube.uPrime();
             path.push(MOVE_UPRIME);
-            result = this.findSolutionToCross(cube, path, MOVE_UPRIME);
+            result = this.findSolutionToCross(cube, path, MOVE_UPRIME, limit);
             if (result != null) return result;
             cube.u();
             path.pop();
@@ -242,7 +293,7 @@ class CubeSolver {
         if (prevMove != MOVE_DPRIME) {
             cube.d();
             path.push(MOVE_D);
-            result = this.findSolutionToCross(cube, path, MOVE_D);
+            result = this.findSolutionToCross(cube, path, MOVE_D, limit);
             if (result != null) return result;
             cube.dPrime();
             path.pop();
@@ -251,7 +302,7 @@ class CubeSolver {
         if (prevMove != MOVE_D) {
             cube.dPrime();
             path.push(MOVE_DPRIME);
-            result = this.findSolutionToCross(cube, path, MOVE_DPRIME);
+            result = this.findSolutionToCross(cube, path, MOVE_DPRIME, limit);
             if (result != null) return result;
             cube.d();
             path.pop();
@@ -263,14 +314,14 @@ class CubeSolver {
 
     // =======================================================================
 
-    solveFirstF2L(cube, path, prevMove) {
+    solveFirstF2L(cube, path, prevMove, limit) {
         // solution found
         if (isCrossSolved(cube) && isFirstF2LSolved(cube)) {
             return path;
         }
 
         // num moves exceeded
-        if (path.length > MAX_F2L_MOVES) {
+        if (path.length > limit) {
             return null;
         }
 
@@ -281,7 +332,7 @@ class CubeSolver {
         if (prevMove != MOVE_LPRIME) {
             cube.l();
             path.push(MOVE_L);
-            result = this.solveFirstF2L(cube, path, MOVE_L);
+            result = this.solveFirstF2L(cube, path, MOVE_L, limit);
             if (result != null) return result;
             cube.lPrime();
             path.pop();
@@ -290,7 +341,7 @@ class CubeSolver {
         if (prevMove != MOVE_L) {
             cube.lPrime();
             path.push(MOVE_LPRIME);
-            result = this.solveFirstF2L(cube, path, MOVE_LPRIME);
+            result = this.solveFirstF2L(cube, path, MOVE_LPRIME, limit);
             if (result != null) return result;
             cube.l();
             path.pop();
@@ -299,7 +350,7 @@ class CubeSolver {
         if (prevMove != MOVE_FPRIME) {
             cube.f();
             path.push(MOVE_F);
-            result = this.solveFirstF2L(cube, path, MOVE_F);
+            result = this.solveFirstF2L(cube, path, MOVE_F, limit);
             if (result != null) return result;
             cube.fPrime();
             path.pop();
@@ -308,7 +359,7 @@ class CubeSolver {
         if (prevMove != MOVE_F) {
             cube.fPrime();
             path.push(MOVE_FPRIME);
-            result = this.solveFirstF2L(cube, path, MOVE_FPRIME);
+            result = this.solveFirstF2L(cube, path, MOVE_FPRIME, limit);
             if (result != null) return result;
             cube.f();
             path.pop();
@@ -317,7 +368,7 @@ class CubeSolver {
         if (prevMove != MOVE_RPRIME) {
             cube.r();
             path.push(MOVE_R);
-            result = this.solveFirstF2L(cube, path, MOVE_R);
+            result = this.solveFirstF2L(cube, path, MOVE_R, limit);
             if (result != null) return result;
             cube.rPrime();
             path.pop();
@@ -326,7 +377,7 @@ class CubeSolver {
         if (prevMove != MOVE_R) {
             cube.rPrime();
             path.push(MOVE_RPRIME);
-            result = this.solveFirstF2L(cube, path, MOVE_RPRIME);
+            result = this.solveFirstF2L(cube, path, MOVE_RPRIME, limit);
             if (result != null) return result;
             cube.r();
             path.pop();
@@ -335,7 +386,7 @@ class CubeSolver {
         if (prevMove != MOVE_BPRIME) {
             cube.b();
             path.push(MOVE_B);
-            result = this.solveFirstF2L(cube, path, MOVE_B);
+            result = this.solveFirstF2L(cube, path, MOVE_B, limit);
             if (result != null) return result;
             cube.bPrime();
             path.pop();
@@ -344,7 +395,7 @@ class CubeSolver {
         if (prevMove != MOVE_B) {
             cube.bPrime();
             path.push(MOVE_BPRIME);
-            result = this.solveFirstF2L(cube, path, MOVE_BPRIME);
+            result = this.solveFirstF2L(cube, path, MOVE_BPRIME, limit);
             if (result != null) return result;
             path.pop();
             cube.b();
@@ -353,7 +404,7 @@ class CubeSolver {
         if (prevMove != MOVE_UPRIME) {
             cube.u();
             path.push(MOVE_U);
-            result = this.solveFirstF2L(cube, path, MOVE_U);
+            result = this.solveFirstF2L(cube, path, MOVE_U, limit);
             if (result != null) return result;
             cube.uPrime();
             path.pop();
@@ -362,7 +413,7 @@ class CubeSolver {
         if (prevMove != MOVE_U) {
             cube.uPrime();
             path.push(MOVE_UPRIME);
-            result = this.solveFirstF2L(cube, path, MOVE_UPRIME);
+            result = this.solveFirstF2L(cube, path, MOVE_UPRIME, limit);
             if (result != null) return result;
             cube.u();
             path.pop();
@@ -371,7 +422,7 @@ class CubeSolver {
         if (prevMove != MOVE_DPRIME) {
             cube.d();
             path.push(MOVE_D);
-            result = this.solveFirstF2L(cube, path, MOVE_D);
+            result = this.solveFirstF2L(cube, path, MOVE_D, limit);
             if (result != null) return result;
             cube.dPrime();
             path.pop();
@@ -380,7 +431,7 @@ class CubeSolver {
         if (prevMove != MOVE_D) {
             cube.dPrime();
             path.push(MOVE_DPRIME);
-            result = this.solveFirstF2L(cube, path, MOVE_DPRIME);
+            result = this.solveFirstF2L(cube, path, MOVE_DPRIME, limit);
             if (result != null) return result;
             cube.d();
             path.pop();
@@ -392,7 +443,7 @@ class CubeSolver {
 
     // =======================================================================
 
-    solveSecondF2L(cube, path, prevMove) {
+    solveSecondF2L(cube, path, prevMove, limit) {
         // solution found
         if (isCrossSolved(cube) 
             && isFirstF2LSolved(cube) 
@@ -401,7 +452,7 @@ class CubeSolver {
         }
 
         // num moves exceeded
-        if (path.length > MAX_F2L_MOVES) {
+        if (path.length > limit) {
             return null;
         }
 
@@ -412,7 +463,7 @@ class CubeSolver {
         if (prevMove != MOVE_FPRIME) {
             cube.f();
             path.push(MOVE_F);
-            result = this.solveSecondF2L(cube, path, MOVE_F);
+            result = this.solveSecondF2L(cube, path, MOVE_F, limit);
             if (result != null) return result;
             cube.fPrime();
             path.pop();
@@ -421,7 +472,7 @@ class CubeSolver {
         if (prevMove != MOVE_F) {
             cube.fPrime();
             path.push(MOVE_FPRIME);
-            result = this.solveSecondF2L(cube, path, MOVE_FPRIME);
+            result = this.solveSecondF2L(cube, path, MOVE_FPRIME, limit);
             if (result != null) return result;
             cube.f();
             path.pop();
@@ -430,7 +481,7 @@ class CubeSolver {
         if (prevMove != MOVE_RPRIME) {
             cube.r();
             path.push(MOVE_R);
-            result = this.solveSecondF2L(cube, path, MOVE_R);
+            result = this.solveSecondF2L(cube, path, MOVE_R, limit);
             if (result != null) return result;
             cube.rPrime();
             path.pop();
@@ -439,7 +490,7 @@ class CubeSolver {
         if (prevMove != MOVE_R) {
             cube.rPrime();
             path.push(MOVE_RPRIME);
-            result = this.solveSecondF2L(cube, path, MOVE_RPRIME);
+            result = this.solveSecondF2L(cube, path, MOVE_RPRIME, limit);
             if (result != null) return result;
             cube.r();
             path.pop();
@@ -448,7 +499,7 @@ class CubeSolver {
         if (prevMove != MOVE_BPRIME) {
             cube.b();
             path.push(MOVE_B);
-            result = this.solveSecondF2L(cube, path, MOVE_B);
+            result = this.solveSecondF2L(cube, path, MOVE_B, limit);
             if (result != null) return result;
             cube.bPrime();
             path.pop();
@@ -457,7 +508,7 @@ class CubeSolver {
         if (prevMove != MOVE_B) {
             cube.bPrime();
             path.push(MOVE_BPRIME);
-            result = this.solveSecondF2L(cube, path, MOVE_BPRIME);
+            result = this.solveSecondF2L(cube, path, MOVE_BPRIME, limit);
             if (result != null) return result;
             path.pop();
             cube.b();
@@ -466,7 +517,7 @@ class CubeSolver {
         if (prevMove != MOVE_UPRIME) {
             cube.u();
             path.push(MOVE_U);
-            result = this.solveSecondF2L(cube, path, MOVE_U);
+            result = this.solveSecondF2L(cube, path, MOVE_U, limit);
             if (result != null) return result;
             cube.uPrime();
             path.pop();
@@ -475,7 +526,7 @@ class CubeSolver {
         if (prevMove != MOVE_U) {
             cube.uPrime();
             path.push(MOVE_UPRIME);
-            result = this.solveSecondF2L(cube, path, MOVE_UPRIME);
+            result = this.solveSecondF2L(cube, path, MOVE_UPRIME, limit);
             if (result != null) return result;
             cube.u();
             path.pop();
@@ -487,7 +538,7 @@ class CubeSolver {
 
     // =======================================================================
 
-    solveThirdF2L(cube, path, prevMove) {
+    solveThirdF2L(cube, path, prevMove, limit) {
         // solution found
         if (isCrossSolved(cube) 
             && isFirstF2LSolved(cube) 
@@ -497,7 +548,7 @@ class CubeSolver {
         }
 
         // num moves exceeded
-        if (path.length > MAX_F2L_MOVES) {
+        if (path.length > limit) {
             return null;
         }
 
@@ -508,7 +559,7 @@ class CubeSolver {
         if (prevMove != MOVE_FPRIME) {
             cube.f();
             path.push(MOVE_F);
-            result = this.solveThirdF2L(cube, path, MOVE_F);
+            result = this.solveThirdF2L(cube, path, MOVE_F, limit);
             if (result != null) return result;
             cube.fPrime();
             path.pop();
@@ -517,7 +568,7 @@ class CubeSolver {
         if (prevMove != MOVE_F) {
             cube.fPrime();
             path.push(MOVE_FPRIME);
-            result = this.solveThirdF2L(cube, path, MOVE_FPRIME);
+            result = this.solveThirdF2L(cube, path, MOVE_FPRIME, limit);
             if (result != null) return result;
             cube.f();
             path.pop();
@@ -526,7 +577,7 @@ class CubeSolver {
         if (prevMove != MOVE_RPRIME) {
             cube.r();
             path.push(MOVE_R);
-            result = this.solveThirdF2L(cube, path, MOVE_R);
+            result = this.solveThirdF2L(cube, path, MOVE_R, limit);
             if (result != null) return result;
             cube.rPrime();
             path.pop();
@@ -535,7 +586,7 @@ class CubeSolver {
         if (prevMove != MOVE_R) {
             cube.rPrime();
             path.push(MOVE_RPRIME);
-            result = this.solveThirdF2L(cube, path, MOVE_RPRIME);
+            result = this.solveThirdF2L(cube, path, MOVE_RPRIME, limit);
             if (result != null) return result;
             cube.r();
             path.pop();
@@ -544,7 +595,7 @@ class CubeSolver {
         if (prevMove != MOVE_BPRIME) {
             cube.b();
             path.push(MOVE_B);
-            result = this.solveThirdF2L(cube, path, MOVE_B);
+            result = this.solveThirdF2L(cube, path, MOVE_B, limit);
             if (result != null) return result;
             cube.bPrime();
             path.pop();
@@ -553,7 +604,7 @@ class CubeSolver {
         if (prevMove != MOVE_B) {
             cube.bPrime();
             path.push(MOVE_BPRIME);
-            result = this.solveThirdF2L(cube, path, MOVE_BPRIME);
+            result = this.solveThirdF2L(cube, path, MOVE_BPRIME, limit);
             if (result != null) return result;
             path.pop();
             cube.b();
@@ -562,7 +613,7 @@ class CubeSolver {
         if (prevMove != MOVE_UPRIME) {
             cube.u();
             path.push(MOVE_U);
-            result = this.solveThirdF2L(cube, path, MOVE_U);
+            result = this.solveThirdF2L(cube, path, MOVE_U, limit);
             if (result != null) return result;
             cube.uPrime();
             path.pop();
@@ -571,7 +622,7 @@ class CubeSolver {
         if (prevMove != MOVE_U) {
             cube.uPrime();
             path.push(MOVE_UPRIME);
-            result = this.solveThirdF2L(cube, path, MOVE_UPRIME);
+            result = this.solveThirdF2L(cube, path, MOVE_UPRIME, limit);
             if (result != null) return result;
             cube.u();
             path.pop();
@@ -583,7 +634,7 @@ class CubeSolver {
 
     // =======================================================================
 
-    solveFourthF2L(cube, path, prevMove) {
+    solveFourthF2L(cube, path, prevMove, limit) {
         // solution found
         if (isCrossSolved(cube) 
             && isFirstF2LSolved(cube) 
@@ -594,7 +645,7 @@ class CubeSolver {
         }
 
         // num moves exceeded
-        if (path.length > MAX_F2L_MOVES) {
+        if (path.length > limit) {
             return null;
         }
 
@@ -605,14 +656,14 @@ class CubeSolver {
         if (prevMove != MOVE_L && prevMove != MOVE_LPRIME) {
             cube.l();
             path.push(MOVE_L);
-            result = this.solveFourthF2L(cube, path, MOVE_L);
+            result = this.solveFourthF2L(cube, path, MOVE_L, limit);
             if (result != null) return result;
             cube.lPrime();
             path.pop();
             // left prime
             cube.lPrime();
             path.push(MOVE_LPRIME);
-            result = this.solveFourthF2L(cube, path, MOVE_LPRIME);
+            result = this.solveFourthF2L(cube, path, MOVE_LPRIME, limit);
             if (result != null) return result;
             cube.l();
             path.pop();
@@ -621,14 +672,14 @@ class CubeSolver {
         if (prevMove != MOVE_B && prevMove != MOVE_BPRIME) {
             cube.b();
             path.push(MOVE_B);
-            result = this.solveFourthF2L(cube, path,MOVE_B);
+            result = this.solveFourthF2L(cube, path,MOVE_B, limit);
             if (result != null) return result;
             cube.bPrime();
             path.pop();
             // back prime
             cube.bPrime();
             path.push(MOVE_BPRIME);
-            result = this.solveFourthF2L(cube, path,MOVE_BPRIME);
+            result = this.solveFourthF2L(cube, path,MOVE_BPRIME, limit);
             if (result != null) return result;
             path.pop();
             cube.b();
@@ -637,14 +688,14 @@ class CubeSolver {
         if (prevMove != MOVE_U && prevMove != MOVE_UPRIME) {
             cube.u();
             path.push(MOVE_U);
-            result = this.solveFourthF2L(cube, path, MOVE_U);
+            result = this.solveFourthF2L(cube, path, MOVE_U, limit);
             if (result != null) return result;
             cube.uPrime();
             path.pop();
             // up prime
             cube.uPrime();
             path.push(MOVE_UPRIME);
-            result = this.solveFourthF2L(cube, path, MOVE_UPRIME);
+            result = this.solveFourthF2L(cube, path, MOVE_UPRIME, limit);
             if (result != null) return result;
             cube.u();
             path.pop();
@@ -656,14 +707,14 @@ class CubeSolver {
 
     // =======================================================================
 
-    solveYellowCross(cube, path, prevMove) {
+    solveYellowCross(cube, path, prevMove, limit) {
         // solution found
         if (isYellowCrossSolved(cube)) {
             return path;
         }
 
         // num moves exceeded
-        if (path.length > MAX_YELLOW_CROSS) {
+        if (path.length > limit) {
             return null;
         }
 
@@ -674,7 +725,7 @@ class CubeSolver {
         if (prevMove != MOVE_U && prevMove != MOVE_UPRIME) {
             cube.u();
             path.push(MOVE_U);
-            result = this.solveYellowCross(cube, path, MOVE_U);
+            result = this.solveYellowCross(cube, path, MOVE_U, limit);
             if (result != null) return result;
             cube.uPrime();
             path.pop();
@@ -683,7 +734,7 @@ class CubeSolver {
         if (prevMove != MOVE_U && prevMove != MOVE_UPRIME) {
             cube.uPrime();
             path.push(MOVE_UPRIME);
-            result = this.solveYellowCross(cube, path, MOVE_UPRIME);
+            result = this.solveYellowCross(cube, path, MOVE_UPRIME, limit);
             if (result != null) return result;
             cube.u();
             path.pop();
@@ -701,7 +752,7 @@ class CubeSolver {
         path.push(MOVE_UPRIME);
         cube.fPrime();
         path.push(MOVE_FPRIME);
-        result = this.solveYellowCross(cube, path, -1);
+        result = this.solveYellowCross(cube, path, -1, limit);
         if (result != null) return result;
         //undo alg
         cube.f();
@@ -723,14 +774,14 @@ class CubeSolver {
 
     // =======================================================================
 
-    solveYellowFace(cube, path, prevMove) {
+    solveYellowFace(cube, path, prevMove, limit) {
         // solution found
         if (isYellowCornersOrientated(cube)) {
             return path;
         }
 
         // num moves exceeded
-        if (path.length > MAX_YELLOW_CORNERS) {
+        if (path.length > limit) {
             return null;
         }
 
@@ -754,7 +805,7 @@ class CubeSolver {
         path.push(MOVE_U);
         cube.rPrime();
         path.push(MOVE_RPRIME);
-        result = this.solveYellowFace(cube, path, -1);
+        result = this.solveYellowFace(cube, path, -1, limit);
         if (result != null) return result;
         //undo alg
         cube.r();
@@ -778,7 +829,7 @@ class CubeSolver {
         if (prevMove != MOVE_U && prevMove != MOVE_UPRIME) {
             cube.u();
             path.push(MOVE_U);
-            result = this.solveYellowFace(cube, path, MOVE_U);
+            result = this.solveYellowFace(cube, path, MOVE_U, limit);
             if (result != null) return result;
             cube.uPrime();
             path.pop();
@@ -787,7 +838,7 @@ class CubeSolver {
         if (prevMove != MOVE_U && prevMove != MOVE_UPRIME) {
             cube.uPrime();
             path.push(MOVE_UPRIME);
-            result = this.solveYellowFace(cube, path, MOVE_UPRIME);
+            result = this.solveYellowFace(cube, path, MOVE_UPRIME, limit);
             if (result != null) return result;
             cube.u();
             path.pop();
@@ -799,14 +850,14 @@ class CubeSolver {
 
     // =======================================================================
 
-    solveYellowCorners(cube, path, prevMove) {
+    solveYellowCorners(cube, path, prevMove, limit) {
         // solution found
         if (isYellowCornersSolved(cube)) {
             return path;
         }
 
         // num moves exceeded
-        if (path.length > MAX_YELLOW_CORNERS) {
+        if (path.length > limit) {
             return null;
         }
 
@@ -844,7 +895,7 @@ class CubeSolver {
         path.push(MOVE_RPRIME);
         cube.uPrime();
         path.push(MOVE_UPRIME);
-        result = this.solveYellowCorners(cube, path, -1);
+        result = this.solveYellowCorners(cube, path, -1, limit);
         if (result != null) return result;
         //undo alg
         cube.u();
@@ -882,7 +933,7 @@ class CubeSolver {
         if (prevMove != MOVE_UPRIME) {
             cube.u();
             path.push(MOVE_U);
-            result = this.solveYellowCorners(cube, path, MOVE_U);
+            result = this.solveYellowCorners(cube, path, MOVE_U, limit);
             if (result != null) return result;
             cube.uPrime();
             path.pop();
@@ -891,7 +942,7 @@ class CubeSolver {
         if (prevMove != MOVE_U) {
             cube.uPrime();
             path.push(MOVE_UPRIME);
-            result = this.solveYellowCorners(cube, path, MOVE_UPRIME);
+            result = this.solveYellowCorners(cube, path, MOVE_UPRIME, limit);
             if (result != null) return result;
             cube.u();
             path.pop();
@@ -903,14 +954,14 @@ class CubeSolver {
 
     // =======================================================================
 
-    solveYellowEdges(cube, path, prevMove) {
+    solveYellowEdges(cube, path, prevMove, limit) {
         // solution found
         if (isYellowCornersSolved(cube) && isYellowEdgesSolved(cube)) {
             return path;
         }
 
         // num moves exceeded
-        if (path.length > MAX_YELLOW_EDGES) {
+        if (path.length > limit) {
             return null;
         }
 
@@ -942,7 +993,7 @@ class CubeSolver {
         path.push(MOVE_U);
         cube.rPrime();
         path.push(MOVE_RPRIME);
-        result = this.solveYellowEdges(cube, path, -1);
+        result = this.solveYellowEdges(cube, path, -1, limit);
         if (result != null) return result;
         //undo alg
         cube.r();
@@ -974,7 +1025,7 @@ class CubeSolver {
         if (prevMove != MOVE_UPRIME) {
             cube.u();
             path.push(MOVE_U);
-            result = this.solveYellowEdges(cube, path, MOVE_U);
+            result = this.solveYellowEdges(cube, path, MOVE_U, limit);
             if (result != null) return result;
             cube.uPrime();
             path.pop();
@@ -983,7 +1034,7 @@ class CubeSolver {
         if (prevMove != MOVE_U) {
             cube.uPrime();
             path.push(MOVE_UPRIME);
-            result = this.solveYellowEdges(cube, path, MOVE_UPRIME);
+            result = this.solveYellowEdges(cube, path, MOVE_UPRIME, limit);
             if (result != null) return result;
             cube.u();
             path.pop();

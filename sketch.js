@@ -15,6 +15,13 @@ let solver;
 let isSolving = false;
 let solution = [];
 
+// get rubiks cube type from the url
+let cubeType = new URLSearchParams(window.location.search).get("type");
+// 3x3 by default 
+if (cubeType == null) {
+    cubeType = "3x3";
+}
+
 // =======================================================================
 
 function setup() {
@@ -23,8 +30,19 @@ function setup() {
     translate(0, 0);
     background(130, 130, 250);
     // setup rubiks cube model
-    rubiksCube = new RubiksCube();
-    solver = new CubeSolver();
+    if (cubeType == "2x2") {
+        rubiksCube = new RubiksCube2();
+        solver = new CFOPSolver2();
+    }
+    else if (cubeType == "4x4") {
+        rubiksCube = new RubiksCube4();
+        solver = new CFOPSolver3();
+    }
+    // 3x3 by default
+    else {
+        rubiksCube = new RubiksCube3();
+        solver = new CFOPSolver3();
+    }
 }
 
 // =======================================================================
@@ -74,7 +92,17 @@ function solve() {
     console.log("Thinking...");
 
     isSolving = true;
-    let tempCube = new RubiksCube();
+    let tempCube = null;
+    if (cubeType == "2x2") {
+        tempCube = new RubiksCube2();
+    }
+    else if (cubeType == "4x4") {
+        tempCube = new RubiksCube4();
+    }
+    // 3x3 by default
+    else {
+        tempCube = new RubiksCube3();
+    }
     tempCube.data = rubiksCube.data.slice();
     solution = solver.findSolution(tempCube);
 

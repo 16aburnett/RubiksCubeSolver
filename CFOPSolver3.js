@@ -98,7 +98,7 @@ function isYellowEdgesSolved(cube) {
 
 // =======================================================================
 
-class CubeSolver {
+class CFOPSolver3 {
 
     constructor() {
     }
@@ -110,7 +110,7 @@ class CubeSolver {
     findSolution(cube) {
         let solution = [];
         // solve cross
-        for (var i = 2; i < MAX_CROSS_MOVES; ++i) {
+        for (var i = 1; i < MAX_CROSS_MOVES; ++i) {
             let temp = this.findSolutionToCross(cube, [], -1, i);
             if (temp != null) {
                 solution = solution.concat(temp);
@@ -118,28 +118,28 @@ class CubeSolver {
             }
         }
         // solve f2l 
-        for (var i = 2; i < MAX_F2L_MOVES; ++i) {
+        for (var i = 1; i < MAX_F2L_MOVES; ++i) {
             let temp = this.solveFirstF2L(cube, [], -1, i);
             if (temp != null) {
                 solution = solution.concat(temp);
                 break;
             }
         }
-        for (var i = 2; i < MAX_F2L_MOVES; ++i) {
+        for (var i = 1; i < MAX_F2L_MOVES; ++i) {
             let temp = this.solveSecondF2L(cube, [], -1, i);
             if (temp != null) {
                 solution = solution.concat(temp);
                 break;
             }
         }
-        for (var i = 2; i < MAX_F2L_MOVES; ++i) {
+        for (var i = 1; i < MAX_F2L_MOVES; ++i) {
             let temp = this.solveThirdF2L(cube, [], -1, i);
             if (temp != null) {
                 solution = solution.concat(temp);
                 break;
             }
         }
-        for (var i = 2; i < MAX_F2L_MOVES; ++i) {
+        for (var i = 1; i < MAX_F2L_MOVES; ++i) {
             let temp = this.solveFourthF2L(cube, [], -1, i);
             if (temp != null) {
                 solution = solution.concat(temp);
@@ -147,7 +147,7 @@ class CubeSolver {
             }
         }
         // OLL: yellow cross
-        for (var i = 2; i < MAX_YELLOW_CROSS; ++i) {
+        for (var i = 1; i < MAX_YELLOW_CROSS; ++i) {
             let temp = this.solveYellowCross(cube, [], -1, i);
             if (temp != null) {
                 solution = solution.concat(temp);
@@ -155,7 +155,7 @@ class CubeSolver {
             }
         }
         // OLL: yellow face
-        for (var i = 2; i < MAX_YELLOW_CORNERS; ++i) {
+        for (var i = 1; i < MAX_YELLOW_CORNERS; ++i) {
             let temp = this.solveYellowFace(cube, [], -1, i);
             if (temp != null) {
                 solution = solution.concat(temp);
@@ -163,7 +163,7 @@ class CubeSolver {
             }
         }
         // PLL: yellow corners
-        for (var i = 2; i < MAX_YELLOW_CORNERS; ++i) {
+        for (var i = 1; i < MAX_YELLOW_CORNERS; ++i) {
             let temp = this.solveYellowCorners(cube, [], -1, i);
             if (temp != null) {
                 solution = solution.concat(temp);
@@ -171,7 +171,7 @@ class CubeSolver {
             }
         }
         // PLL: yellow edges
-        for (var i = 2; i < MAX_YELLOW_EDGES; ++i) {
+        for (var i = 1; i < MAX_YELLOW_EDGES; ++i) {
             let temp = this.solveYellowEdges(cube, [], -1, i);
             if (temp != null) {
                 solution = solution.concat(temp);

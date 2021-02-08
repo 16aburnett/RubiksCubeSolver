@@ -1,67 +1,29 @@
 /*
-    Rubiks Cube Solver
+    Rubiks Cube 3x3x3 Representation
     By Amy Burnett
     January 2 2020
 */
 
 // =======================================================================
-// Color Enums 
-let ORANGE = 0; 
-let BLUE   = 1;
-let RED    = 2;
-let GREEN  = 3;
-let YELLOW = 4;
-let WHITE  = 5;
-// Face Offsets
-let LEFT   = 0;
-let FRONT  = 9;
-let RIGHT  = 18;
-let BACK   = 27;
-let UP     = 36;
-let DOWN   = 45;
-// Moves 
-let MOVE_L      = 0;
-let MOVE_LPRIME = 1;
-let MOVE_F      = 2;
-let MOVE_FPRIME = 3;
-let MOVE_R      = 4;
-let MOVE_RPRIME = 5;
-let MOVE_B      = 6;
-let MOVE_BPRIME = 7;
-let MOVE_U      = 8;
-let MOVE_UPRIME = 9;
-let MOVE_D      = 10;
-let MOVE_DPRIME = 11;
-let NUM_VALID_MOVES = 12;
-// drawing
-let stickerSize = window.innerWidth / 35;
-let faceSize = stickerSize * 3;
 
 // =======================================================================
 
-function intToMoveString (move) {
-    if (move == MOVE_L)      return "L";
-    if (move == MOVE_LPRIME) return "L'";
-    if (move == MOVE_F)      return "F";
-    if (move == MOVE_FPRIME) return "F'";
-    if (move == MOVE_R)      return "R";
-    if (move == MOVE_RPRIME) return "R'";
-    if (move == MOVE_B)      return "B";
-    if (move == MOVE_BPRIME) return "B'";
-    if (move == MOVE_U)      return "U";
-    if (move == MOVE_UPRIME) return "U'";
-    if (move == MOVE_D)      return "D";
-    if (move == MOVE_DPRIME) return "D'";
-}
-
-// =======================================================================
-
-class RubiksCube {
+class RubiksCube3 {
 
     constructor() {
         this.reset();
+        // Face Offsets
+        this.LEFT   = 0;
+        this.FRONT  = 4;
+        this.RIGHT  = 8;
+        this.BACK   = 12;
+        this.UP     = 16;
+        this.DOWN   = 20;
+        // drawing
+        this.stickerSize = window.innerWidth / 35;
+        this.faceSize = this.stickerSize * 3;
     }
-
+    
     // =======================================================================
 
     isSolved() {
@@ -579,17 +541,17 @@ class RubiksCube {
 
         // draw each face
         // left
-        this.drawFace(startX, startY, stickerSize, LEFT);
+        this.drawFace(startX, startY, this.stickerSize, LEFT);
         // front
-        this.drawFace(startX + faceSize, startY, stickerSize, FRONT);
+        this.drawFace(startX + this.faceSize, startY, this.stickerSize, FRONT);
         // right
-        this.drawFace(startX + faceSize * 2, startY, stickerSize, RIGHT);
+        this.drawFace(startX + this.faceSize * 2, startY, this.stickerSize, RIGHT);
         // back
-        this.drawFace(startX + faceSize * 3, startY, stickerSize, BACK);
+        this.drawFace(startX + this.faceSize * 3, startY, this.stickerSize, BACK);
         // up
-        this.drawFace(startX + faceSize, startY - faceSize, stickerSize, UP);
+        this.drawFace(startX + this.faceSize, startY - this.faceSize, this.stickerSize, UP);
         // down
-        this.drawFace(startX + faceSize, startY + faceSize, stickerSize, DOWN);
+        this.drawFace(startX + this.faceSize, startY + this.faceSize, this.stickerSize, DOWN);
 
     }
 

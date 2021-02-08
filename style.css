@@ -22,21 +22,41 @@ main {
     box-shadow: 2px 2px 5px #777;
 }
 
-#controlsHeader {
+.header {
     background-color: rgb(130, 130, 250);
     padding: 10px;
     border-bottom: 1px solid #222222;
+    margin-bottom: 10px;
 }
 
-#controlsContainer {
-    padding: 10px;
+.navForm {
+    background-color: yellow;
+    display: inline-block;
+}
+
+.navButton {
+    height: 35px;
+    font-size: 15pt;
+    cursor: pointer;
 }
 
 .controlGroup {
+    padding: 10px;
+    margin-bottom: -10px;
+}
+
+.controlHeader {
+    background-color: rgb(130, 130, 250);
+    margin-top: -25px;
+    margin-bottom: -20px;
+    text-align: center;
+}
+
+.controlRow {
     display: block;
 }
 
-button {
+.controlButton {
     width: 49%;
     font-size: large;
     height: 60px;

@@ -9,48 +9,75 @@
     <head>
         <link rel="stylesheet" href="style.css">
         <script type="text/javascript" src="p5.min.js"></script>
-        <script type="text/javascript" src="rubiksCube.js"></script>
-        <script type="text/javascript" src="cubeSolver.js"></script>
+        <script type="text/javascript" src="CubeGlobals.js"></script>
+        <script type="text/javascript" src="RubiksCube2.js"></script>
+        <script type="text/javascript" src="RubiksCube3.js"></script>
+        <script type="text/javascript" src="RubiksCube4.js"></script>
+        <script type="text/javascript" src="CFOPSolver3.js"></script>
+        <script type="text/javascript" src="CFOPSolver2.js"></script>
+        <script type="text/javascript" src="FullSolver2.js"></script>
         <script type="text/javascript" src="sketch.js"></script>
     </head>
     <body>
+        <div class="header">
+            <h2>Rubik's Cube Solver</h2>
+            <h5 style="margin-top:-10px">Created by Amy Burnett</h5>
+            <div class="nav">
+                <form class="navForm" action="./index.html" method="GET">
+                    <input type="input" name="type" value="2x2" hidden>
+                    <input class="navButton" type="submit" value="2x2 Rubik's Cube">
+                </form>
+                <form class="navForm" action="./index.html" method="GET">
+                    <input type="input" name="type" value="3x3" hidden>
+                    <input class="navButton" type="submit" value="3x3 Rubik's Cube">
+                </form>
+                <!-- <form class="navForm" action="./index.html" method="GET">
+                    <input type="input" name="type" value="4x4" hidden>
+                    <input class="navButton" type="submit" value="4x4 Rubik's Cube">
+                </form> -->
+            </div>
+        </div>
         <main></main>
         <div class="controls">
-            <div id="controlsHeader">
-                <h2>Rubik's Cube Solver</h2>
-                <h5 style="margin-top:-10px">Created by Amy Burnett</h5>
+            <div class="controlGroup">
+                <div class="controlHeader">
+                    <h2>Cube Controls</h2>
+                </div>
+                <div class="controlRow">
+                    <button class="controlButton" onclick="scramble()">Scramble</button>
+                    <button class="controlButton" onclick="reset()">Reset</button>
+                </div>
+                <div class="controlRow">
+                    <button class="controlButton" onclick="rubiksCube.l()">L</button>
+                    <button class="controlButton" onclick="rubiksCube.lPrime()">L'</button>
+                </div>
+                <div class="controlRow">
+                    <button class="controlButton" onclick="rubiksCube.f()">F</button>
+                    <button class="controlButton" onclick="rubiksCube.fPrime()">F'</button>
+                </div>
+                <div class="controlRow">
+                    <button class="controlButton" onclick="rubiksCube.r()">R</button>
+                    <button class="controlButton" onclick="rubiksCube.rPrime()">R'</button>
+                </div>
+                <div class="controlRow">
+                    <button class="controlButton" onclick="rubiksCube.u()">U</button>
+                    <button class="controlButton" onclick="rubiksCube.uPrime()">U'</button>
+                </div>
+                <div class="controlRow">
+                    <button class="controlButton" onclick="rubiksCube.b()">B</button>
+                    <button class="controlButton" onclick="rubiksCube.bPrime()">B'</button>
+                </div>
+                <div class="controlRow">
+                    <button class="controlButton" onclick="rubiksCube.d()">D</button>
+                    <button class="controlButton" onclick="rubiksCube.dPrime()">D'</button>
+                </div>
             </div>
-            <div id="controlsContainer">
-                <div class="controlGroup">
-                    <button onclick="scramble()">Scramble</button>
-                    <button onclick="reset()">Reset</button>
+            <div class="controlGroup">
+                <div class="controlHeader">
+                    <h2>Solver Controls</h2>
                 </div>
-                <div class="controlGroup">
-                    <button onclick="rubiksCube.l()">L</button>
-                    <button onclick="rubiksCube.lPrime()">L'</button>
-                </div>
-                <div class="controlGroup">
-                    <button onclick="rubiksCube.f()">F</button>
-                    <button onclick="rubiksCube.fPrime()">F'</button>
-                </div>
-                <div class="controlGroup">
-                    <button onclick="rubiksCube.r()">R</button>
-                    <button onclick="rubiksCube.rPrime()">R'</button>
-                </div>
-                <div class="controlGroup">
-                    <button onclick="rubiksCube.u()">U</button>
-                    <button onclick="rubiksCube.uPrime()">U'</button>
-                </div>
-                <div class="controlGroup">
-                    <button onclick="rubiksCube.b()">B</button>
-                    <button onclick="rubiksCube.bPrime()">B'</button>
-                </div>
-                <div class="controlGroup">
-                    <button onclick="rubiksCube.d()">D</button>
-                    <button onclick="rubiksCube.dPrime()">D'</button>
-                </div>
-                <div class="controlGroup">
-                    <button onclick="solve()">Solve</button>
+                <div class="controlRow">
+                    <button class="controlButton" onclick="solve()">Solve</button>
                 </div>
             </div>
         </div>

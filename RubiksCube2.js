@@ -358,36 +358,65 @@ class RubiksCube2 {
         this.data[this.DOWN + 3] = this.data[this.DOWN + 2];
         this.data[this.DOWN + 2] = corner;
     }
-    // these are not yet implemented because they are not needed
-    m() {
 
+    // =======================================================================
+
+    // Cube rotation around X axis
+    // clockwise from right side
+    x () {
+        // we can use other moves to achieve this
+        this.lPrime ();
+        this.r ();
     }
-    mPrime() {
 
+    // =======================================================================
+
+    // Cube rotation around X axis
+    // counter-clockwise from right side
+    xPrime () {
+        // we can use other moves to achieve this
+        this.l ();
+        this.rPrime ();
     }
-    s() {
 
+    // =======================================================================
+
+    // Cube rotation around Y axis
+    // clockwise from top side
+    y () {
+        // we can use other moves to achieve this
+        this.u ();
+        this.dPrime ();
     }
-    sPrime() {
 
+    // =======================================================================
+
+    // Cube rotation around Y axis
+    // counter-clockwise from top side
+    yPrime () {
+        // we can use other moves to achieve this
+        this.uPrime ();
+        this.d ();
     }
-    x() {
 
+    // =======================================================================
+
+    // Cube rotation around Z axis
+    // clockwise from front side
+    z () {
+        // we can use other moves to achieve this
+        this.f ();
+        this.bPrime ();
     }
-    xPrime() {
 
-    }
-    y() {
+    // =======================================================================
 
-    }
-    yPrime() {
-
-    }
-    z() {
-
-    }
-    zPrime() {
-
+    // Cube rotation around Z axis
+    // counter-clockwise from front side
+    zPrime () {
+        // we can use other moves to achieve this
+        this.fPrime ();
+        this.b ();
     }
 
     // =======================================================================

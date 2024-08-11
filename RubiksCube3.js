@@ -113,6 +113,8 @@ class RubiksCube3 {
         if (move == MOVE_DPRIME) this.dPrime();
     }
 
+    // =======================================================================
+
     l() {
         // save last slice
         let cornerhigh = this.data[DOWN];
@@ -145,6 +147,9 @@ class RubiksCube3 {
         this.data[LEFT + 2] = this.data[LEFT];
         this.data[LEFT] = corner;
     }
+
+    // =======================================================================
+
     lPrime() {
         // save last slice
         let cornerhigh = this.data[DOWN];
@@ -177,6 +182,9 @@ class RubiksCube3 {
         this.data[LEFT + 2] = this.data[LEFT + 8];
         this.data[LEFT + 8] = corner;
     }
+
+    // =======================================================================
+
     f() {
         // save last slice
         let corner1 = this.data[UP + 6];
@@ -209,6 +217,9 @@ class RubiksCube3 {
         this.data[FRONT + 2] = this.data[FRONT];
         this.data[FRONT] = corner;
     }
+
+    // =======================================================================
+
     fPrime() {
         // save last slice
         let corner1 = this.data[UP + 6];
@@ -242,6 +253,9 @@ class RubiksCube3 {
         this.data[FRONT + 8] = corner;
 
     }
+
+    // =======================================================================
+
     r() {
         // save last slice
         let cornerhigh = this.data[DOWN + 2];
@@ -274,6 +288,9 @@ class RubiksCube3 {
         this.data[RIGHT + 2] = this.data[RIGHT];
         this.data[RIGHT] = corner;
     }
+
+    // =======================================================================
+
     rPrime() {
         // save last slice
         let cornerhigh = this.data[DOWN + 2];
@@ -306,6 +323,9 @@ class RubiksCube3 {
         this.data[RIGHT + 2] = this.data[RIGHT + 8];
         this.data[RIGHT + 8] = corner;
     }
+
+    // =======================================================================
+
     b() {
         // save last slice
         let corner1 = this.data[UP + 2];
@@ -338,6 +358,9 @@ class RubiksCube3 {
         this.data[BACK + 2] = this.data[BACK];
         this.data[BACK] = corner;
     }
+
+    // =======================================================================
+
     bPrime() {
         // save last slice
         let corner1 = this.data[UP + 2];
@@ -370,6 +393,9 @@ class RubiksCube3 {
         this.data[BACK + 2] = this.data[BACK + 8];
         this.data[BACK + 8] = corner;
     }
+
+    // =======================================================================
+
     u() {
         // save last slice
         let corner1 = this.data[FRONT];
@@ -402,6 +428,9 @@ class RubiksCube3 {
         this.data[UP + 2] = this.data[UP];
         this.data[UP] = corner;
     }
+
+    // =======================================================================
+
     uPrime() {
         // save last slice
         let corner1 = this.data[FRONT];
@@ -434,6 +463,9 @@ class RubiksCube3 {
         this.data[UP + 2] = this.data[UP + 8];
         this.data[UP + 8] = corner;
     }
+
+    // =======================================================================
+
     d() {
         // save last slice
         let corner1 = this.data[FRONT + 6];
@@ -466,6 +498,9 @@ class RubiksCube3 {
         this.data[DOWN + 2] = this.data[DOWN];
         this.data[DOWN] = corner;
     }
+
+    // =======================================================================
+
     dPrime() {
         // save last slice
         let corner1 = this.data[FRONT + 6];
@@ -498,36 +533,287 @@ class RubiksCube3 {
         this.data[DOWN + 2] = this.data[DOWN + 8];
         this.data[DOWN + 8] = corner;
     }
-    // these are not yet implemented because they are not needed
-    m() {
 
-    }
-    mPrime() {
+    // =======================================================================
 
+    // middle vertical slice
+    // up/clockwise looking from right side
+    //            ^
+    //            |
+    //     +--------------+
+    //     |    |    |    |
+    //     +--------------+
+    //     |    |    |    |
+    //     +--------------+
+    //     |    |    |    |
+    //     +--------------+
+    //            ^
+    //            |
+    m () {
+        // save last slice
+        let edge_high = this.data[DOWN + 1];
+        let center    = this.data[DOWN + 4];
+        let edge_low  = this.data[DOWN + 7];
+        // move bottom/low edges
+        this.data[DOWN + 7] = this.data[BACK + 1];
+        this.data[BACK + 1] = this.data[UP + 7];
+        this.data[UP + 7] = this.data[FRONT + 7];
+        this.data[FRONT + 7] = edge_low;
+        // move centers
+        this.data[DOWN + 4] = this.data[BACK + 4];
+        this.data[BACK + 4] = this.data[UP + 4];
+        this.data[UP + 4] = this.data[FRONT + 4];
+        this.data[FRONT + 4] = center;
+        // move top/high edges
+        this.data[DOWN + 1] = this.data[BACK + 7];
+        this.data[BACK + 7] = this.data[UP + 1];
+        this.data[UP + 1] = this.data[FRONT + 1];
+        this.data[FRONT + 1] = edge_high;
     }
+
+    // =======================================================================
+
+    // middle vertical slice
+    // down/counter-clockwise looking from right side
+    //            |
+    //            v
+    //     +--------------+
+    //     |    |    |    |
+    //     +--------------+
+    //     |    |    |    |
+    //     +--------------+
+    //     |    |    |    |
+    //     +--------------+
+    //            |
+    //            v
+    mPrime () {
+        // save last slice
+        let edge_high = this.data[DOWN + 1];
+        let center    = this.data[DOWN + 4];
+        let edge_low  = this.data[DOWN + 7];
+        // move bottom/low edges
+        this.data[DOWN + 7] = this.data[FRONT + 7];
+        this.data[FRONT + 7] = this.data[UP + 7];
+        this.data[UP + 7] = this.data[BACK + 1];
+        this.data[BACK + 1] = edge_low;
+        // move centers
+        this.data[DOWN + 4] = this.data[FRONT + 4];
+        this.data[FRONT + 4] = this.data[UP + 4];
+        this.data[UP + 4] = this.data[BACK + 4];
+        this.data[BACK + 4] = center;
+        // move top/high edges
+        this.data[DOWN + 1] = this.data[FRONT + 1];
+        this.data[FRONT + 1] = this.data[UP + 1];
+        this.data[UP + 1] = this.data[BACK + 7];
+        this.data[BACK + 7] = edge_high;
+    }
+
+    // =======================================================================
+
+    // middle horizontal slice
+    // push left to right
+    // counter-clockwise looking down from top
+    //     +--------------+
+    //     |    |    |    |
+    //     +--------------+
+    // --->|    |    |    |--->
+    //     +--------------+
+    //     |    |    |    |
+    //     +--------------+
+    e() {
+        // save last slice
+        let edge_left  = this.data[FRONT + 3];
+        let center     = this.data[FRONT + 4];
+        let edge_right = this.data[FRONT + 5];
+        // move left edges
+        this.data[FRONT + 3] = this.data[LEFT + 3];
+        this.data[LEFT + 3] = this.data[BACK + 3];
+        this.data[BACK + 3] = this.data[RIGHT + 3];
+        this.data[RIGHT + 3] = edge_left;
+        // move centers
+        this.data[FRONT + 4] = this.data[LEFT + 4];
+        this.data[LEFT + 4] = this.data[BACK + 4];
+        this.data[BACK + 4] = this.data[RIGHT + 4];
+        this.data[RIGHT + 4] = center;
+        // move right edges
+        this.data[FRONT + 5] = this.data[LEFT + 5];
+        this.data[LEFT + 5] = this.data[BACK + 5];
+        this.data[BACK + 5] = this.data[RIGHT + 5];
+        this.data[RIGHT + 5] = edge_right;
+    }
+
+    // =======================================================================
+
+    // middle horizontal slice
+    // push right to left
+    // clockwise looking down from top
+    //     +--------------+
+    //     |    |    |    |
+    //     +--------------+
+    // <---|    |    |    |<---
+    //     +--------------+
+    //     |    |    |    |
+    //     +--------------+
+    ePrime () {
+        // save last slice
+        let edge_left  = this.data[FRONT + 3];
+        let center     = this.data[FRONT + 4];
+        let edge_right = this.data[FRONT + 5];
+        // move left edges
+        this.data[FRONT + 3] = this.data[RIGHT + 3];
+        this.data[RIGHT + 3] = this.data[BACK + 3];
+        this.data[BACK + 3] = this.data[LEFT + 3];
+        this.data[LEFT + 3] = edge_left;
+        // move centers
+        this.data[FRONT + 4] = this.data[RIGHT + 4];
+        this.data[RIGHT + 4] = this.data[BACK + 4];
+        this.data[BACK + 4] = this.data[LEFT + 4];
+        this.data[LEFT + 4] = center;
+        // move right edges
+        this.data[FRONT + 5] = this.data[RIGHT + 5];
+        this.data[RIGHT + 5] = this.data[BACK + 5];
+        this.data[BACK + 5] = this.data[LEFT + 5];
+        this.data[LEFT + 5] = edge_right;
+    }
+
+    // =======================================================================
+
+    // front/back middle slice
+    // push left to right from top
+    // clockwise from front   
+    //        ___ ___ ___
+    //      /___/___/___/|
+    // --->/___/___/___/---->
+    //    /___/___/__ /|/|
+    //   |   |   |   | /||
+    //   |___|___|___|/|/|
+    //   |   |   |   | /||
+    //   |___|___|___|/|/<---
+    //   |   |   |   | /
+    //   |___|___|___|/
     s() {
-
+        // save last slice
+        let edge_left  = this.data[UP + 3];
+        let center     = this.data[UP + 4];
+        let edge_right = this.data[UP + 5];
+        // move left edges
+        this.data[UP + 3] = this.data[LEFT + 7];
+        this.data[LEFT + 7] = this.data[DOWN + 5];
+        this.data[DOWN + 5] = this.data[RIGHT + 1];
+        this.data[RIGHT + 1] = edge_left;
+        // move centers
+        this.data[UP + 4] = this.data[LEFT + 4];
+        this.data[LEFT + 4] = this.data[DOWN + 4];
+        this.data[DOWN + 4] = this.data[RIGHT + 4];
+        this.data[RIGHT + 4] = center;
+        // move right edges
+        this.data[UP + 5] = this.data[LEFT + 1];
+        this.data[LEFT + 1] = this.data[DOWN + 3];
+        this.data[DOWN + 3] = this.data[RIGHT + 7];
+        this.data[RIGHT + 7] = edge_right;
     }
-    sPrime() {
 
+    // =======================================================================
+
+    // front/back middle slice
+    // push right to left from top
+    // counter-clockwise from front   
+    //        ___ ___ ___
+    //      /___/___/___/|
+    // <---/___/___/___/<----
+    //    /___/___/__ /|/|
+    //   |   |   |   | /||
+    //   |___|___|___|/|/|
+    //   |   |   |   | /||
+    //   |___|___|___|/|/
+    //   |   |   |   | /^
+    //   |___|___|___|/ |
+    sPrime () {
+        // save last slice
+        let edge_left  = this.data[UP + 3];
+        let center     = this.data[UP + 4];
+        let edge_right = this.data[UP + 5];
+        // move left edges
+        this.data[UP + 3] = this.data[RIGHT + 1];
+        this.data[RIGHT + 1] = this.data[DOWN + 5];
+        this.data[DOWN + 5] = this.data[LEFT + 7];
+        this.data[LEFT + 7] = edge_left;
+        // move centers
+        this.data[UP + 4] = this.data[RIGHT + 4];
+        this.data[RIGHT + 4] = this.data[DOWN + 4];
+        this.data[DOWN + 4] = this.data[LEFT + 4];
+        this.data[LEFT + 4] = center;
+        // move right edges
+        this.data[UP + 5] = this.data[RIGHT + 7];
+        this.data[RIGHT + 7] = this.data[DOWN + 3];
+        this.data[DOWN + 3] = this.data[LEFT + 1];
+        this.data[LEFT + 1] = edge_right;
     }
-    x() {
 
+    // =======================================================================
+
+    // Cube rotation around X axis
+    // clockwise from right side
+    x () {
+        // we can use other moves to achieve this
+        this.lPrime ();
+        this.m ();
+        this.r ();
     }
-    xPrime() {
 
+    // =======================================================================
+
+    // Cube rotation around X axis
+    // counter-clockwise from right side
+    xPrime () {
+        // we can use other moves to achieve this
+        this.l ();
+        this.mPrime ();
+        this.rPrime ();
     }
-    y() {
 
+    // =======================================================================
+
+    // Cube rotation around Y axis
+    // clockwise from top side
+    y () {
+        // we can use other moves to achieve this
+        this.u ();
+        this.ePrime ();
+        this.dPrime ();
     }
-    yPrime() {
 
+    // =======================================================================
+
+    // Cube rotation around Y axis
+    // counter-clockwise from top side
+    yPrime () {
+        // we can use other moves to achieve this
+        this.uPrime ();
+        this.e ();
+        this.d ();
     }
-    z() {
 
+    // =======================================================================
+
+    // Cube rotation around Z axis
+    // clockwise from front side
+    z () {
+        // we can use other moves to achieve this
+        this.f ();
+        this.s ();
+        this.bPrime ();
     }
-    zPrime() {
 
+    // =======================================================================
+
+    // Cube rotation around Z axis
+    // counter-clockwise from front side
+    zPrime () {
+        // we can use other moves to achieve this
+        this.fPrime ();
+        this.sPrime ();
+        this.b ();
     }
 
     // =======================================================================

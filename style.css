@@ -43,6 +43,8 @@ main {
 .controlGroup {
     padding: 10px;
     margin-bottom: -10px;
+    width: 100%;
+    table-layout: fixed;
 }
 
 .controlHeader {
@@ -53,11 +55,16 @@ main {
 }
 
 .controlRow {
-    display: block;
+    /* border: 2px solid #000; */
+}
+
+.controlRow td {
+    /* width: 100%; */
+    /* border: 1px solid #000; */
 }
 
 .controlButton {
-    width: 49%;
+    width: 100%;
     font-size: large;
     height: 60px;
 }

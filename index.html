@@ -31,15 +31,15 @@
                     <input type="input" name="type" value="3x3" hidden>
                     <input class="navButton" type="submit" value="3x3 Rubik's Cube">
                 </form>
-                <!-- <form class="navForm" action="./index.html" method="GET">
+                <form class="navForm" action="./index.html" method="GET">
                     <input type="input" name="type" value="4x4" hidden>
                     <input class="navButton" type="submit" value="4x4 Rubik's Cube">
-                </form> -->
+                </form>
             </div>
         </div>
         <main></main>
         <div class="controls">
-            <table class="controlGroup">
+            <table class="controlGroup" id="cubeControlsTable">
                 <tr>
                     <td colspan=4 class="controlHeader">
                         <h2>Cube Controls</h2>
@@ -53,99 +53,15 @@
                         <button class="controlButton" onclick="reset()">Reset</button>
                     </td>
                 </tr>
-                <tr class="controlRow">
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.l()">L</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.lPrime()">L'</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.r()">R</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.rPrime()">R'</button>
-                    </td>
-                </tr>
-                <tr class="controlRow">
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.f()">F</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.fPrime()">F'</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.b()">B</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.bPrime()">B'</button>
-                    </td>
-                </tr>
-                <tr class="controlRow">
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.u()">U</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.uPrime()">U'</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.d()">D</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.dPrime()">D'</button>
-                    </td>
-                </tr>
-                <tr class="controlRow">
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.m()">M</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.mPrime()">M'</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.e()">E</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.ePrime()">E'</button>
-                    </td>
-                </tr>
-                <tr class="controlRow">
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.s()">S</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.sPrime()">S'</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.x()">X</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.xPrime()">X'</button>
-                    </td>
-                </tr>
-                <tr class="controlRow">
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.y()">Y</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.yPrime()">Y'</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.z()">Z</button>
-                    </td>
-                    <td>
-                        <button class="controlButton" onclick="rubiksCube.zPrime()">Z'</button>
-                    </td>
-                </tr>
+                <!-- Cube controls will get populated here -->
+            </table>
+            <table class="controlGroup" id="solverControlsTable">
                 <tr>
                     <td colspan="4" class="controlHeader">
                         <h2>Solver Controls</h2>
                     </td>
                 </tr>
-                    <td colspan="2" class="controlRow">
-                        <button class="controlButton" onclick="solve()">Solve</button>
-                    </td>
-                </tr>
+                <!-- Solver controls will get populated here -->
             </table>
         </div>
     </body>

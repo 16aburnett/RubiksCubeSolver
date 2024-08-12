@@ -1,7 +1,7 @@
 /*
     Rubiks Cube Solver
     By Amy Burnett
-    January 2 2020
+    August 11 2024
 */
 
 // =======================================================================
@@ -24,7 +24,7 @@ if (cubeType == null) {
 
 // =======================================================================
 
-function setup() {
+function setup () {
     // setup canvas
     createCanvas(window.innerWidth / 2, 700);
     translate(0, 0);
@@ -33,28 +33,102 @@ function setup() {
     if (cubeType == "2x2") {
         rubiksCube = new RubiksCube2();
         solver = new CFOPSolver2();
+        // Setup solver controls buttons
+        let solverControlsTable = document.getElementById ("solverControlsTable");
+        let tr = document.createElement ("tr");
+        tr.className = "controlRow";
+        solverControlsTable.appendChild (tr);
+        let td = document.createElement ("td");
+        td.colSpan = 4
+        let btn = document.createElement ("button");
+        btn.className = "controlButton";
+        btn.onclick = () => solve ();
+        btn.innerText = "CFOP-like solver";
+        td.appendChild (btn);
+        tr.appendChild (td);
+        tr.appendChild (td);
     }
     else if (cubeType == "4x4") {
         rubiksCube = new RubiksCube4();
-        solver = new CFOPSolver3();
+        solver = null;
+        // Setup solver controls buttons
+        let solverControlsTable = document.getElementById ("solverControlsTable");
+        let tr = document.createElement ("tr");
+        tr.className = "controlRow";
+        solverControlsTable.appendChild (tr);
+        let td = document.createElement ("td");
+        td.colSpan = 4
+        let btn = document.createElement ("button");
+        btn.className = "controlButton";
+        btn.onclick = () => null;
+        btn.innerText = "No 4x4 solver yet";
+        td.appendChild (btn);
+        tr.appendChild (td);
+        tr.appendChild (td);
     }
     // 3x3 by default
     else {
         rubiksCube = new RubiksCube3();
         solver = new CFOPSolver3();
+        // Setup solver controls buttons
+        let solverControlsTable = document.getElementById ("solverControlsTable");
+        let tr = document.createElement ("tr");
+        tr.className = "controlRow";
+        solverControlsTable.appendChild (tr);
+        let td = document.createElement ("td");
+        td.colSpan = 4
+        let btn = document.createElement ("button");
+        btn.className = "controlButton";
+        btn.onclick = () => solve ();
+        btn.innerText = "CFOP-like solver";
+        td.appendChild (btn);
+        tr.appendChild (td);
+        tr.appendChild (td);
+    }
+    
+    // Setup cube control buttons
+    let cubeControlsTable = document.getElementById ("cubeControlsTable");
+    // create a move button for each valid move
+    // and pack buttons in rows
+    let j = 0;
+    let max_col_per_row = 4;
+    let tr = document.createElement ("tr");
+    tr.className = "controlRow";
+    cubeControlsTable.appendChild (tr);
+    for (let m = 0; m < rubiksCube.NUM_VALID_MOVES; ++m)
+    {
+        // Ensure we don't overflow the row with buttons
+        if (j >= max_col_per_row)
+        {
+            j = 0;
+            tr = document.createElement ("tr");
+            tr.className = "controlRow";
+            cubeControlsTable.appendChild (tr);
+        }
+        // create button column
+        let td = document.createElement ("td");
+        let btn = document.createElement ("button");
+        btn.className = "controlButton";
+        btn.onclick = () => rubiksCube.move (m);
+        btn.innerText = rubiksCube.intToMoveString (m);
+        td.appendChild (btn);
+        tr.appendChild (td);
+        // added a button to the row so incr how many in row
+        ++j;
     }
 }
 
 // =======================================================================
 
-function draw() {
+function draw () {
     background(130, 130, 250);
 
-    // perform a scramble move if in scramble mode 
+    // if we are currently scrambling,
+    // then perform a single scramble move for this frame
     if (shouldScramble) {
-        let randMove = int(random(0, NUM_VALID_MOVES));
-        console.log(intToMoveString(randMove));
-        rubiksCube.move(randMove);
+        let randMove = int(random(0, rubiksCube.NUM_VALID_MOVES));
+        console.log(rubiksCube.intToMoveString(randMove));
+        rubiksCube.move (randMove);
         amountToScramble -= 1;
         if (amountToScramble < 0) {
             shouldScramble = false;
@@ -78,7 +152,7 @@ function draw() {
         }
         let move = solution[0];
         solution = solution.slice(1);
-        console.log(intToMoveString(move));
+        console.log(rubiksCube.intToMoveString(move));
         rubiksCube.move(move);
     }
 
@@ -88,7 +162,7 @@ function draw() {
 // =======================================================================
 
 // activates the bot and loads solution 
-function solve() {
+function solve () {
     console.log("Thinking...");
 
     isSolving = true;

@@ -91,111 +91,111 @@ class CFOPSolver2 {
         let result;
         
         // left
-        if (prevMove != MOVE_LPRIME) {
-            cube.l();
-            path.push(MOVE_L);
-            result = this.solveFirstLayer(cube, path, MOVE_L, limit);
+        if (prevMove != cube.MOVE_LPRIME) {
+            cube.L();
+            path.push(cube.MOVE_L);
+            result = this.solveFirstLayer(cube, path, cube.MOVE_L, limit);
             if (result != null) return result;
-            cube.lPrime();
+            cube.LPrime();
             path.pop();
         }
         // left prime
-        if (prevMove != MOVE_L) {
-            cube.lPrime();
-            path.push(MOVE_LPRIME);
-            result = this.solveFirstLayer(cube, path, MOVE_LPRIME, limit);
+        if (prevMove != cube.MOVE_L) {
+            cube.LPrime();
+            path.push(cube.MOVE_LPRIME);
+            result = this.solveFirstLayer(cube, path, cube.MOVE_LPRIME, limit);
             if (result != null) return result;
-            cube.l();
+            cube.L();
             path.pop();
         }
         // front
-        if (prevMove != MOVE_FPRIME) {
-            cube.f();
-            path.push(MOVE_F);
-            result = this.solveFirstLayer(cube, path, MOVE_F, limit);
+        if (prevMove != cube.MOVE_FPRIME) {
+            cube.F();
+            path.push(cube.MOVE_F);
+            result = this.solveFirstLayer(cube, path, cube.MOVE_F, limit);
             if (result != null) return result;
-            cube.fPrime();
+            cube.FPrime();
             path.pop();
         }
         // front prime
-        if (prevMove != MOVE_F) {
-            cube.fPrime();
-            path.push(MOVE_FPRIME);
-            result = this.solveFirstLayer(cube, path, MOVE_FPRIME, limit);
+        if (prevMove != cube.MOVE_F) {
+            cube.FPrime();
+            path.push(cube.MOVE_FPRIME);
+            result = this.solveFirstLayer(cube, path, cube.MOVE_FPRIME, limit);
             if (result != null) return result;
-            cube.f();
+            cube.F();
             path.pop();
         }
         // right 
-        if (prevMove != MOVE_RPRIME) {
-            cube.r();
-            path.push(MOVE_R);
-            result = this.solveFirstLayer(cube, path, MOVE_R, limit);
+        if (prevMove != cube.MOVE_RPRIME) {
+            cube.R();
+            path.push(cube.MOVE_R);
+            result = this.solveFirstLayer(cube, path, cube.MOVE_R, limit);
             if (result != null) return result;
-            cube.rPrime();
+            cube.RPrime();
             path.pop();
         }
         // right prime
-        if (prevMove != MOVE_R) {
-            cube.rPrime();
-            path.push(MOVE_RPRIME);
-            result = this.solveFirstLayer(cube, path, MOVE_RPRIME, limit);
+        if (prevMove != cube.MOVE_R) {
+            cube.RPrime();
+            path.push(cube.MOVE_RPRIME);
+            result = this.solveFirstLayer(cube, path, cube.MOVE_RPRIME, limit);
             if (result != null) return result;
-            cube.r();
+            cube.R();
             path.pop();
         }
         // back 
-        if (prevMove != MOVE_BPRIME) {
-            cube.b();
-            path.push(MOVE_B);
-            result = this.solveFirstLayer(cube, path, MOVE_B, limit);
+        if (prevMove != cube.MOVE_BPRIME) {
+            cube.B();
+            path.push(cube.MOVE_B);
+            result = this.solveFirstLayer(cube, path, cube.MOVE_B, limit);
             if (result != null) return result;
-            cube.bPrime();
+            cube.BPrime();
             path.pop();
         }
         // back prime
-        if (prevMove != MOVE_B) {
-            cube.bPrime();
-            path.push(MOVE_BPRIME);
-            result = this.solveFirstLayer(cube, path, MOVE_BPRIME, limit);
+        if (prevMove != cube.MOVE_B) {
+            cube.BPrime();
+            path.push(cube.MOVE_BPRIME);
+            result = this.solveFirstLayer(cube, path, cube.MOVE_BPRIME, limit);
             if (result != null) return result;
             path.pop();
-            cube.b();
+            cube.B();
         }
         // up 
-        if (prevMove != MOVE_UPRIME) {
-            cube.u();
-            path.push(MOVE_U);
-            result = this.solveFirstLayer(cube, path, MOVE_U, limit);
+        if (prevMove != cube.MOVE_UPRIME) {
+            cube.U();
+            path.push(cube.MOVE_U);
+            result = this.solveFirstLayer(cube, path, cube.MOVE_U, limit);
             if (result != null) return result;
-            cube.uPrime();
+            cube.UPrime();
             path.pop();
         }
         // up prime
-        if (prevMove != MOVE_U) {
-            cube.uPrime();
-            path.push(MOVE_UPRIME);
-            result = this.solveFirstLayer(cube, path, MOVE_UPRIME, limit);
+        if (prevMove != cube.MOVE_U) {
+            cube.UPrime();
+            path.push(cube.MOVE_UPRIME);
+            result = this.solveFirstLayer(cube, path, cube.MOVE_UPRIME, limit);
             if (result != null) return result;
-            cube.u();
+            cube.U();
             path.pop();
         }
         // down 
-        if (prevMove != MOVE_DPRIME) {
-            cube.d();
-            path.push(MOVE_D);
-            result = this.solveFirstLayer(cube, path, MOVE_D, limit);
+        if (prevMove != cube.MOVE_DPRIME) {
+            cube.D();
+            path.push(cube.MOVE_D);
+            result = this.solveFirstLayer(cube, path, cube.MOVE_D, limit);
             if (result != null) return result;
-            cube.dPrime();
+            cube.DPrime();
             path.pop();
         }
         // down prime
-        if (prevMove != MOVE_D) {
-            cube.dPrime();
-            path.push(MOVE_DPRIME);
-            result = this.solveFirstLayer(cube, path, MOVE_DPRIME, limit);
+        if (prevMove != cube.MOVE_D) {
+            cube.DPrime();
+            path.push(cube.MOVE_DPRIME);
+            result = this.solveFirstLayer(cube, path, cube.MOVE_DPRIME, limit);
             if (result != null) return result;
-            cube.d();
+            cube.D();
             path.pop();
         }
 
@@ -229,57 +229,57 @@ class CFOPSolver2 {
         let result;
         // fishy move 
         if (prevMove != -2) {
-            cube.r();
-            path.push(MOVE_R);
-            cube.u();
-            path.push(MOVE_U);
-            cube.rPrime();
-            path.push(MOVE_RPRIME);
-            cube.u();
-            path.push(MOVE_U);
-            cube.r();
-            path.push(MOVE_R);
-            cube.u();
-            path.push(MOVE_U);
-            cube.u();
-            path.push(MOVE_U);
-            cube.rPrime();
-            path.push(MOVE_RPRIME);
+            cube.R();
+            path.push(cube.MOVE_R);
+            cube.U();
+            path.push(cube.MOVE_U);
+            cube.RPrime();
+            path.push(cube.MOVE_RPRIME);
+            cube.U();
+            path.push(cube.MOVE_U);
+            cube.R();
+            path.push(cube.MOVE_R);
+            cube.U();
+            path.push(cube.MOVE_U);
+            cube.U();
+            path.push(cube.MOVE_U);
+            cube.RPrime();
+            path.push(cube.MOVE_RPRIME);
             result = this.solveYellowFace(cube, path, -2, limit);
             if (result != null) return result;
-            cube.r();
+            cube.R();
             path.pop();
-            cube.uPrime();
+            cube.UPrime();
             path.pop();
-            cube.uPrime();
+            cube.UPrime();
             path.pop();
-            cube.rPrime();
+            cube.RPrime();
             path.pop();
-            cube.uPrime();
+            cube.UPrime();
             path.pop();
-            cube.r();
+            cube.R();
             path.pop();
-            cube.uPrime();
+            cube.UPrime();
             path.pop();
-            cube.rPrime();
+            cube.RPrime();
             path.pop();
         }
         // up 
-        if (prevMove != MOVE_UPRIME) {
-            cube.u();
-            path.push(MOVE_U);
-            result = this.solveYellowFace(cube, path, MOVE_U, limit);
+        if (prevMove != cube.MOVE_UPRIME) {
+            cube.U();
+            path.push(cube.MOVE_U);
+            result = this.solveYellowFace(cube, path, cube.MOVE_U, limit);
             if (result != null) return result;
-            cube.uPrime();
+            cube.UPrime();
             path.pop();
         }
         // up prime
-        if (prevMove != MOVE_U) {
-            cube.uPrime();
-            path.push(MOVE_UPRIME);
-            result = this.solveYellowFace(cube, path, MOVE_UPRIME, limit);
+        if (prevMove != cube.MOVE_U) {
+            cube.UPrime();
+            path.push(cube.MOVE_UPRIME);
+            result = this.solveYellowFace(cube, path, cube.MOVE_UPRIME, limit);
             if (result != null) return result;
-            cube.u();
+            cube.U();
             path.pop();
         }
 
@@ -318,87 +318,87 @@ class CFOPSolver2 {
         // ensure last move wasnt a jperm
         if (prevMove != -2) {
             // J perm
-            cube.r();
-            path.push(MOVE_R);
-            cube.u();
-            path.push(MOVE_U);
-            cube.rPrime();
-            path.push(MOVE_RPRIME);
-            cube.fPrime();
-            path.push(MOVE_FPRIME);
-            cube.r();
-            path.push(MOVE_R);
-            cube.u();
-            path.push(MOVE_U);
-            cube.rPrime();
-            path.push(MOVE_RPRIME);
-            cube.uPrime();
-            path.push(MOVE_UPRIME);
-            cube.rPrime();
-            path.push(MOVE_RPRIME);
-            cube.f();
-            path.push(MOVE_F);
-            cube.r();
-            path.push(MOVE_R);
-            cube.r();
-            path.push(MOVE_R);
-            cube.uPrime();
-            path.push(MOVE_UPRIME);
-            cube.rPrime();
-            path.push(MOVE_RPRIME);
-            cube.uPrime();
-            path.push(MOVE_UPRIME);
+            cube.R();
+            path.push(cube.MOVE_R);
+            cube.U();
+            path.push(cube.MOVE_U);
+            cube.RPrime();
+            path.push(cube.MOVE_RPRIME);
+            cube.FPrime();
+            path.push(cube.MOVE_FPRIME);
+            cube.R();
+            path.push(cube.MOVE_R);
+            cube.U();
+            path.push(cube.MOVE_U);
+            cube.RPrime();
+            path.push(cube.MOVE_RPRIME);
+            cube.UPrime();
+            path.push(cube.MOVE_UPRIME);
+            cube.RPrime();
+            path.push(cube.MOVE_RPRIME);
+            cube.F();
+            path.push(cube.MOVE_F);
+            cube.R();
+            path.push(cube.MOVE_R);
+            cube.R();
+            path.push(cube.MOVE_R);
+            cube.UPrime();
+            path.push(cube.MOVE_UPRIME);
+            cube.RPrime();
+            path.push(cube.MOVE_RPRIME);
+            cube.UPrime();
+            path.push(cube.MOVE_UPRIME);
             result = this.solveLastLayer(cube, path, -2, limit);
             if (result != null) return result;
             //undo alg
-            cube.u();
+            cube.U();
             path.pop();
-            cube.r();
+            cube.R();
             path.pop();
-            cube.u();
+            cube.U();
             path.pop();
-            cube.r();
+            cube.R();
             path.pop();
-            cube.r();
+            cube.R();
             path.pop();
-            cube.fPrime();
+            cube.FPrime();
             path.pop();
-            cube.r();
+            cube.R();
             path.pop();
-            cube.u();
+            cube.U();
             path.pop();
-            cube.r();
+            cube.R();
             path.pop();
-            cube.uPrime();
+            cube.UPrime();
             path.pop();
-            cube.rPrime();
+            cube.RPrime();
             path.pop();
-            cube.f();
+            cube.F();
             path.pop();
-            cube.r();
+            cube.R();
             path.pop();
-            cube.uPrime();
+            cube.UPrime();
             path.pop();
-            cube.rPrime();
+            cube.RPrime();
             path.pop();
         }
 
         // up 
-        if (prevMove != MOVE_UPRIME) {
-            cube.u();
-            path.push(MOVE_U);
-            result = this.solveLastLayer(cube, path, MOVE_U, limit);
+        if (prevMove != cube.MOVE_UPRIME) {
+            cube.U();
+            path.push(cube.MOVE_U);
+            result = this.solveLastLayer(cube, path, cube.MOVE_U, limit);
             if (result != null) return result;
-            cube.uPrime();
+            cube.UPrime();
             path.pop();
         }
         // up prime
-        if (prevMove != MOVE_U) {
-            cube.uPrime();
-            path.push(MOVE_UPRIME);
-            result = this.solveLastLayer(cube, path, MOVE_UPRIME, limit);
+        if (prevMove != cube.MOVE_U) {
+            cube.UPrime();
+            path.push(cube.MOVE_UPRIME);
+            result = this.solveLastLayer(cube, path, cube.MOVE_UPRIME, limit);
             if (result != null) return result;
-            cube.u();
+            cube.U();
             path.pop();
         }
 

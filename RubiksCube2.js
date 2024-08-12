@@ -10,23 +10,46 @@
 
 class RubiksCube2 {
 
-    constructor() {
-        this.reset();
+    constructor () {
+        this.reset ();
         // Face Offsets
-        this.LEFT   = 0;
-        this.FRONT  = 4;
-        this.RIGHT  = 8;
-        this.BACK   = 12;
-        this.UP     = 16;
-        this.DOWN   = 20;
+        this.dim = 2;
+        this.LEFT   = 0 * this.dim * this.dim; // 0
+        this.FRONT  = 1 * this.dim * this.dim; // 4
+        this.RIGHT  = 2 * this.dim * this.dim; // 8
+        this.BACK   = 3 * this.dim * this.dim; // 12
+        this.UP     = 4 * this.dim * this.dim; // 16
+        this.DOWN   = 5 * this.dim * this.dim; // 20
+        // Moves
+        // Outer slice moves
+        this.MOVE_L          = 0;
+        this.MOVE_LPRIME     = 1;
+        this.MOVE_F          = 2;
+        this.MOVE_FPRIME     = 3;
+        this.MOVE_R          = 4;
+        this.MOVE_RPRIME     = 5;
+        this.MOVE_B          = 6;
+        this.MOVE_BPRIME     = 7;
+        this.MOVE_U          = 8;
+        this.MOVE_UPRIME     = 9;
+        this.MOVE_D          = 10;
+        this.MOVE_DPRIME     = 11;
+        // Cube rotation moves
+        this.MOVE_X          = 12;
+        this.MOVE_XPRIME     = 13;
+        this.MOVE_Y          = 14;
+        this.MOVE_YPRIME     = 15;
+        this.MOVE_Z          = 16;
+        this.MOVE_ZPRIME     = 17;
+        this.NUM_VALID_MOVES = 18;
         // drawing
         this.stickerSize = window.innerWidth / 20;
-        this.faceSize = this.stickerSize * 2;
+        this.faceSize = this.stickerSize * this.dim;
     }
     
     // =======================================================================
 
-    isSolved() {
+    isSolved () {
         let solution = [
             // left
             ORANGE, ORANGE,
@@ -86,27 +109,41 @@ class RubiksCube2 {
     // =======================================================================
     // Moves
 
-    move(move) {
-        if (move == MOVE_L) this.l();
-        if (move == MOVE_LPRIME) this.lPrime();
-        if (move == MOVE_F) this.f();
-        if (move == MOVE_FPRIME) this.fPrime();
-        if (move == MOVE_R) this.r();
-        if (move == MOVE_RPRIME) this.rPrime();
-        if (move == MOVE_B) this.b();
-        if (move == MOVE_BPRIME) this.bPrime();
-        if (move == MOVE_U) this.u();
-        if (move == MOVE_UPRIME) this.uPrime();
-        if (move == MOVE_D) this.d();
-        if (move == MOVE_DPRIME) this.dPrime();
+    move (move) {
+        // Outer slice moves
+        if (move == this.MOVE_L) this.L ();
+        if (move == this.MOVE_LPRIME) this.LPrime ();
+        if (move == this.MOVE_F) this.F ();
+        if (move == this.MOVE_FPRIME) this.FPrime ();
+        if (move == this.MOVE_R) this.R();
+        if (move == this.MOVE_RPRIME) this.RPrime ();
+        if (move == this.MOVE_B) this.B ();
+        if (move == this.MOVE_BPRIME) this.BPrime ();
+        if (move == this.MOVE_U) this.U ();
+        if (move == this.MOVE_UPRIME) this.UPrime ();
+        if (move == this.MOVE_D) this.D ();
+        if (move == this.MOVE_DPRIME) this.DPrime ();
+        // Cube rotations
+        if (move == this.MOVE_X) this.X();
+        if (move == this.MOVE_XPRIME) this.XPrime();
+        if (move == this.MOVE_Y) this.Y();
+        if (move == this.MOVE_YPRIME) this.YPrime();
+        if (move == this.MOVE_Z) this.Z();
+        if (move == this.MOVE_ZPRIME) this.ZPrime();
     }
+
+    // =======================================================================
 
     // returns a list of valid moves
-    getMoves() {
+    getMoves () {
 
     }
 
-    l() {
+    // =======================================================================
+    // MOVES : OUTER SLICES
+    // =======================================================================
+
+    L () {
         // save last slice
         let cornerhigh = this.data[this.DOWN];
         let cornerlow = this.data[this.DOWN + 2];
@@ -127,7 +164,10 @@ class RubiksCube2 {
         this.data[this.LEFT + 3] = this.data[this.LEFT + 1];
         this.data[this.LEFT + 1] = corner;
     }
-    lPrime() {
+
+    // =======================================================================
+
+    LPrime () {
         // save last slice
         let cornerhigh = this.data[this.DOWN];
         let cornerlow = this.data[this.DOWN + 2];
@@ -148,7 +188,10 @@ class RubiksCube2 {
         this.data[this.LEFT + 3] = this.data[this.LEFT + 2];
         this.data[this.LEFT + 2] = corner;
     }
-    f() {
+
+    // =======================================================================
+
+    F () {
         // save last slice
         let corner1 = this.data[this.UP + 2];
         let corner2 = this.data[this.UP + 3];
@@ -169,7 +212,10 @@ class RubiksCube2 {
         this.data[this.FRONT + 3] = this.data[this.FRONT + 1];
         this.data[this.FRONT + 1] = corner;
     }
-    fPrime() {
+
+    // =======================================================================
+
+    FPrime () {
         // save last slice
         let corner1 = this.data[this.UP + 2];
         let corner2 = this.data[this.UP + 3];
@@ -190,7 +236,10 @@ class RubiksCube2 {
         this.data[this.FRONT + 3] = this.data[this.FRONT + 2];
         this.data[this.FRONT + 2] = corner;
     }
-    r() {
+
+    // =======================================================================
+
+    R () {
         // save last slice
         let cornerhigh = this.data[this.DOWN + 1];
         let cornerlow = this.data[this.DOWN + 3];
@@ -211,7 +260,10 @@ class RubiksCube2 {
         this.data[this.RIGHT + 3] = this.data[this.RIGHT + 1];
         this.data[this.RIGHT + 1] = corner;
     }
-    rPrime() {
+
+    // =======================================================================
+
+    RPrime () {
         // save last slice
         let cornerhigh = this.data[this.DOWN + 1];
         let cornerlow = this.data[this.DOWN + 3];
@@ -232,7 +284,10 @@ class RubiksCube2 {
         this.data[this.RIGHT + 3] = this.data[this.RIGHT + 2];
         this.data[this.RIGHT + 2] = corner;
     }
-    b() {
+
+    // =======================================================================
+
+    B () {
         // save last slice
         let corner1 = this.data[this.UP];
         let corner2 = this.data[this.UP + 1];
@@ -253,7 +308,10 @@ class RubiksCube2 {
         this.data[this.BACK + 3] = this.data[this.BACK + 1];
         this.data[this.BACK + 1] = corner;
     }
-    bPrime() {
+
+    // =======================================================================
+
+    BPrime () {
         // save last slice
         let corner1 = this.data[this.UP];
         let corner2 = this.data[this.UP + 1];
@@ -274,7 +332,10 @@ class RubiksCube2 {
         this.data[this.BACK + 3] = this.data[this.BACK + 2];
         this.data[this.BACK + 2] = corner;
     }
-    u() {
+
+    // =======================================================================
+
+    U () {
         // save last slice
         let corner1 = this.data[this.FRONT];
         let corner2 = this.data[this.FRONT + 1];
@@ -295,7 +356,10 @@ class RubiksCube2 {
         this.data[this.UP + 3] = this.data[this.UP + 1];
         this.data[this.UP + 1] = corner;
     }
-    uPrime() {
+
+    // =======================================================================
+
+    UPrime () {
         // save last slice
         let corner1 = this.data[this.FRONT];
         let corner2 = this.data[this.FRONT + 1];
@@ -316,7 +380,10 @@ class RubiksCube2 {
         this.data[this.UP + 3] = this.data[this.UP + 2];
         this.data[this.UP + 2] = corner;
     }
-    d() {
+
+    // =======================================================================
+
+    D () {
         // save last slice
         let corner1 = this.data[this.FRONT + 2];
         let corner2 = this.data[this.FRONT + 3];
@@ -337,7 +404,10 @@ class RubiksCube2 {
         this.data[this.DOWN + 3] = this.data[this.DOWN + 1];
         this.data[this.DOWN + 1] = corner;
     }
-    dPrime() {
+
+    // =======================================================================
+
+    DPrime () {
         // save last slice
         let corner1 = this.data[this.FRONT + 2];
         let corner2 = this.data[this.FRONT + 3];
@@ -360,68 +430,72 @@ class RubiksCube2 {
     }
 
     // =======================================================================
+    // MOVES : CUBE ROTATIONS
+    // =======================================================================
 
     // Cube rotation around X axis
     // clockwise from right side
-    x () {
+    X () {
         // we can use other moves to achieve this
-        this.lPrime ();
-        this.r ();
+        this.LPrime ();
+        this.R ();
     }
 
     // =======================================================================
 
     // Cube rotation around X axis
     // counter-clockwise from right side
-    xPrime () {
+    XPrime () {
         // we can use other moves to achieve this
-        this.l ();
-        this.rPrime ();
+        this.L ();
+        this.RPrime ();
     }
 
     // =======================================================================
 
     // Cube rotation around Y axis
     // clockwise from top side
-    y () {
+    Y () {
         // we can use other moves to achieve this
-        this.u ();
-        this.dPrime ();
+        this.U ();
+        this.DPrime ();
     }
 
     // =======================================================================
 
     // Cube rotation around Y axis
     // counter-clockwise from top side
-    yPrime () {
+    YPrime () {
         // we can use other moves to achieve this
-        this.uPrime ();
-        this.d ();
+        this.UPrime ();
+        this.D ();
     }
 
     // =======================================================================
 
     // Cube rotation around Z axis
     // clockwise from front side
-    z () {
+    Z () {
         // we can use other moves to achieve this
-        this.f ();
-        this.bPrime ();
+        this.F ();
+        this.BPrime ();
     }
 
     // =======================================================================
 
     // Cube rotation around Z axis
     // counter-clockwise from front side
-    zPrime () {
+    ZPrime () {
         // we can use other moves to achieve this
-        this.fPrime ();
-        this.b ();
+        this.FPrime ();
+        this.B ();
     }
 
     // =======================================================================
+    // VISUALS
+    // =======================================================================
 
-    draw() {
+    draw () {
 
         let startX = 50;
         let startY = 275;
@@ -430,32 +504,32 @@ class RubiksCube2 {
 
         // draw each face
         // this.LEFT
-        this.drawFace(startX, startY, this.stickerSize, this.LEFT);
+        this.drawFace (startX, startY, this.stickerSize, this.LEFT);
         // this.FRONT
-        this.drawFace(startX + this.faceSize, startY, this.stickerSize, this.FRONT);
+        this.drawFace (startX + this.faceSize, startY, this.stickerSize, this.FRONT);
         // this.RIGHT
-        this.drawFace(startX + this.faceSize * 2, startY, this.stickerSize, this.RIGHT);
+        this.drawFace (startX + this.faceSize * 2, startY, this.stickerSize, this.RIGHT);
         // this.BACK
-        this.drawFace(startX + this.faceSize * 3, startY, this.stickerSize, this.BACK);
+        this.drawFace (startX + this.faceSize * 3, startY, this.stickerSize, this.BACK);
         // this.UP
-        this.drawFace(startX + this.faceSize, startY - this.faceSize, this.stickerSize, this.UP);
+        this.drawFace (startX + this.faceSize, startY - this.faceSize, this.stickerSize, this.UP);
         // this.DOWN
-        this.drawFace(startX + this.faceSize, startY + this.faceSize, this.stickerSize, this.DOWN);
+        this.drawFace (startX + this.faceSize, startY + this.faceSize, this.stickerSize, this.DOWN);
 
     }
 
     // =======================================================================
 
     // draws each sticker associated with a face of the cube
-    drawFace(startX, startY, stickerSize, elemOffset) {
-        fill(this.getColor(this.data[elemOffset]));
-        square(startX                  , startY                  , stickerSize);
-        fill(this.getColor(this.data[elemOffset + 1]));
-        square(startX + stickerSize    , startY                  , stickerSize);
-        fill(this.getColor(this.data[elemOffset + 2]));
-        square(startX                  , startY + stickerSize    , stickerSize);
-        fill(this.getColor(this.data[elemOffset + 3]));
-        square(startX + stickerSize    , startY + stickerSize    , stickerSize);
+    drawFace (startX, startY, stickerSize, elemOffset) {
+        fill (this.getColor(this.data[elemOffset]));
+        square (startX                  , startY                  , stickerSize);
+        fill (this.getColor(this.data[elemOffset + 1]));
+        square (startX + stickerSize    , startY                  , stickerSize);
+        fill (this.getColor(this.data[elemOffset + 2]));
+        square (startX                  , startY + stickerSize    , stickerSize);
+        fill (this.getColor(this.data[elemOffset + 3]));
+        square (startX + stickerSize    , startY + stickerSize    , stickerSize);
     }
 
     // =======================================================================
@@ -477,4 +551,28 @@ class RubiksCube2 {
     }
 
     // =======================================================================
+
+    // converts move to string representation
+    intToMoveString (move) {
+        // Outer slice moves
+        if (move == this.MOVE_L)      return "L";
+        if (move == this.MOVE_LPRIME) return "L'";
+        if (move == this.MOVE_F)      return "F";
+        if (move == this.MOVE_FPRIME) return "F'";
+        if (move == this.MOVE_R)      return "R";
+        if (move == this.MOVE_RPRIME) return "R'";
+        if (move == this.MOVE_B)      return "B";
+        if (move == this.MOVE_BPRIME) return "B'";
+        if (move == this.MOVE_U)      return "U";
+        if (move == this.MOVE_UPRIME) return "U'";
+        if (move == this.MOVE_D)      return "D";
+        if (move == this.MOVE_DPRIME) return "D'";
+        // Cube rotations
+        if (move == this.MOVE_X)      return "X";
+        if (move == this.MOVE_XPRIME) return "X'";
+        if (move == this.MOVE_Y)      return "Y";
+        if (move == this.MOVE_YPRIME) return "Y'";
+        if (move == this.MOVE_Z)      return "Z";
+        if (move == this.MOVE_ZPRIME) return "Z'";
+    }
 }

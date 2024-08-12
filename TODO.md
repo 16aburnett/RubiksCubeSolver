@@ -1,5 +1,10 @@
 
 
+- [] make inverse moves calculatable to generalize move selection
+    - i.e. positive N == normal move N, negative N = N prime
+
+- [] add timer for solvers
+
 - [] Add a 3D representation of the cube
     - doesnt need to be interactable
     - leave 2D rep as a minimap
@@ -42,3 +47,4 @@
 - [] Jperm-only solver
 - [] for 4x4 - reduce to 2x2 and solve like 2x2
 - [] 2x2 ortega method https://www.speedcube.us/blogs/speedcubing-solutions/how-to-solve-a-2x2-using-ortega-method-intermediate
+- [] commutator-only solver

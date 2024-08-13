@@ -1,10 +1,11 @@
 /*
     Rubiks Cube Solver
     By Amy Burnett
-    August 11 2024
+    August 13 2024
 */
 
 // =======================================================================
+// Global variables
 
 let rubiksCube; 
 let scrambled = false;
@@ -22,13 +23,24 @@ if (cubeType == null) {
     cubeType = "3x3";
 }
 
+// 3D Graphics globals
+let graphics = null;
+let cam;
+
 // =======================================================================
 
 function setup () {
-    // setup canvas
-    createCanvas(window.innerWidth / 2, 700);
+    // The main canvas will handle all the 2D aspects
+    // and be where we draw the 3D graphics
+    createCanvas (window.innerWidth / 2, 700);
+    // We want to draw relative to 0, 0 rather than the center of the screen
     translate(0, 0);
     background(130, 130, 250);
+    // Setup 3D canvas
+    graphics = createGraphics (window.innerWidth / 2, 700, WEBGL);
+    graphics.background (130, 130, 250);
+    graphics.angleMode (DEGREES);
+    cam = graphics.createCamera ();
     // setup rubiks cube model
     if (cubeType == "2x2") {
         rubiksCube = new RubiksCube2();
@@ -121,7 +133,13 @@ function setup () {
 // =======================================================================
 
 function draw () {
-    background(130, 130, 250);
+    clear ();
+    background (130, 130, 250);
+    graphics.clear ();
+    // this resets certain values modified by transforms and lights
+    // without this, the performance seems to significantly diminish over time
+    // and causes lighting to be much more intense
+    graphics.reset ();
 
     // if we are currently scrambling,
     // then perform a single scramble move for this frame
@@ -156,7 +174,14 @@ function draw () {
         rubiksCube.move(move);
     }
 
-    rubiksCube.draw();
+    // Draw 3D graphics
+    rubiksCube.draw3DCube ();
+
+    // Add 3D graphics to canvas as an image
+    image (graphics, 0, 0, width, height);
+
+    // All 2D drawings must happen after 3D
+    rubiksCube.drawMinimap ();
 }
 
 // =======================================================================
@@ -204,3 +229,37 @@ function reset () {
 }
 
 // =======================================================================
+
+// https://stackoverflow.com/questions/68986225/orbitcontrol-in-creategraphics-webgl-on-a-2d-canvas
+// this is to work around orbitControl not working with createGraphics.
+const sensitivityX = 1;
+const sensitivityY = 1;
+const sensitivityZ = 1;
+const scaleFactor = 100;
+function mouseDragged () {
+    // Ensure mouse is over canvas when it was dragged
+    if (!(0 <= mouseX && mouseX < width && 0 <= mouseY && mouseY < height))
+    {
+        // mouse is not over the canvas
+        // ignore drag
+        return false;
+    }
+    const deltaTheta = (-sensitivityX * (mouseX - pmouseX)) / scaleFactor;
+    const deltaPhi = (sensitivityY * (mouseY - pmouseY)) / scaleFactor;
+    cam._orbit(deltaTheta, deltaPhi, 0);
+  }
+  
+  function mouseWheel (event) {
+    // Ensure mouse is over canvas when the wheel moved
+    if (!(0 <= mouseX && mouseX < width && 0 <= mouseY && mouseY < height))
+    {
+        // mouse is not over the canvas
+        // ignore wheel movement
+        return false;
+    }
+    if (event.delta > 0) {
+      cam._orbit(0, 0, sensitivityZ * scaleFactor);
+    } else {
+      cam._orbit(0, 0, -sensitivityZ * scaleFactor);
+    }
+  }

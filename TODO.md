@@ -5,13 +5,13 @@
 
 - [] add timer for solvers
 
-- [] Add a 3D representation of the cube
+- [DONE] Add a 3D representation of the cube
     - doesnt need to be interactable
     - leave 2D rep as a minimap
-- [] Add slice move buttons
-- [] Add cube rotation buttons
+- [DONE] Add slice move buttons
+- [DONE] Add cube rotation buttons
 
-- [] Add 4x4
+- [DONE] Add 4x4
      - maybe find a generalization so we can do 5x5, 6x6, etc
 
 - [] add a mode where it can solve each stage of CFOP 

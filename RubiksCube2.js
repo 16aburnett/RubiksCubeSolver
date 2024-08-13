@@ -1,7 +1,7 @@
 /*
     Rubiks Cube 2x2x2 Representation
     By Amy Burnett
-    February 7 2020
+    August 13 2024
 */
 
 // =======================================================================
@@ -43,8 +43,7 @@ class RubiksCube2 {
         this.MOVE_ZPRIME     = 17;
         this.NUM_VALID_MOVES = 18;
         // drawing
-        this.stickerSize = window.innerWidth / 20;
-        this.faceSize = this.stickerSize * this.dim;
+        this.minimapSizeFactor = 21;
     }
     
     // =======================================================================
@@ -495,41 +494,143 @@ class RubiksCube2 {
     // VISUALS
     // =======================================================================
 
-    draw () {
+    // Draws 3D representation of the rubiks cube to the current graphics
+    // Generalized for any cube size
+    draw3DCube ()
+    {
+        // Rotate the whole cube so we can see more than one side initially
+        graphics.rotateX (-30);
+        graphics.rotateY (-45);
 
-        let startX = 50;
-        let startY = 275;
-        strokeWeight(3);
-        stroke('black');
-
+        let cubieSize = min(graphics.width, graphics.height) / 10;
+        let cubeSize = cubieSize * this.dim;
+        let halfCubeSize = cubeSize * 0.5;
         // draw each face
-        // this.LEFT
-        this.drawFace (startX, startY, this.stickerSize, this.LEFT);
-        // this.FRONT
-        this.drawFace (startX + this.faceSize, startY, this.stickerSize, this.FRONT);
-        // this.RIGHT
-        this.drawFace (startX + this.faceSize * 2, startY, this.stickerSize, this.RIGHT);
-        // this.BACK
-        this.drawFace (startX + this.faceSize * 3, startY, this.stickerSize, this.BACK);
-        // this.UP
-        this.drawFace (startX + this.faceSize, startY - this.faceSize, this.stickerSize, this.UP);
-        // this.DOWN
-        this.drawFace (startX + this.faceSize, startY + this.faceSize, this.stickerSize, this.DOWN);
-
+        // left
+        graphics.translate (-halfCubeSize, 0, 0);
+        graphics.rotateY (-90);
+        this.drawFace3D (cubieSize, this.LEFT);
+        graphics.rotateY ( 90);
+        graphics.translate ( halfCubeSize, 0, 0);
+        // front
+        graphics.translate (0, 0,  halfCubeSize);
+        this.drawFace3D (cubieSize, this.FRONT);
+        graphics.translate (0, 0, -halfCubeSize);
+        // right
+        graphics.translate ( halfCubeSize, 0, 0);
+        graphics.rotateY ( 90);
+        this.drawFace3D (cubieSize, this.RIGHT);
+        graphics.rotateY (-90);
+        graphics.translate (-halfCubeSize, 0, 0);
+        // back
+        graphics.translate (0, 0, -halfCubeSize);
+        graphics.rotateY ( 180);
+        this.drawFace3D (cubieSize, this.BACK);
+        graphics.rotateY (-180);
+        graphics.translate (0, 0,  halfCubeSize);
+        // up
+        graphics.translate (0, -halfCubeSize, 0);
+        graphics.rotateX ( 90);
+        this.drawFace3D (cubieSize, this.UP);
+        graphics.rotateX (-90);
+        graphics.translate (0,  halfCubeSize, 0);
+        // down
+        graphics.translate (0,  halfCubeSize, 0);
+        graphics.rotateX (-90);
+        this.drawFace3D (cubieSize, this.DOWN);
+        graphics.rotateX ( 90);
+        graphics.translate (0, -halfCubeSize, 0);
     }
 
     // =======================================================================
 
-    // draws each sticker associated with a face of the cube
-    drawFace (startX, startY, stickerSize, elemOffset) {
-        fill (this.getColor(this.data[elemOffset]));
-        square (startX                  , startY                  , stickerSize);
-        fill (this.getColor(this.data[elemOffset + 1]));
-        square (startX + stickerSize    , startY                  , stickerSize);
-        fill (this.getColor(this.data[elemOffset + 2]));
-        square (startX                  , startY + stickerSize    , stickerSize);
-        fill (this.getColor(this.data[elemOffset + 3]));
-        square (startX + stickerSize    , startY + stickerSize    , stickerSize);
+    // draws each sticker for a given face
+    // Generalized for any cube size
+    drawFace3D (cubieFaceSize, elemOffset) {
+        let stickerSize = cubieFaceSize - 5;
+        graphics.noStroke ();
+
+        // move to top left cubie position
+        // so that we can easily iterate over cubie rows and cols
+        let num_cubies_from_center_to_edge = this.dim / 2 - 0.5;
+        let dist_cube_center_to_outermost_cubie = num_cubies_from_center_to_edge * cubieFaceSize;
+        graphics.translate (-dist_cube_center_to_outermost_cubie, -dist_cube_center_to_outermost_cubie, 0);
+
+        for (let i = 0; i < this.dim; ++i)
+        {
+            for (let j = 0; j < this.dim; ++j)
+            {
+                this.drawCubieFace (j * cubieFaceSize, i * cubieFaceSize, cubieFaceSize, stickerSize, elemOffset + (i * this.dim + j));
+            }
+        }
+
+        // undo the translation to top left cubie
+        graphics.translate (dist_cube_center_to_outermost_cubie, dist_cube_center_to_outermost_cubie, 0);
+    }
+
+    // =======================================================================
+
+    // Draws a single face of a cubie and the sticker for that face
+    // Generalized for any cube size
+    drawCubieFace (x, y, cubieFaceSize, stickerSize, stickerElement)
+    {
+        // move to cubie position
+        graphics.translate (x, y, 0);
+        // draw cubie
+        let cubieColor = "black";
+        graphics.fill (cubieColor);
+        graphics.plane (cubieFaceSize);
+        // draw sticker on cubie
+        graphics.translate (0, 0,  0.1);
+        graphics.fill (this.getColor(this.data[stickerElement]));
+        graphics.plane (stickerSize);
+        graphics.translate (0, 0, -0.1);
+        // undo moving to cubie position
+        graphics.translate (-x, -y, 0);
+    }
+
+    // =======================================================================
+
+    // Draws rubiks cube 2D minimap representation that shows all sides
+    // of the cube.
+    // Generalized for any cube size
+    drawMinimap () {
+        // Draw minimap
+        let stickerSize = min (width, height) / this.minimapSizeFactor;
+        let faceSize = stickerSize * this.dim;
+        let startX = stickerSize;
+        let startY = faceSize + stickerSize;
+        strokeWeight (1);
+        stroke ('black');
+
+        // draw each face
+        // left
+        this.drawMinimapFace (startX, startY, stickerSize, this.LEFT);
+        // front
+        this.drawMinimapFace (startX + faceSize, startY, stickerSize, this.FRONT);
+        // right
+        this.drawMinimapFace (startX + faceSize * 2, startY, stickerSize, this.RIGHT);
+        // back
+        this.drawMinimapFace (startX + faceSize * 3, startY, stickerSize, this.BACK);
+        // up
+        this.drawMinimapFace (startX + faceSize, startY - faceSize, stickerSize, this.UP);
+        // down
+        this.drawMinimapFace (startX + faceSize, startY + faceSize, stickerSize, this.DOWN);
+    }
+
+    // =======================================================================
+
+    // Draws each sticker associated with a face of the cube for the minimap
+    // Generalized for any cube size
+    drawMinimapFace (startX, startY, stickerSize, elemOffset) {
+        for (let i = 0; i < this.dim; ++i)
+        {
+            for (let j = 0; j < this.dim; ++j)
+            {
+                fill (this.getColor (this.data[elemOffset + (i * this.dim + j)]));
+                square (startX + (j * stickerSize), startY + (i * stickerSize), stickerSize);
+            }
+        }
     }
 
     // =======================================================================

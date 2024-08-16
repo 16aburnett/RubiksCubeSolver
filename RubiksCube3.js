@@ -49,8 +49,14 @@ class RubiksCube3 {
         this.MOVE_Z          = 22;
         this.MOVE_ZPRIME     = 23;
         this.NUM_VALID_MOVES = 24;
-        // drawing
+        // Drawing
         this.minimapSizeFactor = 30;
+
+        // Animating
+        this.currentMove = 0;
+        this.currentAngle = 0;
+        this.currentDirection = 0;
+        this.isTurning = false;
     }
     
     // =======================================================================
@@ -95,7 +101,7 @@ class RubiksCube3 {
     // =======================================================================
 
     // restores cube to solved state
-    reset() {
+    reset () {
         this.data = [
             // left
             ORANGE, ORANGE, ORANGE,
@@ -868,99 +874,227 @@ class RubiksCube3 {
     // VISUALS
     // =======================================================================
 
+    update ()
+    {
+        // keep turning layer if we were turning something
+        if (this.isTurning)
+        {
+            this.currentAngle += this.currentDirection;
+            // Check for if the turn is complete
+            if (Math.abs (this.currentAngle) > 90)
+            {
+                // no longer turning
+                this.isTurning = false;
+                this.currentAngle = 0;
+                // Animation is complete so update the data to reflect the move
+                this.move (this.currentMove);
+            }
+        }
+    }
+
+    // =======================================================================
+
+    // Performs the given move on the rubiks cube
+    // in contrast with move(move), this animates the rubiks cube to turn
+    // the layer associated with the move and will update the actual cube state
+    // when the animation has finished.
+    animatedMove (move)
+    {
+        // Ensure we arent already performing a move
+        if (this.isTurning)
+            return false;
+        this.currentMove = move;
+        this.currentAngle = 0;
+        this.currentDirection = -TURN_SPEED;
+        this.isTurning = true;
+    }
+
+    // =======================================================================
+
     // Draws 3D representation of the rubiks cube to the current graphics
     // Generalized for any cube size
     draw3DCube ()
     {
         // Rotate the whole cube so we can see more than one side initially
-        graphics.rotateX (-30);
-        graphics.rotateY (-45);
+        // graphics.rotateX (-30);
+        // graphics.rotateY (-45);
 
         let cubieSize = min(graphics.width, graphics.height) / 10;
-        let cubeSize = cubieSize * this.dim;
-        let halfCubeSize = cubeSize * 0.5;
-        // draw each face
-        // left
-        graphics.translate (-halfCubeSize, 0, 0);
-        graphics.rotateY (-90);
-        this.drawFace3D (cubieSize, this.LEFT);
-        graphics.rotateY ( 90);
-        graphics.translate ( halfCubeSize, 0, 0);
-        // front
-        graphics.translate (0, 0,  halfCubeSize);
-        this.drawFace3D (cubieSize, this.FRONT);
-        graphics.translate (0, 0, -halfCubeSize);
-        // right
-        graphics.translate ( halfCubeSize, 0, 0);
-        graphics.rotateY ( 90);
-        this.drawFace3D (cubieSize, this.RIGHT);
-        graphics.rotateY (-90);
-        graphics.translate (-halfCubeSize, 0, 0);
-        // back
-        graphics.translate (0, 0, -halfCubeSize);
-        graphics.rotateY ( 180);
-        this.drawFace3D (cubieSize, this.BACK);
-        graphics.rotateY (-180);
-        graphics.translate (0, 0,  halfCubeSize);
-        // up
-        graphics.translate (0, -halfCubeSize, 0);
-        graphics.rotateX ( 90);
-        this.drawFace3D (cubieSize, this.UP);
-        graphics.rotateX (-90);
-        graphics.translate (0,  halfCubeSize, 0);
-        // down
-        graphics.translate (0,  halfCubeSize, 0);
-        graphics.rotateX (-90);
-        this.drawFace3D (cubieSize, this.DOWN);
-        graphics.rotateX ( 90);
-        graphics.translate (0, -halfCubeSize, 0);
-    }
 
-    // =======================================================================
-
-    // draws each sticker for a given face
-    // Generalized for any cube size
-    drawFace3D (cubieFaceSize, elemOffset) {
-        let stickerSize = cubieFaceSize - 5;
-        graphics.noStroke ();
-
-        // move to top left cubie position
-        // so that we can easily iterate over cubie rows and cols
-        let num_cubies_from_center_to_edge = this.dim / 2 - 0.5;
-        let dist_cube_center_to_outermost_cubie = num_cubies_from_center_to_edge * cubieFaceSize;
-        graphics.translate (-dist_cube_center_to_outermost_cubie, -dist_cube_center_to_outermost_cubie, 0);
-
-        for (let i = 0; i < this.dim; ++i)
+        // Draw all cubies
+        // **hardcoded to 3x3 - not generalized
+        let low = -1;
+        let high = 1;
+        for (let i = low; i <= high; ++i)
         {
-            for (let j = 0; j < this.dim; ++j)
+            for (let j = low; j <= high; ++j)
             {
-                this.drawCubieFace (j * cubieFaceSize, i * cubieFaceSize, cubieFaceSize, stickerSize, elemOffset + (i * this.dim + j));
+                for (let k = low; k <= high; ++k)
+                {
+                    // **this is not generalized - hardcoded to 3x3 moves
+                    // Check for if the UP face is moving
+                    // and that this cubie is in that face
+                    // to rotate it
+                    if (this.isTurning && (this.currentMove == this.MOVE_U || this.currentMove == this.MOVE_UPRIME) && i == low)
+                    {
+                        graphics.rotateY ( this.currentAngle);
+                        this.drawCubie (cubieSize, i, j, k);
+                        graphics.rotateY (-this.currentAngle);
+                    }
+                    // Check for if the DOWN face is moving
+                    // and that this cubie is in that face
+                    // to rotate it
+                    else if (this.isTurning && (this.currentMove == this.MOVE_D || this.currentMove == this.MOVE_DPRIME) && i == high)
+                    {
+                        graphics.rotateY ( this.currentAngle);
+                        this.drawCubie (cubieSize, i, j, k);
+                        graphics.rotateY (-this.currentAngle);
+                    }
+                    // Check for if the FRONT face is moving
+                    // and that this cubie is in that face
+                    // to rotate it
+                    else if (this.isTurning && (this.currentMove == this.MOVE_F || this.currentMove == this.MOVE_FPRIME) && k == high)
+                    {
+                        graphics.rotateZ ( this.currentAngle);
+                        this.drawCubie (cubieSize, i, j, k);
+                        graphics.rotateZ (-this.currentAngle);
+                    }
+                    // Check for if the BACK face is moving
+                    // and that this cubie is in that face
+                    // to rotate it
+                    else if (this.isTurning && (this.currentMove == this.MOVE_B || this.currentMove == this.MOVE_BPRIME) && k == low)
+                    {
+                        graphics.rotateZ ( this.currentAngle);
+                        this.drawCubie (cubieSize, i, j, k);
+                        graphics.rotateZ (-this.currentAngle);
+                    }
+                    // Check for if the LEFT face is moving
+                    // and that this cubie is in that face
+                    // to rotate it
+                    else if (this.isTurning && (this.currentMove == this.MOVE_L || this.currentMove == this.MOVE_LPRIME) && j == low)
+                    {
+                        graphics.rotateX ( this.currentAngle);
+                        this.drawCubie (cubieSize, i, j, k);
+                        graphics.rotateX (-this.currentAngle);
+                    }
+                    // Check for if the RIGHT face is moving
+                    // and that this cubie is in that face
+                    // to rotate it
+                    else if (this.isTurning && (this.currentMove == this.MOVE_R || this.currentMove == this.MOVE_RPRIME) && j == high)
+                    {
+                        graphics.rotateX ( this.currentAngle);
+                        this.drawCubie (cubieSize, i, j, k);
+                        graphics.rotateX (-this.currentAngle);
+                    }
+                    // this cubie is not moving
+                    else
+                    {
+                        this.drawCubie (cubieSize, i, j, k);
+                    }
+                }
             }
         }
 
-        // undo the translation to top left cubie
-        graphics.translate (dist_cube_center_to_outermost_cubie, dist_cube_center_to_outermost_cubie, 0);
+        // undo cube rotation
+        // graphics.rotateY ( 45);
+        // graphics.rotateX ( 30);
     }
 
     // =======================================================================
 
-    // Draws a single face of a cubie and the sticker for that face
-    // Generalized for any cube size
-    drawCubieFace (x, y, cubieFaceSize, stickerSize, stickerElement)
+    drawCubie (cubieSize, i, j, k)
     {
         // move to cubie position
-        graphics.translate (x, y, 0);
+        graphics.translate ( cubieSize * j,  cubieSize * i,  cubieSize * k);
+
         // draw cubie
-        let cubieColor = "black";
-        graphics.fill (cubieColor);
-        graphics.plane (cubieFaceSize);
-        // draw sticker on cubie
-        graphics.translate (0, 0,  0.1);
-        graphics.fill (this.getColor(this.data[stickerElement]));
-        graphics.plane (stickerSize);
-        graphics.translate (0, 0, -0.1);
-        // undo moving to cubie position
-        graphics.translate (-x, -y, 0);
+        graphics.fill (0);
+        graphics.stroke (0);
+        graphics.box (cubieSize);
+
+        // draw stickers on cubie
+        let distCubieCenterToStickerLocation = cubieSize/2 + 0.1;
+        let stickerSize = cubieSize - 5;
+        // convert [-1,1] centered indexing to [0,2] normal indexing
+        // **this is not generalized and is hardcoded to 3x3
+        let ii = i + 1;
+        let jj = j + 1;
+        let kk = k + 1;
+        // front face, if front cubie
+        if (kk+1 == this.dim)
+        {
+            graphics.translate (0, 0,  distCubieCenterToStickerLocation);
+            graphics.fill (this.getColor(this.data[this.FRONT + ii * this.dim + jj]));
+            graphics.noStroke ();
+            graphics.plane (stickerSize);
+            graphics.translate (0, 0, -distCubieCenterToStickerLocation);
+        }
+        // back face
+        if (kk == 0)
+        {
+            graphics.translate (0, 0, -distCubieCenterToStickerLocation);
+            graphics.rotateY ( 180);
+            // the back face is mirror in data vs on the cube
+            // so we need to subtract jj from the end of the row
+            graphics.fill (this.getColor(this.data[this.BACK + ((ii+1) * this.dim - 1 - jj)]));
+            graphics.noStroke ();
+            graphics.plane (stickerSize);
+            graphics.rotateY (-180);
+            graphics.translate (0, 0,  distCubieCenterToStickerLocation);
+        }
+        // left face
+        if (jj == 0)
+        {
+            graphics.translate (-distCubieCenterToStickerLocation, 0, 0);
+            graphics.rotateY (-90);
+            graphics.fill (this.getColor(this.data[this.LEFT + ii * this.dim + kk]));
+            graphics.noStroke ();
+            graphics.plane (stickerSize);
+            graphics.rotateY ( 90);
+            graphics.translate ( distCubieCenterToStickerLocation, 0, 0);
+        }
+        // right face, if right cubie
+        if (jj+1 == this.dim)
+        {
+            graphics.translate ( distCubieCenterToStickerLocation, 0, 0);
+            graphics.rotateY ( 90);
+            // the right face is mirrored between the data and cube
+            // so we need to subtract kk from the end of the row
+            graphics.fill (this.getColor(this.data[this.RIGHT + ((ii+1) * this.dim - 1 - kk)]));
+            graphics.noStroke ();
+            graphics.plane (stickerSize);
+            graphics.rotateY (-90);
+            graphics.translate (-distCubieCenterToStickerLocation, 0, 0);
+        }
+        // up face, if up cubie
+        if (ii == 0)
+        {
+            graphics.translate (0, -distCubieCenterToStickerLocation, 0);
+            graphics.rotateX ( 90);
+            graphics.fill (this.getColor(this.data[this.UP + kk * this.dim + jj]));
+            graphics.noStroke ();
+            graphics.plane (stickerSize);
+            graphics.rotateX (-90);
+            graphics.translate (0,  distCubieCenterToStickerLocation, 0);
+        }
+        // down face, if down cubie
+        if (ii+1 == this.dim)
+        {
+            graphics.translate (0,  distCubieCenterToStickerLocation, 0);
+            graphics.rotateX (-90);
+            // the down face is mirrored between the data and cube
+            // so we need to only reverse rows
+            // (looks like we reverse rows then reverse cols bc reversing the rows
+            // automatically reversed cols - there might be a better way to do this)
+            graphics.fill (this.getColor(this.data[this.DOWN + this.dim*this.dim - 1 - ((kk+1) * this.dim - 1 - jj)]));
+            graphics.noStroke ();
+            graphics.plane (stickerSize);
+            graphics.rotateX ( 90);
+            graphics.translate (0, -distCubieCenterToStickerLocation, 0);
+        }
+
+        // return from cubie position
+        graphics.translate (-cubieSize * j, -cubieSize * i, -cubieSize * k);
     }
 
     // =======================================================================

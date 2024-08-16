@@ -494,6 +494,26 @@ class RubiksCube2 {
     // VISUALS
     // =======================================================================
 
+    update ()
+    {
+        // do nothing for now
+    }
+
+    // =======================================================================
+
+    // Performs the given move on the rubiks cube
+    // in contrast with move(move), this animates the rubiks cube to turn
+    // the layer associated with the move and will update the actual cube state
+    // when the animation has finished.
+    animatedMove (move)
+    {
+        // TODO: IMPLEMENT
+        // just does normal move for now
+        this.move (move);
+    }
+
+    // =======================================================================
+
     // Draws 3D representation of the rubiks cube to the current graphics
     // Generalized for any cube size
     draw3DCube ()

@@ -78,9 +78,28 @@ function setup () {
         tr.appendChild (td);
         tr.appendChild (td);
     }
+    else if (cubeType == "animated") {
+        rubiksCube = new RubiksCube3x3 ();
+        solver = null;
+        // Setup solver controls buttons
+        let solverControlsTable = document.getElementById ("solverControlsTable");
+        let tr = document.createElement ("tr");
+        tr.className = "controlRow";
+        solverControlsTable.appendChild (tr);
+        let td = document.createElement ("td");
+        td.colSpan = 4
+        let btn = document.createElement ("button");
+        btn.className = "controlButton";
+        btn.onclick = () => null;
+        btn.innerText = "No 3x3 animated solver yet";
+        td.appendChild (btn);
+        tr.appendChild (td);
+        tr.appendChild (td);
+    }
     // 3x3 by default
     else {
         rubiksCube = new RubiksCube3();
+        // rubiksCube = new RubiksCube3x3();
         solver = new CFOPSolver3();
         // Setup solver controls buttons
         let solverControlsTable = document.getElementById ("solverControlsTable");
@@ -121,7 +140,7 @@ function setup () {
         let td = document.createElement ("td");
         let btn = document.createElement ("button");
         btn.className = "controlButton";
-        btn.onclick = () => rubiksCube.move (m);
+        btn.onclick = () => rubiksCube.animatedMove (m);
         btn.innerText = rubiksCube.intToMoveString (m);
         td.appendChild (btn);
         tr.appendChild (td);
@@ -144,12 +163,16 @@ function draw () {
     // if we are currently scrambling,
     // then perform a single scramble move for this frame
     if (shouldScramble) {
-        let randMove = int(random(0, rubiksCube.NUM_VALID_MOVES));
-        console.log(rubiksCube.intToMoveString(randMove));
-        rubiksCube.move (randMove);
-        amountToScramble -= 1;
-        if (amountToScramble < 0) {
-            shouldScramble = false;
+        // Ensure cube is ready to receive move
+        if (!rubiksCube.isTurning)
+        {
+            let randMove = int(random(0, rubiksCube.NUM_VALID_MOVES));
+            console.log(rubiksCube.intToMoveString(randMove));
+            let acceptedMove = rubiksCube.animatedMove (randMove);
+            amountToScramble -= 1;
+            if (amountToScramble < 0) {
+                shouldScramble = false;
+            }
         }
     }
 
@@ -175,6 +198,7 @@ function draw () {
     }
 
     // Draw 3D graphics
+    rubiksCube.update ();
     rubiksCube.draw3DCube ();
 
     // Add 3D graphics to canvas as an image

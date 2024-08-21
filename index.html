@@ -13,12 +13,9 @@
         <script type="text/javascript" src="Sticker.js"></script>
         <script type="text/javascript" src="Cubie.js"></script>
         <script type="text/javascript" src="RubiksCube.js"></script>
-        <script type="text/javascript" src="RubiksCube2.js"></script>
-        <script type="text/javascript" src="RubiksCube3.js"></script>
-        <script type="text/javascript" src="RubiksCube4.js"></script>
-        <script type="text/javascript" src="CFOPSolver3.js"></script>
-        <script type="text/javascript" src="CFOPSolver2.js"></script>
-        <script type="text/javascript" src="FullSolver2.js"></script>
+        <script type="text/javascript" src="CFOPSolver1x1.js"></script>
+        <script type="text/javascript" src="CFOPSolver2x2.js"></script>
+        <script type="text/javascript" src="CFOPSolver3x3.js"></script>
         <script type="text/javascript" src="sketch.js"></script>
     </head>
     <body>
@@ -26,6 +23,10 @@
             <h2>Rubik's Cube Solver</h2>
             <h5 style="margin-top:-10px">Created by Amy Burnett</h5>
             <div class="nav">
+                <form class="navForm" action="./index.html" method="GET">
+                    <input type="input" name="type" value="1x1" hidden>
+                    <input class="navButton" type="submit" value="1x1 Rubik's Cube">
+                </form>
                 <form class="navForm" action="./index.html" method="GET">
                     <input type="input" name="type" value="2x2" hidden>
                     <input class="navButton" type="submit" value="2x2 Rubik's Cube">
@@ -39,8 +40,8 @@
                     <input class="navButton" type="submit" value="4x4 Rubik's Cube">
                 </form>
                 <form class="navForm" action="./index.html" method="GET">
-                    <input type="input" name="type" value="animated" hidden>
-                    <input class="navButton" type="submit" value="3x3 Rubik's Cube Animated">
+                    <input type="input" name="type" value="5x5" hidden>
+                    <input class="navButton" type="submit" value="5x5 Rubik's Cube">
                 </form>
             </div>
         </div>

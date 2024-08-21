@@ -133,7 +133,7 @@ class RubiksCube3 {
     // =======================================================================
     // Moves
 
-    move (move) {
+    rotate (move) {
         // Outer slice moves
         if (move == this.MOVE_L) this.L();
         if (move == this.MOVE_LPRIME) this.LPrime();
@@ -898,7 +898,7 @@ class RubiksCube3 {
     // in contrast with move(move), this animates the rubiks cube to turn
     // the layer associated with the move and will update the actual cube state
     // when the animation has finished.
-    animatedMove (move)
+    animatedRotate (move)
     {
         // Ensure we arent already performing a move
         if (this.isTurning)

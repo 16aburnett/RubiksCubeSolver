@@ -9,36 +9,80 @@
 // =======================================================================
 
 class Cubie {
-    constructor (xi, yi, zi)
+    constructor (xi, yi, zi, low, high, dim)
     {
         this.xi = xi;
         this.yi = yi;
         this.zi = zi;
-        // Cubies dont actually have 6 stickers,
-        // but we can assume they do for simplicity
-        this.stickers = [
-            // UP
-            new Sticker (createVector ( 0, -1,  0), YELLOW),
-            // DOWN
-            new Sticker (createVector ( 0,  1,  0), WHITE),
-            // LEFT
-            new Sticker (createVector (-1,  0,  0), ORANGE),
-            // RIGHT
-            new Sticker (createVector ( 1,  0,  0), RED),
-            // FRONT
-            new Sticker (createVector ( 0,  0,  1), BLUE),
-            // BACK
-            new Sticker (createVector ( 0,  0, -1), GREEN),
-        ];
+        this.low = low;
+        this.high = high;
+        this.dim = dim;
+        // Enums for sticker direction
+        this.UP    = createVector ( 0, -1,  0);
+        this.DOWN  = createVector ( 0,  1,  0);
+        this.LEFT  = createVector (-1,  0,  0);
+        this.RIGHT = createVector ( 1,  0,  0);
+        this.FRONT = createVector ( 0,  0,  1);
+        this.BACK  = createVector ( 0,  0, -1);
+        // The stickers for this cubie.
+        this.stickers = [];
+        // Only add the stickers that will be seen
+        // UP - y-axis is mirrored
+        if (yi == low)
+            this.stickers.push (new Sticker (this.UP   .copy (), YELLOW));
+        // DOWN - y-axis is mirrored
+        if (yi == high)
+            this.stickers.push (new Sticker (this.DOWN .copy (), WHITE));
+        // LEFT
+        if (xi == low)
+            this.stickers.push (new Sticker (this.LEFT .copy (), ORANGE));
+        // RIGHT
+        if (xi == high)
+            this.stickers.push (new Sticker (this.RIGHT.copy (), RED));
+        // FRONT
+        if (zi == high)
+            this.stickers.push (new Sticker (this.FRONT.copy (), BLUE));
+        // BACK
+        if (zi == low)
+            this.stickers.push (new Sticker (this.BACK .copy (), GREEN));
+        // A lookup table organized by sticker direction vectors
+        // This is to optimize sticker lookup so that not all 12
+        // stickers need to be checked to get a specific sticker.
+        // this.stickersLookupTable = [];
     }
 
     // =======================================================================
 
-    update (x, y, z)
+    // Returns a new Cubie with the same state
+    copy ()
     {
-        this.xi = x;
-        this.yi = y;
-        this.zi = z;
+        let newCubie = new Cubie (this.xi, this.yi, this.zi, this.low, this.high, this.dim);
+        // Copy each of the stickers
+        newCubie.stickers = [];
+        for (let sticker of this.stickers)
+        {
+            newCubie.stickers.push (sticker.copy ());
+        }
+        // Copy stickers lookup table
+        // newCubie.stickersLookupTable = this.stickersLookupTable.slice ();
+        return newCubie;
+    }
+
+    // =======================================================================
+
+    // Returns the sticker color for the sticker in the given direction
+    getStickerColor (directionVector)
+    {
+        // this loop might be bad for performance
+        // idealy this should be a lookup rather than a search
+        // but it is a max of 3 stickers so this might be fine
+        for (let sticker of this.stickers)
+        {
+            // Ensure sticker matches direction
+            if (!(sticker.normal.x == directionVector.x && sticker.normal.y == directionVector.y && sticker.normal.z == directionVector.z))
+                continue;
+            return sticker.color;
+        }
     }
 
     // =======================================================================
@@ -102,9 +146,24 @@ class Cubie {
         graphics.push ();
 
         let cubieSize = min (graphics.width, graphics.height) / 10;
+        
+        let x = this.xi;
+        let y = this.yi;
+        let z = this.zi;
+
+        // Fix position for even parity layered cubes
+        // Even layered cubes have a fake middle dummy layer
+        // we need to bring in the layers by 50% of a cubie
+        let isEvenLayeredCube = this.dim % 2 == 0;
+        if (isEvenLayeredCube)
+        {
+            x = Math.sign (x) * (Math.abs (x) - 0.5);
+            y = Math.sign (y) * (Math.abs (y) - 0.5);
+            z = Math.sign (z) * (Math.abs (z) - 0.5);
+        }
 
         // move to cubie position
-        graphics.translate (this.xi * cubieSize, this.yi * cubieSize, this.zi * cubieSize);
+        graphics.translate (x * cubieSize, y * cubieSize, z * cubieSize);
 
         // draw cubie
         graphics.fill (0);
@@ -117,7 +176,7 @@ class Cubie {
         }
         
         // move back from cubie position
-        graphics.translate (-this.xi * cubieSize, -this.yi * cubieSize, -this.zi * cubieSize);
+        graphics.translate (-(x * cubieSize), -(y * cubieSize), -(z * cubieSize));
 
         graphics.pop ();
     }

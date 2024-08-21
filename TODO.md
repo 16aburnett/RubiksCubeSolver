@@ -5,6 +5,21 @@
 
 - [] add timer for solvers
 
+
+- [] cube notation
+    - r on 4x4 has a unique meaning.....
+    - https://www.youtube.com/watch?v=24eHm4ri8WM
+    - 
+
+
+- [] generalized rubiks cube class
+    - Cube move notation is not generalizable since it changes with 2x2, 3x3, 4x4, etc
+        - need a way to define move sets outside class
+        - and provide a map from move notation to internal move notation
+
+- [] make sure rotations are correct
+    - https://jperm.net/3x3/moves
+
 - [DONE] Add a 3D representation of the cube
     - doesnt need to be interactable
     - leave 2D rep as a minimap
@@ -48,3 +63,4 @@
 - [] for 4x4 - reduce to 2x2 and solve like 2x2
 - [] 2x2 ortega method https://www.speedcube.us/blogs/speedcubing-solutions/how-to-solve-a-2x2-using-ortega-method-intermediate
 - [] commutator-only solver
+- [] layer by layer 4x4 - not the normal one

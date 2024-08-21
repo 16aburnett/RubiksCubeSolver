@@ -142,7 +142,7 @@ class RubiksCube4 {
     // =======================================================================
     // Moves
 
-    move (move) {
+    rotate (move) {
         if (move == this.MOVE_L) this.L();
         if (move == this.MOVE_LPRIME) this.LPrime();
         if (move == this.MOVE_F) this.F();
@@ -1105,11 +1105,11 @@ class RubiksCube4 {
     // in contrast with move(move), this animates the rubiks cube to turn
     // the layer associated with the move and will update the actual cube state
     // when the animation has finished.
-    animatedMove (move)
+    animatedRotate (move)
     {
         // TODO: IMPLEMENT
         // just does normal move for now
-        this.move (move);
+        this.rotate (move);
     }
 
     // =======================================================================

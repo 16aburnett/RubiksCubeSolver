@@ -1,211 +1,328 @@
-/*
-    Rubiks Cube 3x3
-    By Amy Burnett
-    August 15 2024
-*/
+// Rubiks Cube: Generalized (2x2, 3x3, 4x4, etc)
+// This class is intended to be generalized for any rubiks cube dimensions
+// NOTE: this is a WIP and not yet generalized
+// By Amy Burnett
+// August 15 2024
+// =======================================================================
 
 // =======================================================================
 
-// const TURN_SPEED = 2;
-
-// =======================================================================
-
-class RubiksCube3x3
+class RubiksCube
 {
 
-    constructor ()
+    // NOT YET GENERALIZED
+    constructor (dim=3)
     {
-        this.dim = 3;
+        // The number of slices in each 3 directions
+        // Perfect cube assumed
+        // Cubiod support might be added in the future :)
+        this.dim = dim;
+        // List to keep track of cubies
+        // not stored in any particular order
+        // as rotating faces will only change cubie x,y,z position
+        // not the position of the cubie in this list
         this.cubies = [];
-        let low = -1;
-        let high = 1;
-        for (let xi = low; xi <= high; ++xi)
-        {
-            for (let yi = low; yi <= high; ++yi)
-            {
-                for (let zi = low; zi <= high; ++zi)
-                {
-                    // TODO: this should probably ignore hidden cubies
-                    this.cubies.push (new Cubie (xi, yi, zi));
-                }
-            }
-        }
+        // data stores the cube sticker data for quicker lookups
+        // This is a duplication of data that already exists
+        // within the cubies, but in a format that makes lookup
+        // more easier and faster. a lookup table
+        // This is essentially a 2D representation of the cube
+        this.data = [];
+        // face offsets for data
+        // generalized for any size
+        this.LEFT   = 0 * this.dim * this.dim; // 3x3 -> 0
+        this.FRONT  = 1 * this.dim * this.dim; // 3x3 -> 9
+        this.RIGHT  = 2 * this.dim * this.dim; // 3x3 -> 18
+        this.BACK   = 3 * this.dim * this.dim; // 3x3 -> 27
+        this.UP     = 4 * this.dim * this.dim; // 3x3 -> 36
+        this.DOWN   = 5 * this.dim * this.dim; // 3x3 -> 45
+        // initialize cube to default state
+        this.reset ();
+
         // Moves
-        // Outer slice moves
-        this.MOVE_L          = 0;
-        this.MOVE_LPRIME     = 1;
-        this.MOVE_F          = 2;
-        this.MOVE_FPRIME     = 3;
-        this.MOVE_R          = 4;
-        this.MOVE_RPRIME     = 5;
-        this.MOVE_B          = 6;
-        this.MOVE_BPRIME     = 7;
-        this.MOVE_U          = 8;
-        this.MOVE_UPRIME     = 9;
-        this.MOVE_D          = 10;
-        this.MOVE_DPRIME     = 11;
-        // Middle slice moves
-        this.MOVE_M          = 12;
-        this.MOVE_MPRIME     = 13;
-        this.MOVE_E          = 14;
-        this.MOVE_EPRIME     = 15;
-        this.MOVE_S          = 16;
-        this.MOVE_SPRIME     = 17;
-        // Cube rotation moves
-        this.MOVE_X          = 18;
-        this.MOVE_XPRIME     = 19;
-        this.MOVE_Y          = 20;
-        this.MOVE_YPRIME     = 21;
-        this.MOVE_Z          = 22;
-        this.MOVE_ZPRIME     = 23;
-        this.NUM_VALID_MOVES = 24;
+
 
         // Drawing
-        this.minimapSizeFactor = 30;
+        // TODO: needs to be generalized
+        this.minimapSizeFactor = 10 * this.dim;
 
         // Animating
         this.currentMove = 0;
+        this.currentMoves = [];
         this.currentAngle = 0;
         this.currentSpeed = TURN_SPEED;
         this.isTurning = false;
     }
+
+    // =======================================================================
+
+    // Returns a new RubiksCube with the same state
+    copy ()
+    {
+        let newCube = new RubiksCube (this.dim);
+        // copy each of the cubies
+        newCube.cubies = [];
+        for (let cubie of this.cubies)
+        {
+            newCube.cubies.push (cubie.copy ());
+        }
+        // copy the lookup table
+        newCube.data = this.data.slice ();
+
+        return newCube;
+    }
     
     // =======================================================================
 
+    // Returns true if the cube is in the solved state, false otherwise.
     isSolved ()
     {
-
+        // Ensure all FRONT pieces are BLUE
+        for (var i = 0; i < this.dim*this.dim; ++i) {
+            if (this.data[this.FRONT + i] != BLUE) {
+                return false;
+            }
+        }
+        // Ensure all BACK pieces are GREEN
+        for (var i = 0; i < this.dim*this.dim; ++i) {
+            if (this.data[this.BACK + i] != GREEN) {
+                return false;
+            }
+        }
+        // Ensure all LEFT pieces are ORANGE
+        for (var i = 0; i < this.dim*this.dim; ++i) {
+            if (this.data[this.LEFT + i] != ORANGE) {
+                return false;
+            }
+        }
+        // Ensure all RIGHT pieces are RED
+        for (var i = 0; i < this.dim*this.dim; ++i) {
+            if (this.data[this.RIGHT + i] != RED) {
+                return false;
+            }
+        }
+        // Ensure all UP pieces are YELLOW
+        for (var i = 0; i < this.dim*this.dim; ++i) {
+            if (this.data[this.UP + i] != YELLOW) {
+                return false;
+            }
+        }
+        // Ensure all DOWN pieces are WHITE
+        for (var i = 0; i < this.dim*this.dim; ++i) {
+            if (this.data[this.DOWN + i] != WHITE) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // =======================================================================
 
     // restores cube to solved state
+    // NOT YET GENERALIZED
     reset ()
     {
+        let numFaces = 6;
         this.cubies = [];
-        let low = -1;
-        let high = 1;
+        this.data = Array (numFaces * this.dim * this.dim).fill (0);
+        // TODO: derive low and high from dim
+        // low(1) = round(1 / 2) - 1 = 1 - 1 = 0   -> [ 0,0] just a single layer
+        // low(2) = round(2 / 2) - 2 = 1 - 2 = -1  -> [-1,1] even, so dummy 0th layer
+        // low(3) = round(3 / 2) - 3 = 2 - 3 = -1  -> [-1,1]
+        // low(4) = round(4 / 2) - 4 = 2 - 4 = -2  -> [-2,2] even, so dummy 0th layer
+        // low(5) = round(5 / 2) - 5 = 3 - 5 = -2  -> [-2,2]
+        // low(6) = round(6 / 2) - 6 = 3 - 6 = -3  -> [-3,3] even, so dummy 0th layer
+        // low(7) = round(7 / 2) - 7 = 4 - 7 = -3  -> [-3,3]
+        let low = Math.round (this.dim / 2) - this.dim;
+        let high = -low;
         for (let xi = low; xi <= high; ++xi)
         {
             for (let yi = low; yi <= high; ++yi)
             {
                 for (let zi = low; zi <= high; ++zi)
                 {
-                    // TODO: this should probably ignore hidden cubies
-                    this.cubies.push (new Cubie (xi, yi, zi));
+                    // Ensure we dont have a middle layer
+                    // for even layered cubes
+                    if (this.dim % 2 == 0 && (xi == 0 || yi == 0 || zi == 0))
+                        continue;
+                    // Ensure cubie is not hidden
+                    // A cubie is not hidden if at least one dimension
+                    // is the outside of the cube
+                    if (xi != low && xi != high &&
+                        yi != low && yi != high &&
+                        zi != low && zi != high)
+                    {
+                        continue;
+                    }
+                    // Create and add cubie
+                    let cubie = new Cubie (xi, yi, zi, low, high, this.dim);
+                    this.cubies.push (cubie);
+
+                    // Update lookup table
+                    this.updateLookupTable (cubie);
                 }
             }
+        }
+        // Populate data array
+        // we can assume the cubies were initialized to the solved
+        // state
+
+    }
+
+    // =======================================================================
+
+    // Updates the lookup table with the given cubie's sticker orientation
+    updateLookupTable (cubie)
+    {
+        // TODO: derive low and high from dim
+        let low = Math.round (this.dim / 2) - this.dim;
+        let high = -low;
+        // Update lookup table
+        // convert centered indices to top left indices
+        // unsure if this is generalized
+        let j = cubie.xi + high;
+        let i = cubie.yi + high;
+        let k = cubie.zi + high;
+        // Adjust for parity
+        // Even layered cubes have a dummy center layer
+        if (this.dim % 2 == 0 && cubie.xi > 0)
+            j = j - 1;
+        if (this.dim % 2 == 0 && cubie.yi > 0)
+            i = i - 1;
+        if (this.dim % 2 == 0 && cubie.zi > 0)
+            k = k - 1;
+        // cubie has UP face
+        if (cubie.yi == low) // y axis is inverted
+        {
+            this.data[this.UP + k * this.dim + j] = cubie.getStickerColor (cubie.UP);
+        }
+        // cubie has DOWN face
+        if (cubie.yi == high) // y axis is inverted
+        {
+            // DOWN needs to be mirrored
+            this.data[this.DOWN + this.dim*this.dim - 1 - ((k+1) * this.dim - 1 - j)] = cubie.getStickerColor (cubie.DOWN);
+        }
+        // cubie has FRONT face
+        if (cubie.zi == high)
+        {
+            this.data[this.FRONT + i * this.dim + j] = cubie.getStickerColor (cubie.FRONT);
+        }
+        // cubie has BACK face
+        if (cubie.zi == low)
+        {
+            // BACK needs to be mirrored
+            this.data[this.BACK + ((i+1) * this.dim - 1 - j)] = cubie.getStickerColor (cubie.BACK);
+        }
+        // cubie has LEFT face
+        if (cubie.xi == low)
+        {
+            this.data[this.LEFT + i * this.dim + k] = cubie.getStickerColor (cubie.LEFT);
+        }
+        // cubie has RIGHT face
+        if (cubie.xi == high)
+        {
+            // RIGHT needs to be mirrored
+            this.data[this.RIGHT + ((i+1) * this.dim - 1 - k)] = cubie.getStickerColor (cubie.RIGHT);
         }
     }
 
     // =======================================================================
     // Moves
 
-    move (move)
+    rotate (axis, slices, direction)
     {
-        // Outer slice moves
-        if (move == this.MOVE_L) this.rotateX (-1, -1);
-        if (move == this.MOVE_LPRIME) this.rotateX (-1, 1);
-        if (move == this.MOVE_F) this.rotateZ (1, 1);
-        if (move == this.MOVE_FPRIME) this.rotateZ (1, -1);
-        if (move == this.MOVE_R) this.rotateX (1, 1);
-        if (move == this.MOVE_RPRIME) this.rotateX (1, -1);
-        if (move == this.MOVE_B) this.rotateZ (-1, -1);
-        if (move == this.MOVE_BPRIME) this.rotateZ (-1, 1);
-        if (move == this.MOVE_U) this.rotateY (-1, -1);
-        if (move == this.MOVE_UPRIME) this.rotateY (-1, 1);
-        if (move == this.MOVE_D) this.rotateY (1, 1);
-        if (move == this.MOVE_DPRIME) this.rotateY (1, -1);
-        // Middle slice moves
-        if (move == this.MOVE_M) this.rotateX (0, 1);
-        if (move == this.MOVE_MPRIME) this.rotateX (0, -1);
-        if (move == this.MOVE_E) this.rotateY (0, -1);
-        if (move == this.MOVE_EPRIME) this.rotateY (0, 1);
-        if (move == this.MOVE_S) this.rotateZ (0, 1);
-        if (move == this.MOVE_SPRIME) this.rotateZ (0, -1);
-        // Cube rotations
-        if (move == this.MOVE_X)
-        {
-            this.rotateX (-1, 1);
-            this.rotateX ( 0, 1);
-            this.rotateX ( 1, 1);
-        }
-        if (move == this.MOVE_XPRIME)
-        {
-            this.rotateX (-1, -1);
-            this.rotateX ( 0, -1);
-            this.rotateX ( 1, -1);
-        }
-        if (move == this.MOVE_Y)
-        {
-            this.rotateY (-1, -1);
-            this.rotateY ( 0, -1);
-            this.rotateY ( 1, -1);
-        }
-        if (move == this.MOVE_YPRIME)
-        {
-            this.rotateY (-1, 1);
-            this.rotateY ( 0, 1);
-            this.rotateY ( 1, 1);
-        }
-        if (move == this.MOVE_Z)
-        {
-            this.rotateZ (-1, 1);
-            this.rotateZ ( 0, 1);
-            this.rotateZ ( 1, 1);
-        }
-        if (move == this.MOVE_ZPRIME)
-        {
-            this.rotateZ (-1, -1);
-            this.rotateZ ( 0, -1);
-            this.rotateZ ( 1, -1);
-        }
+        if (axis == AXIS_X) for (let slice of slices) this.rotateX (slice, direction);
+        if (axis == AXIS_Y) for (let slice of slices) this.rotateY (slice, direction);
+        if (axis == AXIS_Z) for (let slice of slices) this.rotateZ (slice, direction);
     }
 
     // =======================================================================
 
-    rotateX (index, dir)
+    // Performs the given move on the rubiks cube.
+    // in contrast with move(move), this animates the rubiks cube to turn
+    // the layer associated with the move and will update the actual cube state
+    // when the animation has finished.
+    animatedRotate (axis, slices, direction)
     {
+        // Ensure we arent already performing a move
+        if (this.isTurning)
+            return false;
+        // this.currentMove = move;
+        this.currentAngle = 0;
+        this.currentSpeed = TURN_SPEED;
+        this.isTurning = true;
+        this.currentMoveAxis = axis;
+        this.currentMoveSlices = slices;
+        this.currentMoveDirection = direction;
+    }
+
+    // =======================================================================
+
+    // Rotate the given slice along the X axis in the given direction.
+    rotateX (sliceIndex, dir)
+    {
+        // Search over all cubies to find which need to rotate
+        // This is probably not optimal
+        // if dim was 100, we would have 100*100*100 cubies to search through
+        // just to rotate 100*100 of them
         for (let i = 0; i < this.cubies.length; ++i)
         {
             let cubie = this.cubies[i];
-            if (cubie.xi == index) {
+            if (cubie.xi == sliceIndex)
+            {
                 cubie.rotateX (dir * HALF_PI);
+                this.updateLookupTable (cubie);
             }
         }
     }
 
     // =======================================================================
-
-    rotateY (index, dir)
+    
+    // Rotate the given slice along the Y axis in the given direction.
+    rotateY (sliceIndex, dir)
     {
+        // Search over all cubies to find which need to rotate
+        // This is probably not optimal
+        // if dim was 100, we would have 100*100*100 cubies to search through
+        // just to rotate 100*100 of them
         for (let i = 0; i < this.cubies.length; ++i)
         {
             let cubie = this.cubies[i];
-            if (cubie.yi == index) {
+            if (cubie.yi == sliceIndex)
+            {
                 cubie.rotateY (dir * HALF_PI);
+                this.updateLookupTable (cubie);
             }
         }
     }
 
     // =======================================================================
-
-    rotateZ (index, dir)
+    
+    // Rotate the given slice along the X axis in the given direction.
+    rotateZ (sliceIndex, dir)
     {
+        // Search over all cubies to find which need to rotate
+        // This is probably not optimal
+        // if dim was 100, we would have 100*100*100 cubies to search through
+        // just to rotate 100*100 of them
         for (let i = 0; i < this.cubies.length; ++i)
         {
             let cubie = this.cubies[i];
-            if (cubie.zi == index) {
+            if (cubie.zi == sliceIndex)
+            {
                 cubie.rotateZ (dir * HALF_PI);
+                this.updateLookupTable (cubie);
             }
         }
     }
 
     // =======================================================================
 
+    // Updates the Rubiks Cube by one frame
+    // Should be called in the main draw() loop
     update ()
     {
-        // keep turning layer if we were turning something
+        // Keep turning layer if we were turning something
         if (this.isTurning)
         {
             this.currentAngle += this.currentSpeed;
@@ -216,197 +333,48 @@ class RubiksCube3x3
                 this.isTurning = false;
                 this.currentAngle = 0;
                 // Animation is complete so update the data to reflect the move
-                this.move (this.currentMove);
+                this.rotate (this.currentMoveAxis, this.currentMoveSlices, this.currentMoveDirection);
             }
         }
     }
 
     // =======================================================================
 
-    // Performs the given move on the rubiks cube
-    // in contrast with move(move), this animates the rubiks cube to turn
-    // the layer associated with the move and will update the actual cube state
-    // when the animation has finished.
-    animatedMove (move)
-    {
-        // Ensure we arent already performing a move
-        if (this.isTurning)
-            return false;
-        this.currentMove = move;
-        this.currentAngle = 0;
-        this.currentSpeed = TURN_SPEED;
-        this.isTurning = true;
-    }
-
-    // =======================================================================
-
-    // Draws 3D representation of the rubiks cube to the current graphics
-    // Generalized for any cube size
+    // Draws 3D representation of the rubiks cube to the current graphics.
+    // Maybe generalized for any cube dim? need to check - might need to
+    // handle parity
     draw3DCube ()
     {
         // Rotate the whole cube so we can see more than one side initially
         graphics.rotateX (-30);
         graphics.rotateY (-45);
-
-        let low = -1;
-        let high = 1;
+        // Draw each cubie
         for (let i = 0; i < this.cubies.length; ++i)
         {
             let cubie = this.cubies[i];
-            let xi = cubie.xi;
-            let yi = cubie.yi;
-            let zi = cubie.zi;
-            // **this is not generalized - hardcoded to 3x3 moves
-            if (this.isTurning && this.currentMove == this.MOVE_U && yi == low)
+            // Check if cubie should be rotating
+            if (this.isTurning && this.currentMoveAxis == AXIS_X && this.currentMoveSlices.includes (cubie.xi))
             {
-                graphics.rotateY (-this.currentAngle);
+                graphics.rotateX (this.currentAngle * this.currentMoveDirection);
                 cubie.draw ();
-                graphics.rotateY ( this.currentAngle);
+                graphics.rotateX (this.currentAngle * -this.currentMoveDirection);
             }
-            else if (this.isTurning && this.currentMove == this.MOVE_UPRIME && yi == low)
+            else if (this.isTurning && this.currentMoveAxis == AXIS_Y && this.currentMoveSlices.includes (cubie.yi))
             {
-                graphics.rotateY ( this.currentAngle);
+                graphics.rotateY (this.currentAngle * this.currentMoveDirection);
                 cubie.draw ();
-                graphics.rotateY (-this.currentAngle);
+                graphics.rotateY (this.currentAngle * -this.currentMoveDirection);
             }
-            else if (this.isTurning && this.currentMove == this.MOVE_D&& yi == high)
+            else if (this.isTurning && this.currentMoveAxis == AXIS_Z && this.currentMoveSlices.includes (cubie.zi))
             {
-                graphics.rotateY ( this.currentAngle);
+                graphics.rotateZ (this.currentAngle * this.currentMoveDirection);
                 cubie.draw ();
-                graphics.rotateY (-this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_DPRIME && yi == high)
-            {
-                graphics.rotateY (-this.currentAngle);
-                cubie.draw ();
-                graphics.rotateY ( this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_F && zi == high)
-            {
-                graphics.rotateZ ( this.currentAngle);
-                cubie.draw ();
-                graphics.rotateZ (-this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_FPRIME && zi == high)
-            {
-                graphics.rotateZ (-this.currentAngle);
-                cubie.draw ();
-                graphics.rotateZ ( this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_B && zi == low)
-            {
-                graphics.rotateZ (-this.currentAngle);
-                cubie.draw ();
-                graphics.rotateZ ( this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_BPRIME && zi == low)
-            {
-                graphics.rotateZ ( this.currentAngle);
-                cubie.draw ();
-                graphics.rotateZ (-this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_L && xi == low)
-            {
-                graphics.rotateX (-this.currentAngle);
-                cubie.draw ();
-                graphics.rotateX ( this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_LPRIME && xi == low)
-            {
-                graphics.rotateX ( this.currentAngle);
-                cubie.draw ();
-                graphics.rotateX (-this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_R && xi == high)
-            {
-                graphics.rotateX ( this.currentAngle);
-                cubie.draw ();
-                graphics.rotateX (-this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_RPRIME && xi == high)
-            {
-                graphics.rotateX (-this.currentAngle);
-                cubie.draw ();
-                graphics.rotateX ( this.currentAngle);
-            }
-            // Middle slice moves
-            else if (this.isTurning && this.currentMove == this.MOVE_M && xi == 0)
-            {
-                graphics.rotateX ( this.currentAngle);
-                cubie.draw ();
-                graphics.rotateX (-this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_MPRIME && xi == 0)
-            {
-                graphics.rotateX (-this.currentAngle);
-                cubie.draw ();
-                graphics.rotateX ( this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_E && yi == 0)
-            {
-                graphics.rotateY (-this.currentAngle);
-                cubie.draw ();
-                graphics.rotateY ( this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_EPRIME && yi == 0)
-            {
-                graphics.rotateY ( this.currentAngle);
-                cubie.draw ();
-                graphics.rotateY (-this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_S && zi == 0)
-            {
-                graphics.rotateZ ( this.currentAngle);
-                cubie.draw ();
-                graphics.rotateZ (-this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_SPRIME && zi == 0)
-            {
-                graphics.rotateZ (-this.currentAngle);
-                cubie.draw ();
-                graphics.rotateZ ( this.currentAngle);
-            }
-            // Cube rotations
-            else if (this.isTurning && this.currentMove == this.MOVE_X)
-            {
-                graphics.rotateX ( this.currentAngle);
-                cubie.draw ();
-                graphics.rotateX (-this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_XPRIME)
-            {
-                graphics.rotateX (-this.currentAngle);
-                cubie.draw ();
-                graphics.rotateX ( this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_Y)
-            {
-                // y-axis is inverted
-                graphics.rotateY (-this.currentAngle);
-                cubie.draw ();
-                graphics.rotateY ( this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_YPRIME)
-            {
-                // y-axis is inverted
-                graphics.rotateY ( this.currentAngle);
-                cubie.draw ();
-                graphics.rotateY (-this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_Z)
-            {
-                graphics.rotateZ ( this.currentAngle);
-                cubie.draw ();
-                graphics.rotateZ (-this.currentAngle);
-            }
-            else if (this.isTurning && this.currentMove == this.MOVE_ZPRIME)
-            {
-                graphics.rotateZ (-this.currentAngle);
-                cubie.draw ();
-                graphics.rotateZ ( this.currentAngle);
+                graphics.rotateZ (this.currentAngle * -this.currentMoveDirection);
             }
             else
             {
+                // Cubie is not in a currently rotating face
+                // so just draw without rotations
                 cubie.draw ();
             }
         }
@@ -419,59 +387,49 @@ class RubiksCube3x3
 
     // Draws rubiks cube 2D minimap representation that shows all sides
     // of the cube.
-    drawMinimap ()
-    {
-        // TODO
+    // Generalized for any cube size
+    drawMinimap () {
+        // Draw minimap
+        let stickerSize = min (width, height) / this.minimapSizeFactor;
+        let faceSize = stickerSize * this.dim;
+        let startX = stickerSize;
+        let startY = faceSize + stickerSize;
+        strokeWeight (1);
+        stroke ('black');
+
+        // draw each face
+        // left
+        this.drawMinimapFace (startX, startY, stickerSize, this.LEFT);
+        // front
+        this.drawMinimapFace (startX + faceSize, startY, stickerSize, this.FRONT);
+        // right
+        this.drawMinimapFace (startX + faceSize * 2, startY, stickerSize, this.RIGHT);
+        // back
+        this.drawMinimapFace (startX + faceSize * 3, startY, stickerSize, this.BACK);
+        // up
+        this.drawMinimapFace (startX + faceSize, startY - faceSize, stickerSize, this.UP);
+        // down
+        this.drawMinimapFace (startX + faceSize, startY + faceSize, stickerSize, this.DOWN);
     }
 
     // =======================================================================
 
-    // converts move to string representation
-    intToMoveString (move) {
-        // Outer slice moves
-        if (move == this.MOVE_L)      return "L";
-        if (move == this.MOVE_LPRIME) return "L'";
-        if (move == this.MOVE_F)      return "F";
-        if (move == this.MOVE_FPRIME) return "F'";
-        if (move == this.MOVE_R)      return "R";
-        if (move == this.MOVE_RPRIME) return "R'";
-        if (move == this.MOVE_B)      return "B";
-        if (move == this.MOVE_BPRIME) return "B'";
-        if (move == this.MOVE_U)      return "U";
-        if (move == this.MOVE_UPRIME) return "U'";
-        if (move == this.MOVE_D)      return "D";
-        if (move == this.MOVE_DPRIME) return "D'";
-        // Middle slice moves
-        if (move == this.MOVE_M)      return "M";
-        if (move == this.MOVE_MPRIME) return "M'";
-        if (move == this.MOVE_E)      return "E";
-        if (move == this.MOVE_EPRIME) return "E'";
-        if (move == this.MOVE_S)      return "S";
-        if (move == this.MOVE_SPRIME) return "S'";
-        // Cube rotations
-        if (move == this.MOVE_X)      return "X";
-        if (move == this.MOVE_XPRIME) return "X'";
-        if (move == this.MOVE_Y)      return "Y";
-        if (move == this.MOVE_YPRIME) return "Y'";
-        if (move == this.MOVE_Z)      return "Z";
-        if (move == this.MOVE_ZPRIME) return "Z'";
+    // Draws each sticker associated with a face of the cube for the minimap
+    // Generalized for any cube size
+    drawMinimapFace (startX, startY, stickerSize, elemOffset) {
+        for (let i = 0; i < this.dim; ++i)
+        {
+            for (let j = 0; j < this.dim; ++j)
+            {
+                fill (getColor (this.data[elemOffset + (i * this.dim + j)]));
+                // fill (255);
+                square (startX + (j * stickerSize), startY + (i * stickerSize), stickerSize);
+            }
+        }
     }
 
 }
 
 
-// returns a p5.js color for the given color enum
-function getColor(colorId) {
-    if (colorId == RED)
-        return color(245, 50, 50);
-    if (colorId == ORANGE)
-        return color(235, 150, 50);
-    if (colorId == GREEN)
-        return color(50, 230, 50);
-    if (colorId == BLUE)
-        return color(50, 50, 240);
-    if (colorId == YELLOW)
-        return color(245, 245, 50);
-    // if (colorId == WHITE)
-    return color(245, 245, 245);
-}
+
+

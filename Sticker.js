@@ -4,10 +4,12 @@
 // https://github.com/CodingTrain/Coding-Challenges/blob/main/142_Rubiks_Cube_3/Processing/CC_142_Rubiks_Cube_3/Face.pde
 // from following his coding challenge on making a rubiks cube
 // https://www.youtube.com/watch?v=EGmVulED_4M
-// August 15 2024
+// However, I ditched using matrices as p5js does not have native matrix
+// classes.
+// August 17 2024
 //
 // =======================================================================
-
+// Global variables
 
 
 // =======================================================================
@@ -17,6 +19,14 @@ class Sticker {
     {
         this.normal = normal;
         this.color = color;
+    }
+
+    // =======================================================================
+
+    // Returns a new Sticker with the same state
+    copy ()
+    {
+        return new Sticker (this.normal.copy (), this.color);
     }
 
     // =======================================================================

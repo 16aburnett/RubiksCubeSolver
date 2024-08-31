@@ -26,7 +26,7 @@ class CFOPSolver2x2
         let solution = [];
         // solve first layer
         for (var i = 1; i < this.MAX_WHITE_FACE_MOVES; ++i) {
-            let temp = this.solveFirstLayer (cube, [], -1, i);
+            let temp = this.solveFirstLayer (cube, [], 0, i);
             if (temp != null) {
                 solution = solution.concat (temp);
                 console.log ("solveFirstLayer");
@@ -36,17 +36,21 @@ class CFOPSolver2x2
         }
         // solve yellow face
         for (var i = 1; i < this.MAX_YELLOW_FACE_MOVES; ++i) {
-            let temp = this.solveYellowFace (cube, [], -1, i);
+            let temp = this.solveYellowFace (cube, [], 0, i);
             if (temp != null) {
                 solution = solution.concat (temp);
+                console.log ("solveYellowFace");
+                console.log (temp);
                 break;
             }
         }
         // permutate last layer
         for (var i = 1; i < this.MAX_PERMUTATE_LAST_LAYER_MOVES; ++i) {
-            let temp = this.solveLastLayer (cube, [], -1, i);
+            let temp = this.solveLastLayer (cube, [], 0, i);
             if (temp != null) {
                 solution = solution.concat (temp);
+                console.log ("solveLastLayer");
+                console.log (temp);
                 break;
             }
         }
@@ -81,172 +85,44 @@ class CFOPSolver2x2
             return path;
         }
 
-        // num moves exceeded
-        if (path.length > limit) {
+        // Ensure we aren't going to exceed the max number of moves
+        if (path.length >= limit)
             return null;
-        }
 
         // path not found
         // keep searching
         let result;
-        
-        // left
-        if (prevMove != MOVE_2X2_LPRIME) {
-            let move = MOVE_2X2_L;
-            let axisMove = moveToAxisRotation2x2 (move);
+        let movesToTry = [
+            cubeNotationMove (MOVE_L,  1),
+            cubeNotationMove (MOVE_L, -1),
+            cubeNotationMove (MOVE_R,  1),
+            cubeNotationMove (MOVE_R, -1),
+            cubeNotationMove (MOVE_F,  1),
+            cubeNotationMove (MOVE_F, -1),
+            cubeNotationMove (MOVE_B,  1),
+            cubeNotationMove (MOVE_B, -1),
+            cubeNotationMove (MOVE_U,  1),
+            cubeNotationMove (MOVE_U, -1),
+            cubeNotationMove (MOVE_D,  1), 
+            cubeNotationMove (MOVE_D, -1)
+        ];
+        for (let move of movesToTry)
+        {
+            // Ensure this move isnt the reverse of the previous move
+            // since that would undo progress
+            if (prevMove == cubeMoveNotation.getReverseMove (move))
+                // skip trying move
+                continue;
             // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
+            let axisNotationMove = cubeMoveNotation.toAxisNotation (move);
+            cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
+            path.push (move);
             result = this.solveFirstLayer (cube, path, move, limit);
             if (result != null) return result;
-            path.pop();
+            path.pop ();
             // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
+            cube.rotate (axisNotationMove[0], axisNotationMove[1], -axisNotationMove[2]);
         }
-        // left prime
-        if (prevMove != MOVE_2X2_L) {
-            let move = MOVE_2X2_LPRIME;
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.solveFirstLayer (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-        // front
-        if (prevMove != MOVE_2X2_FPRIME) {
-            let move = MOVE_2X2_F;
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.solveFirstLayer (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-        // front prime
-        if (prevMove != MOVE_2X2_F) {
-            let move = MOVE_2X2_FPRIME;
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.solveFirstLayer (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-        // right 
-        if (prevMove != MOVE_2X2_RPRIME) {
-            let move = MOVE_2X2_R;
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.solveFirstLayer (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-        // right prime
-        if (prevMove != MOVE_2X2_R) {
-            let move = MOVE_2X2_RPRIME;
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.solveFirstLayer (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-        // back 
-        if (prevMove != MOVE_2X2_BPRIME) {
-            let move = MOVE_2X2_B;
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.solveFirstLayer (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-        // back prime
-        if (prevMove != MOVE_2X2_B) {
-            let move = MOVE_2X2_BPRIME;
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.solveFirstLayer (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-        // up 
-        if (prevMove != MOVE_2X2_UPRIME) {
-            let move = MOVE_2X2_U;
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.solveFirstLayer (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-        // up prime
-        if (prevMove != MOVE_2X2_U) {
-            let move = MOVE_2X2_UPRIME;
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.solveFirstLayer (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-        // down 
-        if (prevMove != MOVE_2X2_DPRIME) {
-            let move = MOVE_2X2_D;
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.solveFirstLayer (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-        // down prime
-        if (prevMove != MOVE_2X2_D) {
-            let move = MOVE_2X2_DPRIME;
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.solveFirstLayer (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-
         // no solution found
         return null;
     }
@@ -267,60 +143,61 @@ class CFOPSolver2x2
             return path;
         }
 
-        // num moves exceeded
-        if (path.length > limit) {
+        // Ensure we aren't going to exceed the max number of moves
+        if (path.length >= limit)
             return null;
-        }
 
         // path not found
         // keep searching
         let result;
         // Fishy alg
-        let algorithm = [MOVE_2X2_R, MOVE_2X2_U, MOVE_2X2_RPRIME, MOVE_2X2_U, MOVE_2X2_R, MOVE_2X2_U, MOVE_2X2_U, MOVE_2X2_RPRIME];
-        let algorithmReversed = [MOVE_2X2_R, MOVE_2X2_UPRIME, MOVE_2X2_UPRIME, MOVE_2X2_RPRIME, MOVE_2X2_UPRIME, MOVE_2X2_R, MOVE_2X2_UPRIME, MOVE_2X2_RPRIME];
-        for (let move of algorithm)
+        let moveSetsToTry = [
+            [
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1)
+            ],
+            [
+                cubeNotationMove (MOVE_U,  1)
+            ],
+            [
+                cubeNotationMove (MOVE_U, -1)
+            ]
+        ];
+        for (let moveSet of moveSetsToTry)
         {
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push (move);
-        }
-        result = this.solveYellowFace (cube, path, -1, limit);
-        if (result != null) return result;
-        //undo alg
-        for (let move of algorithmReversed)
-        {
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.pop ();
-        }
-
-        // up 
-        if (prevMove != MOVE_2X2_UPRIME) {
-            let move = MOVE_2X2_U;
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.solveYellowFace (cube, path, move, limit);
+            // Ensure this move isnt the reverse of the previous move
+            // since that would undo progress - only applies to moveSets
+            // with a single move
+            if (moveSet.length == 1 && prevMove == cubeMoveNotation.getReverseMove (moveSet[0]))
+                // skip trying move
+                continue;
+            // Apply moveSet to cube
+            for (let move of moveSet)
+            {
+                let axisMove = cubeMoveNotation.toAxisNotation (move);
+                // Perform move on cube
+                cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
+                path.push (move);
+            }
+            // Try to solve from this state
+            result = this.solveYellowFace (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
             if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-        // up prime
-        if (prevMove != MOVE_2X2_U) {
-            let move = MOVE_2X2_UPRIME;
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.solveYellowFace (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
+            // MoveSet did not work so
+            // Undo moveSet (by doing the reverse moves in reverse order)
+            for (let i = moveSet.length-1; i >= 0; --i)
+            {
+                let move = moveSet[i];
+                let axisMove = cubeMoveNotation.toAxisNotation (move);
+                // Do the reverse move to undo (-direction)
+                cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
+                path.pop ();
+            }
         }
 
         // no solution found
@@ -347,92 +224,68 @@ class CFOPSolver2x2
             return path;
         }
 
-        // num moves exceeded
-        if (path.length > limit) {
+        // Ensure we aren't going to exceed the max number of moves
+        if (path.length >= limit)
             return null;
-        }
 
         // path not found
         // keep searching
         let result;
-        // J perm algorithm
-        let algorithm = [
-            MOVE_2X2_R,
-            MOVE_2X2_U,
-            MOVE_2X2_RPRIME,
-            MOVE_2X2_FPRIME,
-            MOVE_2X2_R,
-            MOVE_2X2_U,
-            MOVE_2X2_RPRIME,
-            MOVE_2X2_UPRIME,
-            MOVE_2X2_RPRIME,
-            MOVE_2X2_F,
-            MOVE_2X2_R,
-            MOVE_2X2_R,
-            MOVE_2X2_UPRIME,
-            MOVE_2X2_RPRIME,
-            MOVE_2X2_UPRIME
+        let moveSetsToTry = [
+            // J-perm algorithm
+            [
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_F, -1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U, -1),
+            ],
+            [
+                cubeNotationMove (MOVE_U,  1)
+            ],
+            [
+                cubeNotationMove (MOVE_U, -1),
+            ]
         ];
-        let algorithmReversed = [
-            MOVE_2X2_U,
-            MOVE_2X2_R,
-            MOVE_2X2_U,
-            MOVE_2X2_RPRIME,
-            MOVE_2X2_RPRIME,
-            MOVE_2X2_FPRIME,
-            MOVE_2X2_R,
-            MOVE_2X2_U,
-            MOVE_2X2_R,
-            MOVE_2X2_UPRIME,
-            MOVE_2X2_RPRIME,
-            MOVE_2X2_F,
-            MOVE_2X2_R,
-            MOVE_2X2_UPRIME,
-            MOVE_2X2_RPRIME,
-        ];
-        for (let move of algorithm)
+        for (let moveSet of moveSetsToTry)
         {
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push (move);
-        }
-        result = this.solveLastLayer (cube, path, -1, limit);
-        if (result != null) return result;
-        //undo alg
-        for (let move of algorithmReversed)
-        {
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.pop ();
-        }
-
-        // up 
-        if (prevMove != MOVE_2X2_UPRIME) {
-            let move = MOVE_2X2_U;
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.solveLastLayer (cube, path, move, limit);
+            // Ensure this move isnt the reverse of the previous move
+            // since that would undo progress - only applies to moveSets
+            // with a single move
+            if (moveSet.length == 1 && prevMove == cubeMoveNotation.getReverseMove (moveSet[0]))
+                // skip trying move
+                continue;
+            // Apply moveSet to cube
+            for (let move of moveSet)
+            {
+                let axisMove = cubeMoveNotation.toAxisNotation (move);
+                // Perform move on cube
+                cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
+                path.push (move);
+            }
+            // Try to solve from this state
+            result = this.solveLastLayer (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
             if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-        // up prime
-        if (prevMove != MOVE_2X2_U) {
-            let move = MOVE_2X2_UPRIME;
-            let axisMove = moveToAxisRotation2x2 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.solveLastLayer (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
+            // MoveSet did not work so
+            // Undo moveSet (by doing the reverse moves in reverse order)
+            for (let i = moveSet.length-1; i >= 0; --i)
+            {
+                let move = moveSet[i];
+                let axisMove = cubeMoveNotation.toAxisNotation (move);
+                // Do the reverse move to undo (-direction)
+                cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
+                path.pop ();
+            }
         }
 
         // no solution found

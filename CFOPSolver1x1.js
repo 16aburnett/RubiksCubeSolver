@@ -24,7 +24,7 @@ class CFOPSolver1x1
         // orient the cube so white is down and blue is front
         console.time ("findSolutionToOrientTheCube");
         for (var i = 1; i < this.MAX_CUBE_ORIENTATION_MOVES; ++i) {
-            let temp = this.findSolutionToOrientTheCube (cube, [], -1, i);
+            let temp = this.findSolutionToOrientTheCube (cube, [], 0, i);
             if (temp != null) {
                 console.log ("findSolutionToOrientTheCube", temp);
                 solution = solution.concat (temp);
@@ -55,91 +55,38 @@ class CFOPSolver1x1
             return path;
         }
 
-        // num moves exceeded
-        if (path.length > limit) {
+        // Ensure we aren't going to exceed the max number of moves
+        if (path.length >= limit)
             return null;
-        }
 
         // path not found
         // keep searching
         let result;
-        // X rotation
-        if (prevMove != MOVE_1X1_XPRIME) {
-            let move = MOVE_1X1_X;
-            let axisMove = moveToAxisRotation1x1 (move);
+        let movesToTry = [
+            
+            cubeNotationMove (MOVE_X,  1),
+            cubeNotationMove (MOVE_X, -1),
+            cubeNotationMove (MOVE_Y,  1),
+            cubeNotationMove (MOVE_Y, -1),
+            cubeNotationMove (MOVE_Z,  1),
+            cubeNotationMove (MOVE_Z, -1),
+        ];
+        for (let move of movesToTry)
+        {
+            // Ensure this move isnt the reverse of the previous move
+            // since that would undo progress
+            if (prevMove == cubeMoveNotation.getReverseMove (move))
+                // skip trying move
+                continue;
             // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
+            let axisNotationMove = cubeMoveNotation.toAxisNotation (move);
+            cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
+            path.push (move);
             result = this.findSolutionToOrientTheCube (cube, path, move, limit);
             if (result != null) return result;
-            path.pop();
+            path.pop ();
             // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-        // X prime rotation
-        if (prevMove != MOVE_1X1_X) {
-            let move = MOVE_1X1_XPRIME;
-            let axisMove = moveToAxisRotation1x1 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.findSolutionToOrientTheCube (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-        // Y rotation
-        if (prevMove != MOVE_1X1_YPRIME) {
-            let move = MOVE_1X1_Y;
-            let axisMove = moveToAxisRotation1x1 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.findSolutionToOrientTheCube (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-        // Y prime rotation
-        if (prevMove != MOVE_1X1_Y) {
-            let move = MOVE_1X1_YPRIME;
-            let axisMove = moveToAxisRotation1x1 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.findSolutionToOrientTheCube (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-        // Z rotation
-        if (prevMove != MOVE_1X1_ZPRIME) {
-            let move = MOVE_1X1_Z;
-            let axisMove = moveToAxisRotation1x1 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.findSolutionToOrientTheCube (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-        }
-        // Z rotation
-        if (prevMove != MOVE_1X1_Z) {
-            let move = MOVE_1X1_ZPRIME;
-            let axisMove = moveToAxisRotation1x1 (move);
-            // Perform move on cube
-            cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-            path.push(move);
-            result = this.findSolutionToOrientTheCube (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop();
-            // undo move by reversing direction
-            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
+            cube.rotate (axisNotationMove[0], axisNotationMove[1], -axisNotationMove[2]);
         }
 
         // no solution found

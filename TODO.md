@@ -70,6 +70,11 @@
     - 2 fishy algs could be chained together with less moves
     - or just add 2 fishy algs as another moveset?
 
+- [] **generalize applying a moveset
+    - scramble and solving should use this just to simplify things a bit
+    - this might help for adding buttons that do sets of moves like a JPerm button!
+    - just need to disable input for the entire time of the moveset
+
 
 Performance
 - 3x3 took 180 seconds to solve... way too slow
@@ -83,6 +88,7 @@ Performance
 Scramble applyMoveSetFromString ("U L E' S M B' L' E L' F Z' E Z X' L E U M' L' U' R'")
 old hardcoded model time: [384, 344]
 baseline time: [9841, 11247, 9622, 10052]
+alignedCubies: [36593, 37532]
 
 Scramble applyMoveSetFromString ("R X' D' R' B' Y Y' L' X' U' X L R L' M B' Y' Y' D' M' Y")
 old hardcoded model time: [1646, 1595]
@@ -90,11 +96,25 @@ baseline time: [153488, 143940, 142749]
 6 stickers on each cubie : [184776, 190201, ]
 - reverted this optimization to see how much it helped
 - maybe 20% improvement
+alignedCubies: [459649]
 
 
 
 
+# Rotating
+# Swapping alg
+```bash
+# Read in all cubies in rotating slice
+# Rotate cubies internally
+# Write back cubies to lookup table based on x,y,z
+# This wont mess up since we originally read in all cubies so we dont need to worry about swap order
+# This is also optimal as we do not touch cubies outside of the slice
+```
 
+# Drawing
+just iterate over all cubies and draw each
 
+# Looking up sticker color
+lookup table will allow const lookup via x,y,z cubie
 
 

@@ -166,7 +166,10 @@ function generateMoves (dim)
     // Cube rotations (all cubes)
     let allSliceIndices = [];
     for (let slicei = low; slicei <= high; ++slicei)
-        allSliceIndices.push (slicei);
+        // Ignore dummy middle if even dim
+        // no sense turning it, it would be more work for no benefit
+        if (!(dim % 2 == 0 && slicei == 0))
+            allSliceIndices.push (slicei);
     moves.push ([cubeNotationMove (MOVE_X,  1), "X" , [AXIS_X, [...allSliceIndices],  1]]);
     moves.push ([cubeNotationMove (MOVE_X, -1), "X'", [AXIS_X, [...allSliceIndices], -1]]);
     moves.push ([cubeNotationMove (MOVE_Y,  1), "Y" , [AXIS_Y, [...allSliceIndices], -1]]);

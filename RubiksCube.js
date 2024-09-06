@@ -35,7 +35,9 @@ class RubiksCube
         this.DOWN   = 5 * this.dim * this.dim; // 3x3 -> 45
         // Stores the list of cubies organized by x, y, z
         // For quicker lookup
-        this.alignedCubies = [];
+        // Key is the string representation of x,y,z
+        // [x,y,z].toString ()
+        this.alignedCubies = new Map ();
 
         // initialize cube to default state
         this.reset ();
@@ -61,7 +63,9 @@ class RubiksCube
         newCube.cubies = [];
         for (let cubie of this.cubies)
         {
-            newCube.cubies.push (cubie.copy ());
+            let cubieCopy = cubie.copy ();
+            newCube.cubies.push (cubieCopy);
+            newCube.alignedCubies.set ([cubieCopy.xi, cubieCopy.yi, cubieCopy.zi].toString (), cubieCopy);
         }
         // copy the lookup table
         newCube.data = this.data.slice ();
@@ -155,6 +159,13 @@ class RubiksCube
 
                     // Update lookup table
                     this.updateLookupTable (cubie);
+
+                    // Add to aligned table
+                    this.alignedCubies.set ([xi,yi,zi].toString (), cubie);
+                    // 00000000 XXXXXXXX YYYYYYYY ZZZZZZZZ
+                    // 32 bit packed int
+                    // 1 byte per axis (256 distinct nums -128,127)
+                    // this.alignedCubies.set ((((((0 + xi) << 8) + yi) << 8) + zi), cubie);
                 }
             }
         }
@@ -255,18 +266,56 @@ class RubiksCube
     // Rotate the given slice along the X axis in the given direction.
     rotateX (sliceIndex, dir)
     {
-        // Search over all cubies to find which need to rotate
-        // This is probably not optimal
-        // if dim was 100, we would have 100*100*100 cubies to search through
-        // just to rotate 100*100 of them
-        for (let i = 0; i < this.cubies.length; ++i)
+        let low = Math.round (this.dim / 2) - this.dim;
+        let high = -low;
+
+        // Grab cubies from desired slice
+        let cubiesToRotate = [];
+        // grab corner cubies
+        cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, low , low ].toString ()));
+        if (this.dim > 1)
         {
-            let cubie = this.cubies[i];
-            if (cubie.xi == sliceIndex)
-            {
-                cubie.rotateX (dir * HALF_PI);
-                this.updateLookupTable (cubie);
-            }
+            cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, low , high].toString ()));
+            cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, high, low ].toString ()));
+            cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, high, high].toString ()));
+        }
+        // grab top row edge cubies
+        for (let z = low+1; z < high; ++z)
+            // Ensure dummy center edges are skipped
+            if (!(this.dim % 2 == 0 && z == 0))
+                cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, low , z].toString ()));
+        // grab bottom row edge cubies
+        for (let z = low+1; z < high; ++z)
+            // Ensure dummy center edges are skipped
+            if (!(this.dim % 2 == 0 && z == 0))
+                cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, high, z].toString ()));
+        // grab back column of edge cubies
+        for (let y = low+1; y < high; ++y)
+            // Ensure dummy center edges are skipped
+            if (!(this.dim % 2 == 0 && y == 0))
+                cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, y, low ].toString ()));
+        // grab front column of edge cubies
+        for (let y = low+1; y < high; ++y)
+            // Ensure dummy center edges are skipped
+            if (!(this.dim % 2 == 0 && y == 0))
+                cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, y, high].toString ()));
+        // grab center pieces - if turning face
+        if (sliceIndex == low || sliceIndex == high)
+        {
+            for (let y = low+1; y < high; ++y)
+                for (let z = low+1; z < high; ++z)
+                    // Ensure cubie exists (even layered cubes have dummy centers)
+                    if (this.alignedCubies.has ([sliceIndex, y, z].toString ()))
+                        cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, y, z].toString ()));
+        }
+
+        // Rotate each cubie
+        for (let cubie of cubiesToRotate)
+        {
+            cubie.rotateX (dir * HALF_PI);
+            this.updateLookupTable (cubie);
+            // Write back cubie to the new position
+            this.alignedCubies.set ([cubie.xi, cubie.yi, cubie.zi].toString (), cubie);
         }
     }
 
@@ -275,18 +324,56 @@ class RubiksCube
     // Rotate the given slice along the Y axis in the given direction.
     rotateY (sliceIndex, dir)
     {
-        // Search over all cubies to find which need to rotate
-        // This is probably not optimal
-        // if dim was 100, we would have 100*100*100 cubies to search through
-        // just to rotate 100*100 of them
-        for (let i = 0; i < this.cubies.length; ++i)
+        let low = Math.round (this.dim / 2) - this.dim;
+        let high = -low;
+
+        // Grab cubies from desired slice
+        let cubiesToRotate = [];
+        // grab corner cubies
+        cubiesToRotate.push (this.alignedCubies.get ([low , sliceIndex, low ].toString ()));
+        if (this.dim > 1)
         {
-            let cubie = this.cubies[i];
-            if (cubie.yi == sliceIndex)
-            {
-                cubie.rotateY (dir * HALF_PI);
-                this.updateLookupTable (cubie);
-            }
+            cubiesToRotate.push (this.alignedCubies.get ([low , sliceIndex, high].toString ()));
+            cubiesToRotate.push (this.alignedCubies.get ([high, sliceIndex, low ].toString ()));
+            cubiesToRotate.push (this.alignedCubies.get ([high, sliceIndex, high].toString ()));
+        }
+        // grab back row of edge cubies
+        for (let x = low+1; x < high; ++x)
+            // Ensure dummy center edges are skipped
+            if (!(this.dim % 2 == 0 && x == 0))
+                cubiesToRotate.push (this.alignedCubies.get ([x, sliceIndex, low ].toString ()));
+        // grab front row of edge cubies
+        for (let x = low+1; x < high; ++x)
+            // Ensure dummy center edges are skipped
+            if (!(this.dim % 2 == 0 && x == 0))
+                cubiesToRotate.push (this.alignedCubies.get ([x, sliceIndex, high].toString ()));
+        // grab left row edge cubies
+        for (let z = low+1; z < high; ++z)
+            // Ensure dummy center edges are skipped
+            if (!(this.dim % 2 == 0 && z == 0))
+                cubiesToRotate.push (this.alignedCubies.get ([low, sliceIndex, z].toString ()));
+        // grab right row edge cubies
+        for (let z = low+1; z < high; ++z)
+            // Ensure dummy center edges are skipped
+            if (!(this.dim % 2 == 0 && z == 0))
+                cubiesToRotate.push (this.alignedCubies.get ([high, sliceIndex, z].toString ()));
+        // grab center pieces - if turning face
+        if (sliceIndex == low || sliceIndex == high)
+        {
+            for (let x = low+1; x < high; ++x)
+                for (let z = low+1; z < high; ++z)
+                    // Ensure cubie exists (even layered cubes have dummy centers)
+                    if (this.alignedCubies.has ([x, sliceIndex, z].toString ()))
+                        cubiesToRotate.push (this.alignedCubies.get ([x, sliceIndex, z].toString ()));
+        }
+
+        // Rotate each cubie
+        for (let cubie of cubiesToRotate)
+        {
+            cubie.rotateY (dir * HALF_PI);
+            this.updateLookupTable (cubie);
+            // Write back cubie to the new position
+            this.alignedCubies.set ([cubie.xi, cubie.yi, cubie.zi].toString (), cubie);
         }
     }
 
@@ -295,18 +382,56 @@ class RubiksCube
     // Rotate the given slice along the X axis in the given direction.
     rotateZ (sliceIndex, dir)
     {
-        // Search over all cubies to find which need to rotate
-        // This is probably not optimal
-        // if dim was 100, we would have 100*100*100 cubies to search through
-        // just to rotate 100*100 of them
-        for (let i = 0; i < this.cubies.length; ++i)
+        let low = Math.round (this.dim / 2) - this.dim;
+        let high = -low;
+
+        // Grab cubies from desired slice
+        let cubiesToRotate = [];
+        // grab corner cubies
+        cubiesToRotate.push (this.alignedCubies.get ([low , low , sliceIndex].toString ()));
+        if (this.dim > 1)
         {
-            let cubie = this.cubies[i];
-            if (cubie.zi == sliceIndex)
-            {
-                cubie.rotateZ (dir * HALF_PI);
-                this.updateLookupTable (cubie);
-            }
+            cubiesToRotate.push (this.alignedCubies.get ([low , high, sliceIndex].toString ()));
+            cubiesToRotate.push (this.alignedCubies.get ([high, low , sliceIndex].toString ()));
+            cubiesToRotate.push (this.alignedCubies.get ([high, high, sliceIndex].toString ()));
+        }
+        // grab bottom row edge cubies
+        for (let x = low+1; x < high; ++x)
+            // Ensure dummy center edges are skipped
+            if (!(this.dim % 2 == 0 && x == 0))
+                cubiesToRotate.push (this.alignedCubies.get ([x, low , sliceIndex].toString ()));
+        // grab top row edge cubies
+        for (let x = low+1; x < high; ++x)
+            // Ensure dummy center edges are skipped
+            if (!(this.dim % 2 == 0 && x == 0))
+                cubiesToRotate.push (this.alignedCubies.get ([x, high, sliceIndex].toString ()));
+        // grab left column of edge cubies
+        for (let y = low+1; y < high; ++y)
+            // Ensure dummy center edges are skipped
+            if (!(this.dim % 2 == 0 && y == 0))
+                cubiesToRotate.push (this.alignedCubies.get ([low , y, sliceIndex].toString ()));
+        // grab right column of edge cubies
+        for (let y = low+1; y < high; ++y)
+            // Ensure dummy center edges are skipped
+            if (!(this.dim % 2 == 0 && y == 0))
+                cubiesToRotate.push (this.alignedCubies.get ([high, y, sliceIndex].toString ()));
+        // grab center pieces - if turning face
+        if (sliceIndex == low || sliceIndex == high)
+        {
+            for (let x = low+1; x < high; ++x)
+                for (let y = low+1; y < high; ++y)
+                    // Ensure cubie exists (even layered cubes have dummy centers)
+                    if (this.alignedCubies.has ([x, y, sliceIndex].toString ()))
+                        cubiesToRotate.push (this.alignedCubies.get ([x, y, sliceIndex].toString ()));
+        }
+
+        // Rotate each cubie
+        for (let cubie of cubiesToRotate)
+        {
+            cubie.rotateZ (dir * HALF_PI);
+            this.updateLookupTable (cubie);
+            // Write back cubie to the new position
+            this.alignedCubies.set ([cubie.xi, cubie.yi, cubie.zi].toString (), cubie);
         }
     }
 

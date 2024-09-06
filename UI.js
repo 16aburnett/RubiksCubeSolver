@@ -52,6 +52,7 @@ function addCubeControlButtons ()
         let btn = document.createElement ("button");
         btn.className = "controlButton";
         btn.onclick = () => {
+            console.log (cubeMoveNotation.toString (move));
             rubiksCube.animatedRotate (...(cubeMoveNotation.toAxisNotation (move)));
         };
         btn.innerText = cubeMoveNotation.toString (move);

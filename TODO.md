@@ -1,6 +1,6 @@
 
 
-- [] make inverse moves calculatable to generalize move selection
+- [DONE] make inverse moves calculatable to generalize move selection
     - i.e. positive N == normal move N, negative N = N prime
 
 - [] add timer for solvers
@@ -66,7 +66,9 @@
 - [] commutator-only solver
 - [] layer by layer 4x4 - not the normal one
 
-
+- [] maybe add in a post-processing step which determines which moves are unnecessary and removes them?
+    - 2 fishy algs could be chained together with less moves
+    - or just add 2 fishy algs as another moveset?
 
 
 Performance
@@ -75,3 +77,47 @@ Performance
 - web workers for not blocking main thread?
 
 
+
+3x3 Performance (ms)
+
+Scramble applyMoveSetFromString ("U L E' S M B' L' E L' F Z' E Z X' L E U M' L' U' R'")
+old hardcoded model time: [384, 344]
+baseline time: [9841, 11247, 9622, 10052]
+
+Scramble applyMoveSetFromString ("R X' D' R' B' Y Y' L' X' U' X L R L' M B' Y' Y' D' M' Y")
+old hardcoded model time: [1646, 1595]
+baseline time: [153488, 143940, 142749]
+6 stickers on each cubie : [184776, 190201, ]
+- reverted this optimization to see how much it helped
+- maybe 20% improvement
+
+
+
+
+
+
+
+
+
+# Cubie orientation vectors instead of moving stickers
+        // Change position
+        // Manual matrix math with rotation matrix
+        let newx = Math.round ((1 * this.xi) + (                0 * this.yi) + (                0 * this.zi));
+        let newy = Math.round ((0 * this.xi) + ( Math.cos (angle) * this.yi) + (-Math.sin (angle) * this.zi));
+        let newz = Math.round ((0 * this.xi) + ( Math.sin (angle) * this.yi) + ( Math.cos (angle) * this.zi));
+        this.xi = newx;
+        this.yi = newy;
+        this.zi = newz;
+        // Rotate orientation
+        let newupx = Math.round ((1 * this.up.x) + (                0 * this.up.y) + (                0 * this.up.z));
+        let newupy = Math.round ((0 * this.up.x) + ( Math.cos (angle) * this.up.y) + (-Math.sin (angle) * this.up.z));
+        let newupz = Math.round ((0 * this.up.x) + ( Math.sin (angle) * this.up.y) + ( Math.cos (angle) * this.up.z));
+        this.up.x = newupx;
+        this.up.y = newupy;
+        this.up.z = newupz;
+        let newfrontx = Math.round ((1 * this.front.x) + (                0 * this.front.y) + (                0 * this.front.z));
+        let newfronty = Math.round ((0 * this.front.x) + ( Math.cos (angle) * this.front.y) + (-Math.sin (angle) * this.front.z));
+        let newfrontz = Math.round ((0 * this.front.x) + ( Math.sin (angle) * this.front.y) + ( Math.cos (angle) * this.front.z));
+        this.front.x = newfrontx;
+        this.front.y = newfronty;
+        this.front.z = newfrontz;

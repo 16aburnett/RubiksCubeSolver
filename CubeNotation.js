@@ -42,11 +42,14 @@ class CubeMoveNotation
         // List/map of all the moves
         // Keyed by CubeNotation bitmasks
         this.moves = new Map ();
+        // Map for converting move string to move bitmask
+        this.stringToMoveMap = new Map ();
         // Generate cube rotations
         let generatedMoves = generateMoves (this.dim);
         for (let [cubeNotationMoveBitmask, moveNotationString, axisNotationMove] of generatedMoves)
         {
             this.moves.set (cubeNotationMoveBitmask, [cubeNotationMoveBitmask, moveNotationString, axisNotationMove]);
+            this.stringToMoveMap.set (moveNotationString, [cubeNotationMoveBitmask, moveNotationString, axisNotationMove]);
         }
     }
 
@@ -79,8 +82,18 @@ class CubeMoveNotation
     // Cube Notation
     toString (move)
     {
-        // 1th position is the string representation
+        // 1st position is the string representation
         return this.moves.get (move)[1];
+    }
+
+    // ===================================================================
+
+    // Converts the given string representation to the bitmask
+    // move representation
+    stringToMove (moveString)
+    {
+        // 0th position is the bitmask
+        return this.stringToMoveMap.get (moveString)[0];
     }
 
     // ===================================================================

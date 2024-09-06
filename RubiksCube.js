@@ -1,16 +1,13 @@
 // Rubiks Cube: Generalized (2x2, 3x3, 4x4, etc)
-// This class is intended to be generalized for any rubiks cube dimensions
-// NOTE: this is a WIP and not yet generalized
+// This class is generalized for any rubiks cube dimensions
 // By Amy Burnett
-// August 15 2024
+// August 31 2024
 // =======================================================================
 
 // =======================================================================
 
 class RubiksCube
 {
-
-    // NOT YET GENERALIZED
     constructor (dim=3)
     {
         // The number of slices in each 3 directions
@@ -36,14 +33,14 @@ class RubiksCube
         this.BACK   = 3 * this.dim * this.dim; // 3x3 -> 27
         this.UP     = 4 * this.dim * this.dim; // 3x3 -> 36
         this.DOWN   = 5 * this.dim * this.dim; // 3x3 -> 45
+        // Stores the list of cubies organized by x, y, z
+        // For quicker lookup
+        this.alignedCubies = [];
+
         // initialize cube to default state
         this.reset ();
 
-        // Moves
-
-
         // Drawing
-        // TODO: needs to be generalized
         this.minimapSizeFactor = 10 * this.dim;
 
         // Animating
@@ -119,13 +116,11 @@ class RubiksCube
     // =======================================================================
 
     // restores cube to solved state
-    // NOT YET GENERALIZED
     reset ()
     {
         let numFaces = 6;
         this.cubies = [];
         this.data = Array (numFaces * this.dim * this.dim).fill (0);
-        // TODO: derive low and high from dim
         // low(1) = round(1 / 2) - 1 = 1 - 1 = 0   -> [ 0,0] just a single layer
         // low(2) = round(2 / 2) - 2 = 1 - 2 = -1  -> [-1,1] even, so dummy 0th layer
         // low(3) = round(3 / 2) - 3 = 2 - 3 = -1  -> [-1,1]
@@ -165,7 +160,7 @@ class RubiksCube
         }
         // Populate data array
         // we can assume the cubies were initialized to the solved
-        // state
+        // state so nothing to do
 
     }
 
@@ -174,7 +169,6 @@ class RubiksCube
     // Updates the lookup table with the given cubie's sticker orientation
     updateLookupTable (cubie)
     {
-        // TODO: derive low and high from dim
         let low = Math.round (this.dim / 2) - this.dim;
         let high = -low;
         // Update lookup table
@@ -272,6 +266,7 @@ class RubiksCube
             {
                 cubie.rotateX (dir * HALF_PI);
                 this.updateLookupTable (cubie);
+                // Update cubie position in lookup table
             }
         }
     }

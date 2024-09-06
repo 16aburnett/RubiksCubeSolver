@@ -13,6 +13,8 @@ let solver;
 let isSolving = false;
 let solution = [];
 let cubeMoveNotation;
+let isApplyingMoveSet = false;
+let moveSetToApply = [];
 
 // get rubiks cube type from the url
 let cubeType = new URLSearchParams(window.location.search).get("type");
@@ -87,9 +89,30 @@ function draw () {
     // and causes lighting to be much more intense
     graphics.reset ();
 
+    if (isApplyingMoveSet)
+    {
+        // Ensure cube is ready to receive move
+        if (!rubiksCube.isTurning)
+        {
+            // Ensure there are moves left to apply
+            if (moveSetToApply.length == 0)
+            {
+                console.log ("Finished applying move set");
+                isApplyingMoveSet = false;
+            }
+            else
+            {
+                // still applying moves so make another move
+                let move = moveSetToApply[0];
+                moveSetToApply = moveSetToApply.slice(1);
+                console.log(cubeMoveNotation.toString (move));
+                rubiksCube.animatedRotate (...cubeMoveNotation.toAxisNotation (move));
+            }
+        }
+    }
     // if we are currently scrambling,
     // then perform a single scramble move for this frame
-    if (shouldScramble) {
+    else if (shouldScramble) {
         // Ensure cube is ready to receive move
         if (!rubiksCube.isTurning)
         {
@@ -169,9 +192,24 @@ function solve () {
 
 // activates scramble 
 function scramble () {
+    console.log ("Scrambling");
     shouldScramble = true;
     amountToScramble = SCRAMBLE_LENGTH;
     scrambled = true;
+}
+
+// =======================================================================
+
+// activates scramble 
+function applyMoveSetFromString (moveSetString) {
+    console.log ("Applying move set");
+    isApplyingMoveSet = true;
+    scrambled = true;
+    let moveStrings = moveSetString.split (" ");
+    let moves = [];
+    for (let moveString of moveStrings)
+        moves.push (cubeMoveNotation.stringToMove (moveString));
+    moveSetToApply = moves;
 }
 
 // =======================================================================

@@ -145,12 +145,11 @@ class Cubie {
     {
         graphics.push ();
 
+        // Convert cubie index position to real position
         let cubieSize = min (graphics.width, graphics.height) / 10;
-        
         let x = this.xi;
         let y = this.yi;
         let z = this.zi;
-
         // Fix position for even parity layered cubes
         // Even layered cubes have a fake middle dummy layer
         // we need to bring in the layers by 50% of a cubie

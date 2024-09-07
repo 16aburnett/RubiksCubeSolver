@@ -6,6 +6,14 @@
 
 // =======================================================================
 
+// 00000000 XXXXXXXX YYYYYYYY ZZZZZZZZ
+// 32 bit packed int
+// 1 byte per axis (256 distinct nums -128,127)
+function toPositionBitmask (x, y, z)
+{
+    return (((((0 + x) << 8) + y) << 8) + z);
+}
+
 class RubiksCube
 {
     constructor (dim=3)
@@ -65,7 +73,7 @@ class RubiksCube
         {
             let cubieCopy = cubie.copy ();
             newCube.cubies.push (cubieCopy);
-            newCube.alignedCubies.set ([cubieCopy.xi, cubieCopy.yi, cubieCopy.zi].toString (), cubieCopy);
+            newCube.alignedCubies.set (toPositionBitmask (cubieCopy.xi, cubieCopy.yi, cubieCopy.zi), cubieCopy);
         }
         // copy the lookup table
         newCube.data = this.data.slice ();
@@ -161,11 +169,7 @@ class RubiksCube
                     this.updateLookupTable (cubie);
 
                     // Add to aligned table
-                    this.alignedCubies.set ([xi,yi,zi].toString (), cubie);
-                    // 00000000 XXXXXXXX YYYYYYYY ZZZZZZZZ
-                    // 32 bit packed int
-                    // 1 byte per axis (256 distinct nums -128,127)
-                    // this.alignedCubies.set ((((((0 + xi) << 8) + yi) << 8) + zi), cubie);
+                    this.alignedCubies.set (toPositionBitmask (xi, yi, zi), cubie);
                 }
             }
         }
@@ -272,41 +276,41 @@ class RubiksCube
         // Grab cubies from desired slice
         let cubiesToRotate = [];
         // grab corner cubies
-        cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, low , low ].toString ()));
+        cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (sliceIndex, low , low )));
         if (this.dim > 1)
         {
-            cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, low , high].toString ()));
-            cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, high, low ].toString ()));
-            cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, high, high].toString ()));
+            cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (sliceIndex, low , high)));
+            cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (sliceIndex, high, low )));
+            cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (sliceIndex, high, high)));
         }
         // grab top row edge cubies
         for (let z = low+1; z < high; ++z)
             // Ensure dummy center edges are skipped
             if (!(this.dim % 2 == 0 && z == 0))
-                cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, low , z].toString ()));
+                cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (sliceIndex, low , z)));
         // grab bottom row edge cubies
         for (let z = low+1; z < high; ++z)
             // Ensure dummy center edges are skipped
             if (!(this.dim % 2 == 0 && z == 0))
-                cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, high, z].toString ()));
+                cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (sliceIndex, high, z)));
         // grab back column of edge cubies
         for (let y = low+1; y < high; ++y)
             // Ensure dummy center edges are skipped
             if (!(this.dim % 2 == 0 && y == 0))
-                cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, y, low ].toString ()));
+                cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (sliceIndex, y, low )));
         // grab front column of edge cubies
         for (let y = low+1; y < high; ++y)
             // Ensure dummy center edges are skipped
             if (!(this.dim % 2 == 0 && y == 0))
-                cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, y, high].toString ()));
+                cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (sliceIndex, y, high)));
         // grab center pieces - if turning face
         if (sliceIndex == low || sliceIndex == high)
         {
             for (let y = low+1; y < high; ++y)
                 for (let z = low+1; z < high; ++z)
                     // Ensure cubie exists (even layered cubes have dummy centers)
-                    if (this.alignedCubies.has ([sliceIndex, y, z].toString ()))
-                        cubiesToRotate.push (this.alignedCubies.get ([sliceIndex, y, z].toString ()));
+                    if (this.alignedCubies.has (toPositionBitmask (sliceIndex, y, z)))
+                        cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (sliceIndex, y, z)));
         }
 
         // Rotate each cubie
@@ -315,7 +319,7 @@ class RubiksCube
             cubie.rotateX (dir * HALF_PI);
             this.updateLookupTable (cubie);
             // Write back cubie to the new position
-            this.alignedCubies.set ([cubie.xi, cubie.yi, cubie.zi].toString (), cubie);
+            this.alignedCubies.set (toPositionBitmask (cubie.xi, cubie.yi, cubie.zi), cubie);
         }
     }
 
@@ -330,41 +334,41 @@ class RubiksCube
         // Grab cubies from desired slice
         let cubiesToRotate = [];
         // grab corner cubies
-        cubiesToRotate.push (this.alignedCubies.get ([low , sliceIndex, low ].toString ()));
+        cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (low , sliceIndex, low )));
         if (this.dim > 1)
         {
-            cubiesToRotate.push (this.alignedCubies.get ([low , sliceIndex, high].toString ()));
-            cubiesToRotate.push (this.alignedCubies.get ([high, sliceIndex, low ].toString ()));
-            cubiesToRotate.push (this.alignedCubies.get ([high, sliceIndex, high].toString ()));
+            cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (low , sliceIndex, high)));
+            cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (high, sliceIndex, low )));
+            cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (high, sliceIndex, high)));
         }
         // grab back row of edge cubies
         for (let x = low+1; x < high; ++x)
             // Ensure dummy center edges are skipped
             if (!(this.dim % 2 == 0 && x == 0))
-                cubiesToRotate.push (this.alignedCubies.get ([x, sliceIndex, low ].toString ()));
+                cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (x, sliceIndex, low )));
         // grab front row of edge cubies
         for (let x = low+1; x < high; ++x)
             // Ensure dummy center edges are skipped
             if (!(this.dim % 2 == 0 && x == 0))
-                cubiesToRotate.push (this.alignedCubies.get ([x, sliceIndex, high].toString ()));
+                cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (x, sliceIndex, high)));
         // grab left row edge cubies
         for (let z = low+1; z < high; ++z)
             // Ensure dummy center edges are skipped
             if (!(this.dim % 2 == 0 && z == 0))
-                cubiesToRotate.push (this.alignedCubies.get ([low, sliceIndex, z].toString ()));
+                cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (low, sliceIndex, z)));
         // grab right row edge cubies
         for (let z = low+1; z < high; ++z)
             // Ensure dummy center edges are skipped
             if (!(this.dim % 2 == 0 && z == 0))
-                cubiesToRotate.push (this.alignedCubies.get ([high, sliceIndex, z].toString ()));
+                cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (high, sliceIndex, z)));
         // grab center pieces - if turning face
         if (sliceIndex == low || sliceIndex == high)
         {
             for (let x = low+1; x < high; ++x)
                 for (let z = low+1; z < high; ++z)
                     // Ensure cubie exists (even layered cubes have dummy centers)
-                    if (this.alignedCubies.has ([x, sliceIndex, z].toString ()))
-                        cubiesToRotate.push (this.alignedCubies.get ([x, sliceIndex, z].toString ()));
+                    if (this.alignedCubies.has (toPositionBitmask (x, sliceIndex, z)))
+                        cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (x, sliceIndex, z)));
         }
 
         // Rotate each cubie
@@ -373,7 +377,7 @@ class RubiksCube
             cubie.rotateY (dir * HALF_PI);
             this.updateLookupTable (cubie);
             // Write back cubie to the new position
-            this.alignedCubies.set ([cubie.xi, cubie.yi, cubie.zi].toString (), cubie);
+            this.alignedCubies.set (toPositionBitmask (cubie.xi, cubie.yi, cubie.zi), cubie);
         }
     }
 
@@ -388,41 +392,41 @@ class RubiksCube
         // Grab cubies from desired slice
         let cubiesToRotate = [];
         // grab corner cubies
-        cubiesToRotate.push (this.alignedCubies.get ([low , low , sliceIndex].toString ()));
+        cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (low , low , sliceIndex)));
         if (this.dim > 1)
         {
-            cubiesToRotate.push (this.alignedCubies.get ([low , high, sliceIndex].toString ()));
-            cubiesToRotate.push (this.alignedCubies.get ([high, low , sliceIndex].toString ()));
-            cubiesToRotate.push (this.alignedCubies.get ([high, high, sliceIndex].toString ()));
+            cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (low , high, sliceIndex)));
+            cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (high, low , sliceIndex)));
+            cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (high, high, sliceIndex)));
         }
         // grab bottom row edge cubies
         for (let x = low+1; x < high; ++x)
             // Ensure dummy center edges are skipped
             if (!(this.dim % 2 == 0 && x == 0))
-                cubiesToRotate.push (this.alignedCubies.get ([x, low , sliceIndex].toString ()));
+                cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (x, low , sliceIndex)));
         // grab top row edge cubies
         for (let x = low+1; x < high; ++x)
             // Ensure dummy center edges are skipped
             if (!(this.dim % 2 == 0 && x == 0))
-                cubiesToRotate.push (this.alignedCubies.get ([x, high, sliceIndex].toString ()));
+                cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (x, high, sliceIndex)));
         // grab left column of edge cubies
         for (let y = low+1; y < high; ++y)
             // Ensure dummy center edges are skipped
             if (!(this.dim % 2 == 0 && y == 0))
-                cubiesToRotate.push (this.alignedCubies.get ([low , y, sliceIndex].toString ()));
+                cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (low , y, sliceIndex)));
         // grab right column of edge cubies
         for (let y = low+1; y < high; ++y)
             // Ensure dummy center edges are skipped
             if (!(this.dim % 2 == 0 && y == 0))
-                cubiesToRotate.push (this.alignedCubies.get ([high, y, sliceIndex].toString ()));
+                cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (high, y, sliceIndex)));
         // grab center pieces - if turning face
         if (sliceIndex == low || sliceIndex == high)
         {
             for (let x = low+1; x < high; ++x)
                 for (let y = low+1; y < high; ++y)
                     // Ensure cubie exists (even layered cubes have dummy centers)
-                    if (this.alignedCubies.has ([x, y, sliceIndex].toString ()))
-                        cubiesToRotate.push (this.alignedCubies.get ([x, y, sliceIndex].toString ()));
+                    if (this.alignedCubies.has (toPositionBitmask (x, y, sliceIndex)))
+                        cubiesToRotate.push (this.alignedCubies.get (toPositionBitmask (x, y, sliceIndex)));
         }
 
         // Rotate each cubie
@@ -431,7 +435,7 @@ class RubiksCube
             cubie.rotateZ (dir * HALF_PI);
             this.updateLookupTable (cubie);
             // Write back cubie to the new position
-            this.alignedCubies.set ([cubie.xi, cubie.yi, cubie.zi].toString (), cubie);
+            this.alignedCubies.set (toPositionBitmask (cubie.xi, cubie.yi, cubie.zi), cubie);
         }
     }
 

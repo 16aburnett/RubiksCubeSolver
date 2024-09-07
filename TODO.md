@@ -89,6 +89,7 @@ Scramble applyMoveSetFromString ("U L E' S M B' L' E L' F Z' E Z X' L E U M' L' 
 old hardcoded model time: [384, 344]
 baseline time: [9841, 11247, 9622, 10052]
 alignedCubies: [36593, 37532]
+alignedCubies with packed int as key [10397]
 
 Scramble applyMoveSetFromString ("R X' D' R' B' Y Y' L' X' U' X L R L' M B' Y' Y' D' M' Y")
 old hardcoded model time: [1646, 1595]
@@ -97,6 +98,7 @@ baseline time: [153488, 143940, 142749]
 - reverted this optimization to see how much it helped
 - maybe 20% improvement
 alignedCubies: [459649]
+alignedCubies with packed int as key [136989, 133044]
 
 
 

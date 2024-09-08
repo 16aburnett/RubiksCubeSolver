@@ -54,9 +54,21 @@ class RubiksCube3 {
 
         // Animating
         this.currentMove = 0;
+        this.currentMoves = [];
         this.currentAngle = 0;
-        this.currentDirection = 0;
+        this.currentSpeed = TURN_SPEED;
         this.isTurning = false;
+    }
+
+    // =======================================================================
+
+    // Returns a new RubiksCube with the same state
+    copy ()
+    {
+        let newCube = new RubiksCube3 ();
+        newCube.data = this.data.slice ();
+
+        return newCube;
     }
     
     // =======================================================================
@@ -133,34 +145,68 @@ class RubiksCube3 {
     // =======================================================================
     // Moves
 
-    rotate (move) {
-        // Outer slice moves
-        if (move == this.MOVE_L) this.L();
-        if (move == this.MOVE_LPRIME) this.LPrime();
-        if (move == this.MOVE_F) this.F();
-        if (move == this.MOVE_FPRIME) this.FPrime();
-        if (move == this.MOVE_R) this.R();
-        if (move == this.MOVE_RPRIME) this.RPrime();
-        if (move == this.MOVE_B) this.B();
-        if (move == this.MOVE_BPRIME) this.BPrime();
-        if (move == this.MOVE_U) this.U();
-        if (move == this.MOVE_UPRIME) this.UPrime();
-        if (move == this.MOVE_D) this.D();
-        if (move == this.MOVE_DPRIME) this.DPrime();
-        // Middle slice moves
-        if (move == this.MOVE_M) this.M();
-        if (move == this.MOVE_MPRIME) this.MPrime();
-        if (move == this.MOVE_E) this.E();
-        if (move == this.MOVE_EPRIME) this.EPrime();
-        if (move == this.MOVE_S) this.S();
-        if (move == this.MOVE_SPRIME) this.SPrime();
+    // rotate (move) {
+    //     // Outer slice moves
+    //     if (move == this.MOVE_L) this.L();
+    //     if (move == this.MOVE_LPRIME) this.LPrime();
+    //     if (move == this.MOVE_F) this.F();
+    //     if (move == this.MOVE_FPRIME) this.FPrime();
+    //     if (move == this.MOVE_R) this.R();
+    //     if (move == this.MOVE_RPRIME) this.RPrime();
+    //     if (move == this.MOVE_B) this.B();
+    //     if (move == this.MOVE_BPRIME) this.BPrime();
+    //     if (move == this.MOVE_U) this.U();
+    //     if (move == this.MOVE_UPRIME) this.UPrime();
+    //     if (move == this.MOVE_D) this.D();
+    //     if (move == this.MOVE_DPRIME) this.DPrime();
+    //     // Middle slice moves
+    //     if (move == this.MOVE_M) this.M();
+    //     if (move == this.MOVE_MPRIME) this.MPrime();
+    //     if (move == this.MOVE_E) this.E();
+    //     if (move == this.MOVE_EPRIME) this.EPrime();
+    //     if (move == this.MOVE_S) this.S();
+    //     if (move == this.MOVE_SPRIME) this.SPrime();
+    //     // Cube rotations
+    //     if (move == this.MOVE_X) this.X();
+    //     if (move == this.MOVE_XPRIME) this.XPrime();
+    //     if (move == this.MOVE_Y) this.Y();
+    //     if (move == this.MOVE_YPRIME) this.YPrime();
+    //     if (move == this.MOVE_Z) this.Z();
+    //     if (move == this.MOVE_ZPRIME) this.ZPrime();
+    // }
+
+    rotate (axis, sliceIndices, direction) {
         // Cube rotations
-        if (move == this.MOVE_X) this.X();
-        if (move == this.MOVE_XPRIME) this.XPrime();
-        if (move == this.MOVE_Y) this.Y();
-        if (move == this.MOVE_YPRIME) this.YPrime();
-        if (move == this.MOVE_Z) this.Z();
-        if (move == this.MOVE_ZPRIME) this.ZPrime();
+        if (sliceIndices.length > 1)
+        {
+            if      (axis == AXIS_X && direction ==  1) this.X ();
+            else if (axis == AXIS_X && direction == -1) this.XPrime ();
+            else if (axis == AXIS_Y && direction == -1) this.Y ();
+            else if (axis == AXIS_Y && direction ==  1) this.YPrime ();
+            else if (axis == AXIS_Z && direction ==  1) this.Z ();
+            else if (axis == AXIS_Z && direction == -1) this.ZPrime ();
+        }
+        // Outer slice turns
+        else if (axis == AXIS_X && sliceIndices[0] == -1 && direction == -1) this.L ();
+        else if (axis == AXIS_X && sliceIndices[0] == -1 && direction ==  1) this.LPrime ();
+        else if (axis == AXIS_X && sliceIndices[0] ==  1 && direction ==  1) this.R ();
+        else if (axis == AXIS_X && sliceIndices[0] ==  1 && direction == -1) this.RPrime ();
+        else if (axis == AXIS_Z && sliceIndices[0] ==  1 && direction ==  1) this.F ();
+        else if (axis == AXIS_Z && sliceIndices[0] ==  1 && direction == -1) this.FPrime ();
+        else if (axis == AXIS_Z && sliceIndices[0] == -1 && direction == -1) this.B ();
+        else if (axis == AXIS_Z && sliceIndices[0] == -1 && direction ==  1) this.BPrime ();
+        else if (axis == AXIS_Y && sliceIndices[0] == -1 && direction == -1) this.U ();
+        else if (axis == AXIS_Y && sliceIndices[0] == -1 && direction ==  1) this.UPrime ();
+        else if (axis == AXIS_Y && sliceIndices[0] ==  1 && direction ==  1) this.D ();
+        else if (axis == AXIS_Y && sliceIndices[0] ==  1 && direction == -1) this.DPrime ();
+        // Middle slice moves
+        else if (axis == AXIS_X && sliceIndices[0] ==  0 && direction ==  1) this.M ();
+        else if (axis == AXIS_X && sliceIndices[0] ==  0 && direction == -1) this.MPrime ();
+        else if (axis == AXIS_Y && sliceIndices[0] ==  0 && direction ==  1) this.E ();
+        else if (axis == AXIS_Y && sliceIndices[0] ==  0 && direction == -1) this.EPrime ();
+        else if (axis == AXIS_Z && sliceIndices[0] ==  0 && direction ==  1) this.S ();
+        else if (axis == AXIS_Z && sliceIndices[0] ==  0 && direction == -1) this.SPrime ();
+
     }
 
     // =======================================================================
@@ -879,7 +925,7 @@ class RubiksCube3 {
         // keep turning layer if we were turning something
         if (this.isTurning)
         {
-            this.currentAngle += this.currentDirection;
+            this.currentAngle += this.currentSpeed;
             // Check for if the turn is complete
             if (Math.abs (this.currentAngle) > 90)
             {
@@ -887,7 +933,7 @@ class RubiksCube3 {
                 this.isTurning = false;
                 this.currentAngle = 0;
                 // Animation is complete so update the data to reflect the move
-                this.move (this.currentMove);
+                this.rotate (this.currentMoveAxis, this.currentMoveSlices, this.currentMoveDirection);
             }
         }
     }
@@ -898,15 +944,17 @@ class RubiksCube3 {
     // in contrast with move(move), this animates the rubiks cube to turn
     // the layer associated with the move and will update the actual cube state
     // when the animation has finished.
-    animatedRotate (move)
+    animatedRotate (axis, slices, direction)
     {
         // Ensure we arent already performing a move
         if (this.isTurning)
             return false;
-        this.currentMove = move;
         this.currentAngle = 0;
-        this.currentDirection = -TURN_SPEED;
+        this.currentSpeed = TURN_SPEED;
         this.isTurning = true;
+        this.currentMoveAxis = axis;
+        this.currentMoveSlices = slices;
+        this.currentMoveDirection = direction;
     }
 
     // =======================================================================
@@ -916,8 +964,8 @@ class RubiksCube3 {
     draw3DCube ()
     {
         // Rotate the whole cube so we can see more than one side initially
-        // graphics.rotateX (-30);
-        // graphics.rotateY (-45);
+        graphics.rotateX (-30);
+        graphics.rotateY (-45);
 
         let cubieSize = min(graphics.width, graphics.height) / 10;
 
@@ -931,64 +979,29 @@ class RubiksCube3 {
             {
                 for (let k = low; k <= high; ++k)
                 {
-                    // **this is not generalized - hardcoded to 3x3 moves
-                    // Check for if the UP face is moving
-                    // and that this cubie is in that face
-                    // to rotate it
-                    if (this.isTurning && (this.currentMove == this.MOVE_U || this.currentMove == this.MOVE_UPRIME) && i == low)
+                    // Check if cubie should be rotating
+                    if (this.isTurning && this.currentMoveAxis == AXIS_X && this.currentMoveSlices.includes (j))
                     {
-                        graphics.rotateY ( this.currentAngle);
+                        graphics.rotateX (this.currentAngle * this.currentMoveDirection);
                         this.drawCubie (cubieSize, i, j, k);
-                        graphics.rotateY (-this.currentAngle);
+                        graphics.rotateX (this.currentAngle * -this.currentMoveDirection);
                     }
-                    // Check for if the DOWN face is moving
-                    // and that this cubie is in that face
-                    // to rotate it
-                    else if (this.isTurning && (this.currentMove == this.MOVE_D || this.currentMove == this.MOVE_DPRIME) && i == high)
+                    else if (this.isTurning && this.currentMoveAxis == AXIS_Y && this.currentMoveSlices.includes (i))
                     {
-                        graphics.rotateY ( this.currentAngle);
+                        graphics.rotateY (this.currentAngle * this.currentMoveDirection);
                         this.drawCubie (cubieSize, i, j, k);
-                        graphics.rotateY (-this.currentAngle);
+                        graphics.rotateY (this.currentAngle * -this.currentMoveDirection);
                     }
-                    // Check for if the FRONT face is moving
-                    // and that this cubie is in that face
-                    // to rotate it
-                    else if (this.isTurning && (this.currentMove == this.MOVE_F || this.currentMove == this.MOVE_FPRIME) && k == high)
+                    else if (this.isTurning && this.currentMoveAxis == AXIS_Z && this.currentMoveSlices.includes (k))
                     {
-                        graphics.rotateZ ( this.currentAngle);
+                        graphics.rotateZ (this.currentAngle * this.currentMoveDirection);
                         this.drawCubie (cubieSize, i, j, k);
-                        graphics.rotateZ (-this.currentAngle);
+                        graphics.rotateZ (this.currentAngle * -this.currentMoveDirection);
                     }
-                    // Check for if the BACK face is moving
-                    // and that this cubie is in that face
-                    // to rotate it
-                    else if (this.isTurning && (this.currentMove == this.MOVE_B || this.currentMove == this.MOVE_BPRIME) && k == low)
-                    {
-                        graphics.rotateZ ( this.currentAngle);
-                        this.drawCubie (cubieSize, i, j, k);
-                        graphics.rotateZ (-this.currentAngle);
-                    }
-                    // Check for if the LEFT face is moving
-                    // and that this cubie is in that face
-                    // to rotate it
-                    else if (this.isTurning && (this.currentMove == this.MOVE_L || this.currentMove == this.MOVE_LPRIME) && j == low)
-                    {
-                        graphics.rotateX ( this.currentAngle);
-                        this.drawCubie (cubieSize, i, j, k);
-                        graphics.rotateX (-this.currentAngle);
-                    }
-                    // Check for if the RIGHT face is moving
-                    // and that this cubie is in that face
-                    // to rotate it
-                    else if (this.isTurning && (this.currentMove == this.MOVE_R || this.currentMove == this.MOVE_RPRIME) && j == high)
-                    {
-                        graphics.rotateX ( this.currentAngle);
-                        this.drawCubie (cubieSize, i, j, k);
-                        graphics.rotateX (-this.currentAngle);
-                    }
-                    // this cubie is not moving
                     else
                     {
+                        // Cubie is not in a currently rotating face
+                        // so just draw without rotations
                         this.drawCubie (cubieSize, i, j, k);
                     }
                 }
@@ -996,8 +1009,8 @@ class RubiksCube3 {
         }
 
         // undo cube rotation
-        // graphics.rotateY ( 45);
-        // graphics.rotateX ( 30);
+        graphics.rotateY ( 45);
+        graphics.rotateX ( 30);
     }
 
     // =======================================================================
@@ -1190,5 +1203,15 @@ class RubiksCube3 {
         if (move == this.MOVE_YPRIME) return "Y'";
         if (move == this.MOVE_Z)      return "Z";
         if (move == this.MOVE_ZPRIME) return "Z'";
+    }
+
+    benchmark ()
+    {
+        console.time ("R");
+        for (let i = 0; i < 1000000; ++i)
+        {
+            rubiksCube.rotate (...cubeMoveNotation.toAxisNotation (cubeNotationMove (MOVE_R, 1)));
+        }
+        console.timeEnd ("R");
     }
 }

@@ -83,6 +83,7 @@ Performance
 Scramble applyMoveSetFromString ("U L E' S M B' L' E L' F Z' E Z X' L E U M' L' U' R'")
 old hardcoded model time: [384, 344]
 baseline time: [9841, 11247, 9622, 10052]
+old hardcoded model with axis notation and animation: [510]
 
 Scramble applyMoveSetFromString ("R X' D' R' B' Y Y' L' X' U' X L R L' M B' Y' Y' D' M' Y")
 old hardcoded model time: [1646, 1595]
@@ -90,7 +91,8 @@ baseline time: [153488, 143940, 142749]
 6 stickers on each cubie : [184776, 190201, ]
 - reverted this optimization to see how much it helped
 - maybe 20% improvement
-
+old hardcoded model with axis notation and animation: [6748]
+- it is like 6x slower, but! still much faster than generalized cos/sin version
 
 
 

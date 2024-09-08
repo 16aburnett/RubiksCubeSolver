@@ -422,6 +422,22 @@ class RubiksCube
         }
     }
 
+    benchmark ()
+    {
+        console.time ("R");
+        for (let i = 0; i < 1000000; ++i)
+            rubiksCube.rotate (...cubeMoveNotation.toAxisNotation (cubeNotationMove (MOVE_R, 1)));
+        console.timeEnd ("R");
+    }
+
+    benchmark2 ()
+    {
+        console.time ("R");
+        for (let i = 0; i < 1000000; ++i)
+            rubiksCube.rotate (AXIS_X, [1], 1);
+        console.timeEnd ("R");
+    }
+
 }
 
 

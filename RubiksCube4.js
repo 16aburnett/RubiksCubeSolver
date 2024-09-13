@@ -142,7 +142,7 @@ class RubiksCube4 {
     // =======================================================================
     // Moves
 
-    move (move) {
+    rotate (move) {
         if (move == this.MOVE_L) this.L();
         if (move == this.MOVE_LPRIME) this.LPrime();
         if (move == this.MOVE_F) this.F();
@@ -1092,6 +1092,26 @@ class RubiksCube4 {
 
     // =======================================================================
     // VISUALS
+    // =======================================================================
+
+    update ()
+    {
+        // do nothing for now
+    }
+
+    // =======================================================================
+
+    // Performs the given move on the rubiks cube
+    // in contrast with move(move), this animates the rubiks cube to turn
+    // the layer associated with the move and will update the actual cube state
+    // when the animation has finished.
+    animatedRotate (move)
+    {
+        // TODO: IMPLEMENT
+        // just does normal move for now
+        this.rotate (move);
+    }
+
     // =======================================================================
 
     // Draws 3D representation of the rubiks cube to the current graphics

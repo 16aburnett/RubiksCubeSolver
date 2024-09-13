@@ -1,20 +1,20 @@
-/*
-    Rubiks Cube Solver
-    By Amy Burnett
-    August 13 2024
-*/
-
+// Rubiks Cube Solver
+// By Amy Burnett
+// August 13 2024
 // =======================================================================
 // Global variables
 
-let rubiksCube; 
+let rubiksCube;
 let scrambled = false;
 let shouldScramble = false;
 const SCRAMBLE_LENGTH = 20;
 let amountToScramble = SCRAMBLE_LENGTH;
-let solver; 
+let solver;
 let isSolving = false;
 let solution = [];
+let cubeMoveNotation;
+let isApplyingMoveSet = false;
+let moveSetToApply = [];
 
 // get rubiks cube type from the url
 let cubeType = new URLSearchParams(window.location.search).get("type");
@@ -42,92 +42,46 @@ function setup () {
     graphics.angleMode (DEGREES);
     cam = graphics.createCamera ();
     // setup rubiks cube model
-    if (cubeType == "2x2") {
-        rubiksCube = new RubiksCube2();
-        solver = new CFOPSolver2();
+    if (cubeType == "1x1") {
+        rubiksCube = new RubiksCube (1);
+        solver = new CFOPSolver1x1 ();
         // Setup solver controls buttons
-        let solverControlsTable = document.getElementById ("solverControlsTable");
-        let tr = document.createElement ("tr");
-        tr.className = "controlRow";
-        solverControlsTable.appendChild (tr);
-        let td = document.createElement ("td");
-        td.colSpan = 4
-        let btn = document.createElement ("button");
-        btn.className = "controlButton";
-        btn.onclick = () => solve ();
-        btn.innerText = "CFOP-like solver";
-        td.appendChild (btn);
-        tr.appendChild (td);
-        tr.appendChild (td);
+        addSolverButton ("Basic Solver", solve);
+    }
+    else if (cubeType == "2x2") {
+        rubiksCube = new RubiksCube (2);
+        solver = new CFOPSolver2x2 ();
+        // Setup solver controls buttons
+        addSolverButton ("Basic Solver", solve);
+    }
+    else if (cubeType == "old 3x3") {
+        rubiksCube = new RubiksCube3 ();
+        solver = new CFOPSolver3x3 ();
+        // Setup solver controls buttons
+        addSolverButton ("CFOP-like Solver", solve);
     }
     else if (cubeType == "4x4") {
-        rubiksCube = new RubiksCube4();
+        rubiksCube = new RubiksCube (4);
         solver = null;
         // Setup solver controls buttons
-        let solverControlsTable = document.getElementById ("solverControlsTable");
-        let tr = document.createElement ("tr");
-        tr.className = "controlRow";
-        solverControlsTable.appendChild (tr);
-        let td = document.createElement ("td");
-        td.colSpan = 4
-        let btn = document.createElement ("button");
-        btn.className = "controlButton";
-        btn.onclick = () => null;
-        btn.innerText = "No 4x4 solver yet";
-        td.appendChild (btn);
-        tr.appendChild (td);
-        tr.appendChild (td);
+        // addSolverButton ("Basic Solver", solve);
+    }
+    else if (cubeType == "5x5") {
+        rubiksCube = new RubiksCube (5);
+        solver = null;
+        // Setup solver controls buttons
+        // addSolverButton ("Basic Solver", solve);
     }
     // 3x3 by default
     else {
-        rubiksCube = new RubiksCube3();
-        solver = new CFOPSolver3();
+        rubiksCube = new RubiksCube (3);
+        solver = new CFOPSolver3x3 ();
         // Setup solver controls buttons
-        let solverControlsTable = document.getElementById ("solverControlsTable");
-        let tr = document.createElement ("tr");
-        tr.className = "controlRow";
-        solverControlsTable.appendChild (tr);
-        let td = document.createElement ("td");
-        td.colSpan = 4
-        let btn = document.createElement ("button");
-        btn.className = "controlButton";
-        btn.onclick = () => solve ();
-        btn.innerText = "CFOP-like solver";
-        td.appendChild (btn);
-        tr.appendChild (td);
-        tr.appendChild (td);
+        addSolverButton ("CFOP-Like Solver", solve);
     }
-    
+    cubeMoveNotation = new CubeMoveNotation (rubiksCube.dim);
     // Setup cube control buttons
-    let cubeControlsTable = document.getElementById ("cubeControlsTable");
-    // create a move button for each valid move
-    // and pack buttons in rows
-    let j = 0;
-    let max_col_per_row = 4;
-    let tr = document.createElement ("tr");
-    tr.className = "controlRow";
-    cubeControlsTable.appendChild (tr);
-    for (let m = 0; m < rubiksCube.NUM_VALID_MOVES; ++m)
-    {
-        // Ensure we don't overflow the row with buttons
-        if (j >= max_col_per_row)
-        {
-            j = 0;
-            tr = document.createElement ("tr");
-            tr.className = "controlRow";
-            cubeControlsTable.appendChild (tr);
-        }
-        // create button column
-        let td = document.createElement ("td");
-        let btn = document.createElement ("button");
-        btn.className = "controlButton";
-        btn.onclick = () => rubiksCube.move (m);
-        btn.innerText = rubiksCube.intToMoveString (m);
-        td.appendChild (btn);
-        tr.appendChild (td);
-        // added a button to the row so incr how many in row
-        ++j;
-    }
+    addCubeControlButtons ();
 }
 
 // =======================================================================
@@ -141,40 +95,79 @@ function draw () {
     // and causes lighting to be much more intense
     graphics.reset ();
 
+    if (isApplyingMoveSet)
+    {
+        // Ensure cube is ready to receive move
+        if (!rubiksCube.isTurning)
+        {
+            // Ensure there are moves left to apply
+            if (moveSetToApply.length == 0)
+            {
+                console.log ("Finished applying move set");
+                isApplyingMoveSet = false;
+            }
+            else
+            {
+                // still applying moves so make another move
+                let move = moveSetToApply[0];
+                moveSetToApply = moveSetToApply.slice(1);
+                console.log(cubeMoveNotation.toString (move));
+                rubiksCube.animatedRotate (...cubeMoveNotation.toAxisNotation (move));
+            }
+        }
+    }
     // if we are currently scrambling,
     // then perform a single scramble move for this frame
-    if (shouldScramble) {
-        let randMove = int(random(0, rubiksCube.NUM_VALID_MOVES));
-        console.log(rubiksCube.intToMoveString(randMove));
-        rubiksCube.move (randMove);
-        amountToScramble -= 1;
-        if (amountToScramble < 0) {
-            shouldScramble = false;
+    else if (shouldScramble) {
+        // Ensure cube is ready to receive move
+        if (!rubiksCube.isTurning)
+        {
+            // Generate a random move
+            let randomMove = random ([...cubeMoveNotation.getCubeNotationMoves ()]);
+            console.log(cubeMoveNotation.toString (randomMove));
+            // Convert the move from cube notation to axis notation
+            let axisNotationMove = cubeMoveNotation.toAxisNotation (randomMove);
+            // Start animating the move
+            // Future calls to rubikscube.update() will progress the animation
+            rubiksCube.animatedRotate (...axisNotationMove);
+            amountToScramble -= 1;
+            if (amountToScramble < 0) {
+                shouldScramble = false;
+            }
         }
     }
 
     // determine if cube was solved
-    else if (scrambled && rubiksCube.isSolved()) {
+    else if (scrambled && rubiksCube.isSolved ()) {
         scrambled = false;
         isSolving = false;
         console.log("Congrats! You solved it!");
     }
 
-    else if (isSolving) {
-        if (rubiksCube.isSolved()) {
+    else if (isSolving && !rubiksCube.isTurning) {
+        // this might not be correct logic since
+        // the solver could solve the cube with more moves left?
+        // i doubt the solver will do that, but...
+        if (rubiksCube.isSolved ()) {
+            // done solving since cube is solved
             isSolving = false;
         }
         else if (solution.length == 0) {
             isSolving = false;
             console.log("bot could not find a solution");
         }
-        let move = solution[0];
-        solution = solution.slice(1);
-        console.log(rubiksCube.intToMoveString(move));
-        rubiksCube.move(move);
+        else
+        {
+            // still solving so make another move
+            let move = solution[0];
+            solution = solution.slice(1);
+            console.log(cubeMoveNotation.toString (move));
+            rubiksCube.animatedRotate (...cubeMoveNotation.toAxisNotation (move));
+        }
     }
 
     // Draw 3D graphics
+    rubiksCube.update ();
     rubiksCube.draw3DCube ();
 
     // Add 3D graphics to canvas as an image
@@ -191,32 +184,38 @@ function solve () {
     console.log("Thinking...");
 
     isSolving = true;
-    let tempCube = null;
-    if (cubeType == "2x2") {
-        tempCube = new RubiksCube2();
-    }
-    else if (cubeType == "4x4") {
-        tempCube = new RubiksCube4();
-    }
-    // 3x3 by default
-    else {
-        tempCube = new RubiksCube3();
-    }
-    tempCube.data = rubiksCube.data.slice();
-    solution = solver.findSolution(tempCube);
+    let tempCube = rubiksCube.copy ();
+
+    console.time ("Solve");
+    solution = solver.findSolution (tempCube);
+    console.timeEnd ("Solve");
 
     console.log("Solution found that has " + solution.length + " moves.")
     console.log("Solving...")
-
 }
 
 // =======================================================================
 
 // activates scramble 
 function scramble () {
+    console.log ("Scrambling");
     shouldScramble = true;
     amountToScramble = SCRAMBLE_LENGTH;
     scrambled = true;
+}
+
+// =======================================================================
+
+// activates scramble 
+function applyMoveSetFromString (moveSetString) {
+    console.log ("Applying move set");
+    isApplyingMoveSet = true;
+    scrambled = true;
+    let moveStrings = moveSetString.split (" ");
+    let moves = [];
+    for (let moveString of moveStrings)
+        moves.push (cubeMoveNotation.stringToMove (moveString));
+    moveSetToApply = moves;
 }
 
 // =======================================================================

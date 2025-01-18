@@ -55,7 +55,7 @@ function setup () {
         addSolverButton ("Basic Solver", solve);
     }
     else if (cubeType == "old 3x3") {
-        rubiksCube = new RubiksCube3 ();
+        rubiksCube = new RubiksCubeGeneralized ();
         solver = new CFOPSolver3x3 ();
         // Setup solver controls buttons
         addSolverButton ("CFOP-like Solver", solve);

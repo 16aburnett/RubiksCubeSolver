@@ -25,35 +25,19 @@ class CFOPSolver2x2
     {
         let solution = [];
         // solve first layer
-        for (var i = 1; i < this.MAX_WHITE_FACE_MOVES; ++i) {
-            let temp = this.solveFirstLayer (cube, [], 0, i);
-            if (temp != null) {
-                solution = solution.concat (temp);
-                console.log ("solveFirstLayer");
-                console.log (temp);
-                break;
-            }
-        }
+        let temp = this.solveFirstLayer (cube);
+        if (temp != null)
+            solution = solution.concat(temp);
+
         // solve yellow face
-        for (var i = 1; i < this.MAX_YELLOW_FACE_MOVES; ++i) {
-            let temp = this.solveYellowFace (cube, [], 0, i);
-            if (temp != null) {
-                solution = solution.concat (temp);
-                console.log ("solveYellowFace");
-                console.log (temp);
-                break;
-            }
-        }
+        temp = this.solveYellowFace (cube);
+        if (temp != null)
+            solution = solution.concat(temp);
+
         // permutate last layer
-        for (var i = 1; i < this.MAX_PERMUTATE_LAST_LAYER_MOVES; ++i) {
-            let temp = this.solveLastLayer (cube, [], 0, i);
-            if (temp != null) {
-                solution = solution.concat (temp);
-                console.log ("solveLastLayer");
-                console.log (temp);
-                break;
-            }
-        }
+        temp = this.solveLastLayer (cube);
+        if (temp != null)
+            solution = solution.concat(temp);
 
         return solution;
     }
@@ -77,7 +61,26 @@ class CFOPSolver2x2
         return true;
     }
 
-    solveFirstLayer(cube, path, prevMove, limit)
+    // =======================================================================
+
+    solveFirstLayer (cube)
+    {
+        console.time ("solveFirstLayer");
+        let solution = null;
+        for (var i = 1; i < this.MAX_WHITE_FACE_MOVES; ++i) {
+            solution = this.solveFirstLayer_ (cube, [], 0, i);
+            if (solution != null) {
+                console.log ("solveFirstLayer", solution);
+                break;
+            }
+        }
+        console.timeEnd ("solveFirstLayer");
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveFirstLayer_ (cube, path, prevMove, limit)
     {
         // solution found
         if (this.isFirstLayerSolved (cube))
@@ -117,7 +120,7 @@ class CFOPSolver2x2
             let axisNotationMove = cubeMoveNotation.toAxisNotation (move);
             cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
             path.push (move);
-            result = this.solveFirstLayer (cube, path, move, limit);
+            result = this.solveFirstLayer_ (cube, path, move, limit);
             if (result != null) return result;
             path.pop ();
             // undo move by reversing direction
@@ -137,7 +140,28 @@ class CFOPSolver2x2
         return true;
     }
 
-    solveYellowFace (cube, path, prevMove, limit) {
+    // =======================================================================
+
+    solveYellowFace (cube)
+    {
+        console.time ("solveYellowFace");
+        let solution = null;
+        for (var i = 1; i < this.MAX_YELLOW_FACE_MOVES; ++i)
+        {
+            solution = this.solveYellowFace_ (cube, [], 0, i);
+            if (solution != null)
+            {
+                console.log ("solveYellowFace", solution);
+                break;
+            }
+        }
+        console.timeEnd ("solveYellowFace");
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveYellowFace_ (cube, path, prevMove, limit) {
         // solution found
         if (this.isYellowFaceSolved(cube)) {
             return path;
@@ -186,7 +210,7 @@ class CFOPSolver2x2
                 path.push (move);
             }
             // Try to solve from this state
-            result = this.solveYellowFace (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
+            result = this.solveYellowFace_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
             if (result != null) return result;
             // MoveSet did not work so
             // Undo moveSet (by doing the reverse moves in reverse order)
@@ -218,7 +242,28 @@ class CFOPSolver2x2
         return true;
     }
 
-    solveLastLayer(cube, path, prevMove, limit) {
+    // =======================================================================
+
+    solveLastLayer (cube)
+    {
+        console.time ("solveLastLayer");
+        let solution = null;
+        for (var i = 1; i < this.MAX_PERMUTATE_LAST_LAYER_MOVES; ++i)
+        {
+            solution = this.solveLastLayer_ (cube, [], 0, i);
+            if (solution != null)
+            {
+                console.log ("solveLastLayer", solution);
+                break;
+            }
+        }
+        console.timeEnd ("solveLastLayer");
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveLastLayer_ (cube, path, prevMove, limit) {
         // solution found
         if (this.isLastLayerSolved(cube)) {
             return path;
@@ -274,7 +319,7 @@ class CFOPSolver2x2
                 path.push (move);
             }
             // Try to solve from this state
-            result = this.solveLastLayer (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
+            result = this.solveLastLayer_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
             if (result != null) return result;
             // MoveSet did not work so
             // Undo moveSet (by doing the reverse moves in reverse order)

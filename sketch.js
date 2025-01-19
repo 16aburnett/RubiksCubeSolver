@@ -52,7 +52,22 @@ function setup () {
         rubiksCube = new RubiksCube (2);
         solver = new CFOPSolver2x2 ();
         // Setup solver controls buttons
-        addSolverButton ("Basic Solver", solve);
+        addSolverButton ("Full CFOP-Like Solve", solve);
+        addSolverButton ("Solve First Layer", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.solveFirstLayer (cube);
+            });
+        });
+        addSolverButton ("Solve Yellow Face", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.solveYellowFace (cube);
+            });
+        });
+        addSolverButton ("Solve Last Layer", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.solveLastLayer (cube);
+            });
+        });
     }
     else if (cubeType == "old 3x3") {
         rubiksCube = new RubiksCube3 ();
@@ -77,7 +92,57 @@ function setup () {
         rubiksCube = new RubiksCube (3);
         solver = new CFOPSolver3x3 ();
         // Setup solver controls buttons
-        addSolverButton ("CFOP-Like Solver", solve);
+        addSolverButton ("Full CFOP-Like Solve", solve);
+        addSolverButton ("Orient Cube", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.findSolutionToOrientTheCube (cube);
+            });
+        });
+        addSolverButton ("Solve White Cross", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.findSolutionToCross (cube);
+            });
+        });
+        addSolverButton ("Solve First F2L", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.solveFirstF2L (cube);
+            });
+        });
+        addSolverButton ("Solve Second F2L", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.solveSecondF2L (cube);
+            });
+        });
+        addSolverButton ("Solve Third F2L", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.solveThirdF2L (cube);
+            });
+        });
+        addSolverButton ("Solve Fourth F2L", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.solveFourthF2L (cube);
+            });
+        });
+        addSolverButton ("Solve Yellow Cross", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.solveYellowCross (cube);
+            });
+        });
+        addSolverButton ("Solve Yellow Face", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.solveYellowFace (cube);
+            });
+        });
+        addSolverButton ("Solve Yellow Corners", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.solveYellowCorners (cube);
+            });
+        });
+        addSolverButton ("Solve Yellow Edges", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.solveYellowEdges (cube);
+            });
+        });
     }
     cubeMoveNotation = new CubeMoveNotation (rubiksCube.dim);
     // Setup cube control buttons
@@ -190,7 +255,40 @@ function solve () {
     solution = solver.findSolution (tempCube);
     console.timeEnd ("Solve");
 
+    // Ensure a solution was found
+    if (solution == null)
+    {
+        console.log ("No solution found");
+        isSolving = false;
+        return;
+    }
+
     console.log("Solution found that has " + solution.length + " moves.")
+    console.log("Solving...")
+}
+
+// =======================================================================
+
+// activates the bot and loads solution 
+function solveFromGivenFunc (findSolutionFunc) {
+    console.log("Thinking...");
+
+    isSolving = true;
+    let tempCube = rubiksCube.copy ();
+
+    console.time ("Solve");
+    solution = findSolutionFunc (tempCube);
+    console.timeEnd ("Solve");
+
+    // Ensure a solution was found
+    if (solution == null)
+    {
+        console.log ("No solution found");
+        isSolving = false;
+        return;
+    }
+
+    console.log("Solution found that has " + solution.length + " moves.");
     console.log("Solving...")
 }
 

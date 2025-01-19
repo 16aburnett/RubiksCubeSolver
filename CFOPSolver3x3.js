@@ -27,119 +27,79 @@ class CFOPSolver3x3
     {
         let solution = [];
         // orient the cube so white is down and blue is front
-        console.time ("findSolutionToOrientTheCube");
-        for (var i = 1; i < this.MAX_CUBE_ORIENTATION_MOVES; ++i) {
-            let temp = this.findSolutionToOrientTheCube (cube, [], 0, i);
-            if (temp != null) {
-                console.log ("findSolutionToOrientTheCube", temp);
-                solution = solution.concat (temp);
-                break;
-            }
-        }
-        console.timeEnd ("findSolutionToOrientTheCube");
-        console.time ("findSolutionToCross");
+        let temp = this.findSolutionToOrientTheCube (cube);
+        if (temp != null)
+            solution = solution.concat(temp);
+
         // solve cross
-        for (var i = 1; i < this.MAX_CROSS_MOVES; ++i) {
-            let temp = this.findSolutionToCross(cube, [], 0, i);
-            if (temp != null) {
-                console.log ("findSolutionToCross", temp);
-                solution = solution.concat(temp);
-                break;
-            }
-        }
-        console.timeEnd ("findSolutionToCross");
-        // solve f2l 
-        console.time ("solveFirstF2L");
-        for (var i = 1; i < this.MAX_F2L_MOVES; ++i) {
-            let temp = this.solveFirstF2L(cube, [], 0, i);
-            if (temp != null) {
-                console.log ("solveFirstF2L", temp);
-                solution = solution.concat(temp);
-                break;
-            }
-        }
-        console.timeEnd ("solveFirstF2L");
-        console.time ("solveSecondF2L");
-        for (var i = 1; i < this.MAX_F2L_MOVES; ++i) {
-            let temp = this.solveSecondF2L(cube, [], 0, i);
-            if (temp != null) {
-                console.log ("solveSecondF2L", temp);
-                solution = solution.concat(temp);
-                break;
-            }
-        }
-        console.timeEnd ("solveSecondF2L");
-        console.time ("solveThirdF2L");
-        for (var i = 1; i < this.MAX_F2L_MOVES; ++i) {
-            let temp = this.solveThirdF2L(cube, [], 0, i);
-            if (temp != null) {
-                console.log ("solveThirdF2L", temp);
-                solution = solution.concat(temp);
-                break;
-            }
-        }
-        console.timeEnd ("solveThirdF2L");
-        console.time ("solveFourthF2L");
-        for (var i = 1; i < this.MAX_F2L_MOVES; ++i) {
-            let temp = this.solveFourthF2L(cube, [], 0, i);
-            if (temp != null) {
-                console.log ("solveFourthF2L", temp);
-                solution = solution.concat(temp);
-                break;
-            }
-        }
-        console.timeEnd ("solveFourthF2L");
-        console.time ("solveYellowCross");
+        temp = this.findSolutionToCross (cube);
+        if (temp != null)
+            solution = solution.concat(temp);
+
+        // solve f2l
+        // F2L: First
+        temp = this.solveFirstF2L (cube);
+        if (temp != null)
+            solution = solution.concat(temp);
+
+        // F2L: Second
+        temp = this.solveSecondF2L (cube);
+        if (temp != null)
+            solution = solution.concat(temp);
+
+        // F2L: Third
+        temp = this.solveThirdF2L (cube);
+        if (temp != null)
+            solution = solution.concat(temp);
+
+        // F2L: Fourth
+        temp = this.solveFourthF2L (cube);
+        if (temp != null)
+            solution = solution.concat(temp);
+
         // OLL: yellow cross
-        for (var i = 1; i < this.MAX_YELLOW_CROSS; ++i) {
-            let temp = this.solveYellowCross(cube, [], 0, i);
-            if (temp != null) {
-                console.log ("solveYellowCross", temp);
-                solution = solution.concat(temp);
-                break;
-            }
-        }
-        console.timeEnd ("solveYellowCross");
-        console.time ("solveYellowFace");
+        temp = this.solveYellowCross (cube);
+        if (temp != null)
+            solution = solution.concat(temp);
+
         // OLL: yellow face
-        for (var i = 1; i < this.MAX_YELLOW_CORNERS; ++i) {
-            let temp = this.solveYellowFace(cube, [], 0, i);
-            if (temp != null) {
-                console.log ("solveYellowFace", temp);
-                solution = solution.concat(temp);
-                break;
-            }
-        }
-        console.timeEnd ("solveYellowFace");
+        temp = this.solveYellowFace (cube);
+        if (temp != null)
+            solution = solution.concat(temp);
+
         // PLL: yellow corners
-        console.time ("solveYellowCorners");
-        for (var i = 1; i < this.MAX_YELLOW_CORNERS; ++i) {
-            let temp = this.solveYellowCorners(cube, [], 0, i);
-            if (temp != null) {
-                console.log ("solveYellowCorners", temp);
-                solution = solution.concat(temp);
-                break;
-            }
-        }
-        console.timeEnd ("solveYellowCorners");
+        temp = this.solveYellowCorners (cube);
+        if (temp != null)
+            solution = solution.concat(temp);
+
         // PLL: yellow edges
-        console.time ("solveYellowEdges");
-        for (var i = 1; i < this.MAX_YELLOW_EDGES; ++i) {
-            let temp = this.solveYellowEdges(cube, [], 0, i);
-            if (temp != null) {
-                console.log ("solveYellowEdges", temp);
-                solution = solution.concat(temp);
-                break;
-            }
-        }
-        console.timeEnd ("solveYellowEdges");
+        temp = this.solveYellowEdges (cube);
+        if (temp != null)
+            solution = solution.concat(temp);
 
         return solution;
     }
 
     // =======================================================================
 
-    findSolutionToOrientTheCube (cube, path, prevMove, limit) {
+    findSolutionToOrientTheCube (cube) {
+        console.time ("findSolutionToOrientTheCube");
+        let solution = null;
+        for (var i = 1; i < this.MAX_CUBE_ORIENTATION_MOVES; ++i) {
+            solution = this.findSolutionToOrientTheCube_ (cube, [], 0, i);
+            if (solution != null) {
+                // Found the solution!
+                console.log ("findSolutionToOrientTheCube", solution);
+                break;
+            }
+        }
+        console.timeEnd ("findSolutionToOrientTheCube");
+        return solution;
+    }
+
+    // =======================================================================
+
+    findSolutionToOrientTheCube_ (cube, path, prevMove, limit) {
         // solution found
         if (this.isCentersSolved (cube)) {
             return path;
@@ -171,7 +131,7 @@ class CFOPSolver3x3
             let axisNotationMove = cubeMoveNotation.toAxisNotation (move);
             cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
             path.push (move);
-            result = this.findSolutionToOrientTheCube (cube, path, move, limit);
+            result = this.findSolutionToOrientTheCube_ (cube, path, move, limit);
             if (result != null) return result;
             path.pop ();
             // undo move by reversing direction
@@ -183,7 +143,24 @@ class CFOPSolver3x3
 
     // =======================================================================
 
-    findSolutionToCross (cube, path, prevMove, limit) {
+    findSolutionToCross (cube) {
+        console.time ("findSolutionToCross");
+        let solution = null;
+        for (var i = 1; i < this.MAX_CROSS_MOVES; ++i) {
+            solution = this.findSolutionToCross_ (cube, [], 0, i);
+            if (solution != null) {
+                // Found the solution!
+                console.log ("findSolutionToCross", solution);
+                break;
+            }
+        }
+        console.timeEnd ("findSolutionToCross");
+        return solution;
+    }
+
+    // =======================================================================
+
+    findSolutionToCross_ (cube, path, prevMove, limit) {
         // solution found
         if (this.isCrossSolved (cube)) {
             return path;
@@ -221,7 +198,7 @@ class CFOPSolver3x3
             let axisNotationMove = cubeMoveNotation.toAxisNotation (move);
             cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
             path.push (move);
-            result = this.findSolutionToCross (cube, path, move, limit);
+            result = this.findSolutionToCross_ (cube, path, move, limit);
             if (result != null) return result;
             path.pop ();
             // undo move by reversing direction
@@ -233,7 +210,24 @@ class CFOPSolver3x3
 
     // =======================================================================
 
-    solveFirstF2L (cube, path, prevMove, limit) {
+    solveFirstF2L (cube) {
+        console.time ("solveFirstF2L");
+        let solution = null;
+        for (var i = 1; i < this.MAX_F2L_MOVES; ++i) {
+            solution = this.solveFirstF2L_ (cube, [], 0, i);
+            if (solution != null) {
+                // Found the solution!
+                console.log ("solveFirstF2L", solution);
+                break;
+            }
+        }
+        console.timeEnd ("solveFirstF2L");
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveFirstF2L_ (cube, path, prevMove, limit) {
         // solution found
         if (this.isCrossSolved (cube) && this.isFirstF2LSolved (cube)) {
             return path;
@@ -271,7 +265,7 @@ class CFOPSolver3x3
             let axisNotationMove = cubeMoveNotation.toAxisNotation (move);
             cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
             path.push (move);
-            result = this.solveFirstF2L (cube, path, move, limit);
+            result = this.solveFirstF2L_ (cube, path, move, limit);
             if (result != null) return result;
             path.pop ();
             // undo move by reversing direction
@@ -284,6 +278,23 @@ class CFOPSolver3x3
     // =======================================================================
 
     solveSecondF2L (cube, path, prevMove, limit) {
+        console.time ("solveSecondF2L");
+        let solution = null;
+        for (var i = 1; i < this.MAX_F2L_MOVES; ++i) {
+            solution = this.solveSecondF2L_ (cube, [], 0, i);
+            if (solution != null) {
+                // Found the solution!
+                console.log ("solveSecondF2L", solution);
+                break;
+            }
+        }
+        console.timeEnd ("solveSecondF2L");
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveSecondF2L_ (cube, path, prevMove, limit) {
         // solution found
         if (this.isCrossSolved (cube) 
             && this.isFirstF2LSolved (cube) 
@@ -323,7 +334,7 @@ class CFOPSolver3x3
             let axisNotationMove = cubeMoveNotation.toAxisNotation (move);
             cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
             path.push (move);
-            result = this.solveSecondF2L (cube, path, move, limit);
+            result = this.solveSecondF2L_ (cube, path, move, limit);
             if (result != null) return result;
             path.pop ();
             // undo move by reversing direction
@@ -335,7 +346,24 @@ class CFOPSolver3x3
 
     // =======================================================================
 
-    solveThirdF2L (cube, path, prevMove, limit) {
+    solveThirdF2L (cube) {
+        console.time ("solveThirdF2L");
+        let solution = null;
+        for (var i = 1; i < this.MAX_F2L_MOVES; ++i) {
+            solution = this.solveThirdF2L_ (cube, [], 0, i);
+            if (solution != null) {
+                // Found the solution!
+                console.log ("solveThirdF2L", solution);
+                break;
+            }
+        }
+        console.timeEnd ("solveThirdF2L");
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveThirdF2L_ (cube, path, prevMove, limit) {
         // solution found
         if (this.isCrossSolved (cube) 
             && this.isFirstF2LSolved (cube) 
@@ -372,7 +400,7 @@ class CFOPSolver3x3
             let axisNotationMove = cubeMoveNotation.toAxisNotation (move);
             cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
             path.push (move);
-            result = this.solveThirdF2L (cube, path, move, limit);
+            result = this.solveThirdF2L_ (cube, path, move, limit);
             if (result != null) return result;
             path.pop ();
             // undo move by reversing direction
@@ -384,7 +412,24 @@ class CFOPSolver3x3
 
     // =======================================================================
 
-    solveFourthF2L (cube, path, prevMove, limit) {
+    solveFourthF2L (cube) {
+        console.time ("solveFourthF2L");
+        let solution = null;
+        for (var i = 1; i < this.MAX_F2L_MOVES; ++i) {
+            solution = this.solveFourthF2L_ (cube, [], 0, i);
+            if (solution != null) {
+                // Found the solution!
+                console.log ("solveFourthF2L", solution);
+                break;
+            }
+        }
+        console.timeEnd ("solveFourthF2L");
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveFourthF2L_ (cube, path, prevMove, limit) {
         // solution found
         if (this.isCrossSolved (cube) 
             && this.isFirstF2LSolved (cube) 
@@ -427,7 +472,7 @@ class CFOPSolver3x3
             let axisNotationMove = cubeMoveNotation.toAxisNotation (move);
             cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
             path.push (move);
-            result = this.solveFourthF2L (cube, path, move, limit);
+            result = this.solveFourthF2L_ (cube, path, move, limit);
             if (result != null) return result;
             path.pop ();
             // undo move by reversing direction
@@ -439,7 +484,24 @@ class CFOPSolver3x3
 
     // =======================================================================
 
-    solveYellowCross (cube, path, prevMove, limit) {
+    solveYellowCross (cube) {
+        console.time ("solveYellowCross");
+        let solution = null;
+        for (var i = 1; i < this.MAX_YELLOW_CROSS; ++i) {
+            solution = this.solveYellowCross_ (cube, [], 0, i);
+            if (solution != null) {
+                // Found the solution!
+                console.log ("solveYellowCross", solution);
+                break;
+            }
+        }
+        console.timeEnd ("solveYellowCross");
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveYellowCross_ (cube, path, prevMove, limit) {
         // solution found
         if (this.isYellowCrossSolved (cube)) {
             return path;
@@ -496,7 +558,7 @@ class CFOPSolver3x3
                 path.push (move);
             }
             // Try to solve from this state
-            result = this.solveYellowCross (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
+            result = this.solveYellowCross_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
             if (result != null) return result;
             // MoveSet did not work so
             // Undo moveSet (by doing the reverse moves in reverse order)
@@ -515,7 +577,24 @@ class CFOPSolver3x3
 
     // =======================================================================
 
-    solveYellowFace (cube, path, prevMove, limit) {
+    solveYellowFace (cube) {
+        console.time ("solveYellowFace");
+        let solution = null;
+        for (var i = 1; i < this.MAX_YELLOW_CORNERS; ++i) {
+            solution = this.solveYellowFace_ (cube, [], 0, i);
+            if (solution != null) {
+                // Found the solution!
+                console.log ("solveYellowFace", solution);
+                break;
+            }
+        }
+        console.timeEnd ("solveYellowFace");
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveYellowFace_ (cube, path, prevMove, limit) {
         // solution found
         if (this.isYellowCornersOrientated (cube)) {
             return path;
@@ -564,7 +643,7 @@ class CFOPSolver3x3
                 path.push (move);
             }
             // Try to solve from this state
-            result = this.solveYellowFace (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
+            result = this.solveYellowFace_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
             if (result != null) return result;
             // MoveSet did not work so
             // Undo moveSet (by doing the reverse moves in reverse order)
@@ -583,7 +662,24 @@ class CFOPSolver3x3
 
     // =======================================================================
 
-    solveYellowCorners (cube, path, prevMove, limit) {
+    solveYellowCorners (cube) {
+        console.time ("solveYellowCorners");
+        let solution = null;
+        for (var i = 1; i < this.MAX_YELLOW_CORNERS; ++i) {
+            solution = this.solveYellowCorners_ (cube, [], 0, i);
+            if (solution != null) {
+                // Found the solution!
+                console.log ("solveYellowCorners", solution);
+                break;
+            }
+        }
+        console.timeEnd ("solveYellowCorners");
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveYellowCorners_ (cube, path, prevMove, limit) {
         // solution found
         if (this.isYellowCornersSolved (cube)) {
             return path;
@@ -639,7 +735,7 @@ class CFOPSolver3x3
                 path.push (move);
             }
             // Try to solve from this state
-            result = this.solveYellowCorners (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
+            result = this.solveYellowCorners_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
             if (result != null) return result;
             // MoveSet did not work so
             // Undo moveSet (by doing the reverse moves in reverse order)
@@ -658,7 +754,24 @@ class CFOPSolver3x3
 
     // =======================================================================
 
-    solveYellowEdges (cube, path, prevMove, limit) {
+    solveYellowEdges (cube) {
+        console.time ("solveYellowEdges");
+        let solution = null;
+        for (var i = 1; i < this.MAX_YELLOW_EDGES; ++i) {
+            solution = this.solveYellowEdges_ (cube, [], 0, i);
+            if (solution != null) {
+                // Found the solution!
+                console.log ("solveYellowEdges", solution);
+                break;
+            }
+        }
+        console.timeEnd ("solveYellowEdges");
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveYellowEdges_ (cube, path, prevMove, limit) {
         // solution found
         if (this.isYellowCornersSolved (cube) && this.isYellowEdgesSolved (cube)) {
             return path;
@@ -711,7 +824,7 @@ class CFOPSolver3x3
                 path.push (move);
             }
             // Try to solve from this state
-            result = this.solveYellowEdges (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
+            result = this.solveYellowEdges_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
             if (result != null) return result;
             // MoveSet did not work so
             // Undo moveSet (by doing the reverse moves in reverse order)

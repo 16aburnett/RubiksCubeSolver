@@ -24,60 +24,100 @@
     <body>
         <div class="header">
             <h2>Rubik's Cube Solver</h2>
-            <h5 style="margin-top:-10px">Created by Amy Burnett</h5>
-            <div class="nav">
-                <form class="navForm" action="./index.html" method="GET">
-                    <input type="input" name="type" value="1x1" hidden>
-                    <input class="navButton" type="submit" value="1x1 Rubik's Cube">
-                </form>
-                <form class="navForm" action="./index.html" method="GET">
-                    <input type="input" name="type" value="2x2" hidden>
-                    <input class="navButton" type="submit" value="2x2 Rubik's Cube">
-                </form>
-                <form class="navForm" action="./index.html" method="GET">
-                    <input type="input" name="type" value="3x3" hidden>
-                    <input class="navButton" type="submit" value="3x3 Rubik's Cube">
-                </form>
-                <form class="navForm" action="./index.html" method="GET">
-                    <input type="input" name="type" value="old 3x3" hidden>
-                    <input class="navButton" type="submit" value="old 3x3 Rubik's Cube">
-                </form>
-                <form class="navForm" action="./index.html" method="GET">
-                    <input type="input" name="type" value="4x4" hidden>
-                    <input class="navButton" type="submit" value="4x4 Rubik's Cube">
-                </form>
-                <form class="navForm" action="./index.html" method="GET">
-                    <input type="input" name="type" value="5x5" hidden>
-                    <input class="navButton" type="submit" value="5x5 Rubik's Cube">
-                </form>
-            </div>
+            <h5>Created by Amy Burnett</h5>
         </div>
         <main></main>
         <div class="controls">
-            <table class="controlGroup" id="cubeControlsTable">
-                <tr>
-                    <td colspan=4 class="controlHeader">
-                        <h2>Cube Controls</h2>
-                    </td>
-                </tr>
-                <tr class="controlRow">
-                    <td colspan="2">
-                        <button class="controlButton" onclick="scramble()">Scramble</button>
-                    </td>
-                    <td colspan="2">
-                        <button class="controlButton" onclick="reset()">Reset</button>
-                    </td>
-                </tr>
-                <!-- Cube controls will get populated here -->
-            </table>
-            <table class="controlGroup" id="solverControlsTable">
-                <tr>
-                    <td colspan="4" class="controlHeader">
-                        <h2>Solver Controls</h2>
-                    </td>
-                </tr>
-                <!-- Solver controls will get populated here -->
-            </table>
+            <div class="tab-list">
+                <div class="tab active" onclick="openTab (event, 'setup-tab')">Setup</div>
+                <div class="tab" onclick="openTab (event, 'controls-tab')">Controls</div>
+                <div class="tab" onclick="openTab (event, 'solver-tab')">Solver</div>
+            </div>
+            <div class="tab-content" id="setup-tab" style="display: '';">
+                <div class="controlHeader collapsible">
+                    <h2>Cube Setup</h2>
+                </div>
+                <div class="collapsible-content">
+                    <table class="controlGroup" id="cubeSetupTable">
+                        <tr class="controlRow">
+                            <td colspan="3">
+                                <form class="navForm" action="./index.html" method="GET">
+                                    <input type="input" name="type" value="1x1" hidden>
+                                    <input class="navButton" type="submit" value="1x1 Rubik's Cube">
+                                </form>
+                            </td>
+                        </tr>
+                        <tr class="controlRow">
+                            <td colspan="3">
+                                <form class="navForm" action="./index.html" method="GET">
+                                    <input type="input" name="type" value="2x2" hidden>
+                                    <input class="navButton" type="submit" value="2x2 Rubik's Cube">
+                                </form>
+                            </td>
+                        </tr>
+                        <tr class="controlRow">
+                            <td colspan="3">
+                                <form class="navForm" action="./index.html" method="GET">
+                                    <input type="input" name="type" value="3x3" hidden>
+                                    <input class="navButton" type="submit" value="3x3 Rubik's Cube">
+                                </form>
+                            </td>
+                        </tr>
+                        <tr class="controlRow">
+                            <td colspan="3">
+                                <form class="navForm" action="./index.html" method="GET">
+                                    <input type="input" name="type" value="old 3x3" hidden>
+                                    <input class="navButton" type="submit" value="old 3x3 Rubik's Cube">
+                                </form>
+                            </td>
+                        </tr>
+                        <tr class="controlRow">
+                            <td colspan="3">
+                                <form class="navForm" action="./index.html" method="GET">
+                                    <input type="input" name="type" value="4x4" hidden>
+                                    <input class="navButton" type="submit" value="4x4 Rubik's Cube">
+                                </form>
+                            </td>
+                        </tr>
+                        <tr class="controlRow">
+                            <td colspan="3">
+                                <form class="navForm" action="./index.html" method="GET">
+                                    <input type="input" name="type" value="5x5" hidden>
+                                    <input class="navButton" type="submit" value="5x5 Rubik's Cube">
+                                </form>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-content" id="controls-tab" style="display: none;">
+                <div class="controlHeader collapsible">
+                    <h2>Cube Controls</h2>
+                </div>
+                <div class="collapsible-content">
+                    <table class="controlGroup" id="cubeControlsTable">
+                        <tr class="controlRow">
+                            <td colspan="2">
+                                <button class="controlButton" onclick="scramble()">Scramble</button>
+                            </td>
+                            <td colspan="2">
+                                <button class="controlButton" onclick="reset()">Reset</button>
+                            </td>
+                        </tr>
+                        <!-- Cube controls will get populated here -->
+                    </table>
+                </div>
+            </div>
+            <div class="tab-content" id="solver-tab" style="display: none;">
+                <div class="controlHeader collapsible">
+                    <h2>Solver Controls</h2>
+                </div>
+                <div class="collapsible-content">
+                    <table class="controlGroup" id="solverControlsTable">
+                        <!-- Solver controls will get populated here -->
+                    </table>
+                </div>
+            </div>
         </div>
     </body>
 </html>

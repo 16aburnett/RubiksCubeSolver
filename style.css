@@ -4,54 +4,102 @@
     January 2 2020
 */
 
-body {
+html, body {
     height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #111;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
 main {
     width: 50%;
     float: left;
+    margin: 0;
 }
 
 .controls {
     background-color: #fff;
-    min-height: 700px;
     float: right;
-    width: 45%;
-    height: 100%;
-    box-shadow: 2px 2px 5px #777;
+    width: 33%;
+    height: 90%;
+    overflow-y: scroll;
+    outline: solid 2px black;
 }
 
 .header {
     background-color: rgb(130, 130, 250);
-    padding: 10px;
-    border-bottom: 1px solid #222222;
-    margin-bottom: 10px;
+    margin: 0;
+    height: 10%;
+}
+
+.header h2 {
+    margin: 0;
+    font-size: 5vh;
+    padding-left: 1.25vh;
+}
+
+.header h5 {
+    margin: 0;
+    font-size: 2.5vh;
+    padding-left: 1.25vh;
+}
+
+.tab {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 2.5vh;
+    padding: 1.25vh;
+}
+
+.tab:hover {
+    background-color: #ddd;
+}
+
+.tab.active {
+    background-color: #ccc;
+}
+
+.tab-content {
+    float: left;
+    width: 100%;
 }
 
 .navForm {
-    background-color: yellow;
+    /* background-color: yellow; */
     display: inline-block;
+    width: 100%;
 }
 
 .navButton {
-    height: 35px;
-    font-size: 15pt;
     cursor: pointer;
+    width: 100%;
+    font-size: 2.5vh;
+    min-height: 5vh;
 }
 
 .controlGroup {
     padding: 10px;
-    margin-bottom: -10px;
     width: 100%;
     table-layout: fixed;
 }
 
 .controlHeader {
     background-color: rgb(130, 130, 250);
-    margin-top: -25px;
-    margin-bottom: -20px;
     text-align: center;
+    margin: 0;
+    font-size: 2.5vh;
+    min-height: 5vh;
+    position: relative;
+}
+
+h2 {
+    margin: 0;
 }
 
 .controlRow {
@@ -65,10 +113,36 @@ main {
 
 .controlButton {
     width: 100%;
-    font-size: large;
-    height: 60px;
+    font-size: 2.5vh;
+    min-height: 5vh;
 }
 
 button:hover {
     cursor: pointer;
+}
+
+.collapsible {
+    cursor: pointer;
+}
+
+.collapsible:after {
+    content: '\25BE'; /* Arrow down = expanded */
+    color: black;
+    font-weight: bold;
+    margin: 0;
+    float: left;
+    position: absolute;
+    left: 1.25vh;
+    top: 0;
+    height: 100%;
+    align-content: center;
+    font-size: 2.5vh;
+}
+
+.collapsible.active:after {
+    content: '\25B8';  /* Arrow right = collapsed */
+}
+
+.collapsible-content {
+    width: 100%;
 }

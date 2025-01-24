@@ -6,6 +6,33 @@
 
 // =======================================================================
 
+
+
+// =======================================================================
+
+function openTab (event, tabContentID)
+{
+    // Ensure all other tab contents are closed/hidden
+    const tabContentElements = document.getElementsByClassName ("tab-content");
+    for (const tabContentElement of tabContentElements)
+    {
+        tabContentElement.style.display = "none";
+    }
+
+    // Ensure all other tabs are inactive
+    const tabs = document.getElementsByClassName ("tab");
+    for (const tab of tabs)
+    {
+        tab.className = tab.className.replace (" active", "");
+    }
+
+    // Open the given tab and mark as active
+    document.getElementById (tabContentID).style.display = "";
+    event.currentTarget.className += " active";
+}
+
+// =======================================================================
+
 // Adds a solver button to the solver controls section
 // with the given buttonLabel and onclickFunction.
 function addSolverButton (buttonLabel, onclickFunction)

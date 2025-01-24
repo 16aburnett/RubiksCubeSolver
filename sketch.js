@@ -4,6 +4,7 @@
 // =======================================================================
 // Global variables
 
+let backgroundColor;
 let rubiksCube;
 let scrambled = false;
 let shouldScramble = false;
@@ -32,13 +33,14 @@ let cam;
 function setup () {
     // The main canvas will handle all the 2D aspects
     // and be where we draw the 3D graphics
-    createCanvas (window.innerWidth / 2, 700);
+    createCanvas (window.innerWidth * 0.7, window.innerHeight * 0.9);
     // We want to draw relative to 0, 0 rather than the center of the screen
-    translate(0, 0);
-    background(130, 130, 250);
+    translate (0, 0);
+    backgroundColor = color ("#111");
+    background (backgroundColor);
     // Setup 3D canvas
-    graphics = createGraphics (window.innerWidth / 2, 700, WEBGL);
-    graphics.background (130, 130, 250);
+    graphics = createGraphics (window.innerWidth * 0.7, window.innerHeight * 0.9, WEBGL);
+    graphics.background (backgroundColor);
     graphics.angleMode (DEGREES);
     cam = graphics.createCamera ();
     // setup rubiks cube model
@@ -147,13 +149,29 @@ function setup () {
     cubeMoveNotation = new CubeMoveNotation (rubiksCube.dim);
     // Setup cube control buttons
     addCubeControlButtons ();
+
+    // Setup collapsible
+    const collapsibleElements = document.getElementsByClassName ("collapsible");
+
+    for (let i = 0; i < collapsibleElements.length; i++)
+    {
+        collapsibleElements[i].addEventListener ("click", function() {
+            this.classList.toggle("active");
+            let content = this.nextElementSibling;
+            if (content.style.display === "") {
+                content.style.display = "none";
+            } else {
+                content.style.display = "";
+            }
+        });
+    }
 }
 
 // =======================================================================
 
 function draw () {
     clear ();
-    background (130, 130, 250);
+    background (backgroundColor);
     graphics.clear ();
     // this resets certain values modified by transforms and lights
     // without this, the performance seems to significantly diminish over time
@@ -344,9 +362,9 @@ function mouseDragged () {
     const deltaTheta = (-sensitivityX * (mouseX - pmouseX)) / scaleFactor;
     const deltaPhi = (sensitivityY * (mouseY - pmouseY)) / scaleFactor;
     cam._orbit(deltaTheta, deltaPhi, 0);
-  }
-  
-  function mouseWheel (event) {
+}
+
+function mouseWheel (event) {
     // Ensure mouse is over canvas when the wheel moved
     if (!(0 <= mouseX && mouseX < width && 0 <= mouseY && mouseY < height))
     {
@@ -355,8 +373,16 @@ function mouseDragged () {
         return false;
     }
     if (event.delta > 0) {
-      cam._orbit(0, 0, sensitivityZ * scaleFactor);
+        cam._orbit(0, 0, sensitivityZ * scaleFactor);
     } else {
-      cam._orbit(0, 0, -sensitivityZ * scaleFactor);
+        cam._orbit(0, 0, -sensitivityZ * scaleFactor);
     }
-  }
+}
+
+// =======================================================================
+
+function windowResized () {
+    resizeCanvas (window.innerWidth * 0.70, window.innerHeight * 0.9);
+    graphics.width = window.innerWidth * 0.70;
+    graphics.height = window.innerHeight * 0.9;
+}

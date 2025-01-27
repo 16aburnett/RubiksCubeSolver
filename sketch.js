@@ -145,6 +145,73 @@ function setup () {
                 return solver.solveYellowEdges (cube);
             });
         });
+
+        // Roux solver
+        addSolverButton ("Full Roux Solve", () => {
+            solveFromGivenFunc ((cube) => {
+                return new RouxSolver3x3 ().findSolution (cube);
+            });
+        });
+        addSolverButton ("Orient Cube", () => {
+            solveFromGivenFunc ((cube) => {
+                return new RouxSolver3x3 ().findSolutionToOrientTheCube (cube);
+            });
+        });
+        addSolverButton ("First Block's Bottom Edge", () => {
+            solveFromGivenFunc ((cube) => {
+                return new RouxSolver3x3 ().findSolutionToFirstBlocksBottomEdge (cube);
+            });
+        });
+        addSolverButton ("First Block's First Pair", () => {
+            solveFromGivenFunc ((cube) => {
+                return new RouxSolver3x3 ().findSolutionToFirstBlockFirstPair (cube);
+            });
+        });
+        addSolverButton ("First Block's Second Pair", () => {
+            solveFromGivenFunc ((cube) => {
+                return new RouxSolver3x3 ().findSolutionToFirstBlockSecondPair (cube);
+            });
+        });
+        addSolverButton ("Second Block's Bottom Edge", () => {
+            solveFromGivenFunc ((cube) => {
+                return new RouxSolver3x3 ().findSolutionToSecondBlocksBottomEdge (cube);
+            });
+        });
+        addSolverButton ("Second Block's First Pair", () => {
+            solveFromGivenFunc ((cube) => {
+                return new RouxSolver3x3 ().findSolutionToSecondBlockFirstPair (cube);
+            });
+        });
+        addSolverButton ("Second Block's Second Pair", () => {
+            solveFromGivenFunc ((cube) => {
+                return new RouxSolver3x3 ().findSolutionToSecondBlockSecondPair (cube);
+            });
+        });
+        addSolverButton ("CMLL", () => {
+            solveFromGivenFunc ((cube) => {
+                return new RouxSolver3x3 ().findSolutionCMLL (cube);
+            });
+        });
+        addSolverButton ("M Orientation", () => {
+            solveFromGivenFunc ((cube) => {
+                return new RouxSolver3x3 ().findSolutionMOrientation (cube);
+            });
+        });
+        addSolverButton ("Edge Orientation", () => {
+            solveFromGivenFunc ((cube) => {
+                return new RouxSolver3x3 ().findSolutionEdgeOrientation (cube);
+            });
+        });
+        addSolverButton ("L/R Edges", () => {
+            solveFromGivenFunc ((cube) => {
+                return new RouxSolver3x3 ().findSolutionLREdges (cube);
+            });
+        });
+        addSolverButton ("Last Edges", () => {
+            solveFromGivenFunc ((cube) => {
+                return new RouxSolver3x3 ().findSolutionLastEdges (cube);
+            });
+        });
     }
     cubeMoveNotation = new CubeMoveNotation (rubiksCube.dim);
     // Setup cube control buttons

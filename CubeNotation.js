@@ -191,10 +191,13 @@ function generateMoves (dim)
     // Middle slice rotations (odd dim, 3x3 and larger)
     if (dim % 2 != 0)
     {
-        moves.push ([cubeNotationMove (MOVE_M,  1), "M" , [AXIS_X, [0],  1]]);
-        moves.push ([cubeNotationMove (MOVE_M, -1), "M'", [AXIS_X, [0], -1]]);
-        moves.push ([cubeNotationMove (MOVE_E,  1), "E" , [AXIS_Y, [0], -1]]);
-        moves.push ([cubeNotationMove (MOVE_E, -1), "E'", [AXIS_Y, [0],  1]]);
+        // middle slice moves follow these rules:
+        // M follows the L direction, E follows the D direction, S follows the F direction.
+        // https://jperm.net/3x3/moves#:~:text=instead%20of%20B).-,Slice%20Moves,-Slice%20moves%20are
+        moves.push ([cubeNotationMove (MOVE_M,  1), "M" , [AXIS_X, [0], -1]]);
+        moves.push ([cubeNotationMove (MOVE_M, -1), "M'", [AXIS_X, [0],  1]]);
+        moves.push ([cubeNotationMove (MOVE_E,  1), "E" , [AXIS_Y, [0],  1]]);
+        moves.push ([cubeNotationMove (MOVE_E, -1), "E'", [AXIS_Y, [0], -1]]);
         moves.push ([cubeNotationMove (MOVE_S,  1), "S" , [AXIS_Z, [0],  1]]);
         moves.push ([cubeNotationMove (MOVE_S, -1), "S'", [AXIS_Z, [0], -1]]);
     }

@@ -1,6 +1,5 @@
-// Rubiks Cube Solver: CFOP for Animated 3x3
+// Rubiks Cube Solver: Uses the CFOP method
 // By Amy Burnett
-// August 18 2024
 // =======================================================================
 // Globals/constants
 
@@ -28,54 +27,104 @@ class CFOPSolver3x3
         let solution = [];
         // orient the cube so white is down and blue is front
         let temp = this.findSolutionToOrientTheCube (cube);
-        if (temp != null)
-            solution = solution.concat(temp);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
+            return null;
+        }
+        solution = solution.concat(temp);
 
         // solve cross
         temp = this.findSolutionToCross (cube);
-        if (temp != null)
-            solution = solution.concat(temp);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
+            return null;
+        }
+        solution = solution.concat(temp);
 
         // solve f2l
         // F2L: First
         temp = this.solveFirstF2L (cube);
-        if (temp != null)
-            solution = solution.concat(temp);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
+            return null;
+        }
+        solution = solution.concat(temp);
 
         // F2L: Second
         temp = this.solveSecondF2L (cube);
-        if (temp != null)
-            solution = solution.concat(temp);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
+            return null;
+        }
+        solution = solution.concat(temp);
 
         // F2L: Third
         temp = this.solveThirdF2L (cube);
-        if (temp != null)
-            solution = solution.concat(temp);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
+            return null;
+        }
+        solution = solution.concat(temp);
 
         // F2L: Fourth
         temp = this.solveFourthF2L (cube);
-        if (temp != null)
-            solution = solution.concat(temp);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
+            return null;
+        }
+        solution = solution.concat(temp);
 
         // OLL: yellow cross
         temp = this.solveYellowCross (cube);
-        if (temp != null)
-            solution = solution.concat(temp);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
+            return null;
+        }
+        solution = solution.concat(temp);
 
         // OLL: yellow face
         temp = this.solveYellowFace (cube);
-        if (temp != null)
-            solution = solution.concat(temp);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
+            return null;
+        }
+        solution = solution.concat(temp);
 
         // PLL: yellow corners
         temp = this.solveYellowCorners (cube);
-        if (temp != null)
-            solution = solution.concat(temp);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
+            return null;
+        }
+        solution = solution.concat(temp);
 
         // PLL: yellow edges
         temp = this.solveYellowEdges (cube);
-        if (temp != null)
-            solution = solution.concat(temp);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
+            return null;
+        }
+        solution = solution.concat(temp);
 
         return solution;
     }
@@ -83,444 +132,1424 @@ class CFOPSolver3x3
     // =======================================================================
 
     findSolutionToOrientTheCube (cube) {
-        console.time ("findSolutionToOrientTheCube");
-        let solution = null;
-        for (var i = 1; i < this.MAX_CUBE_ORIENTATION_MOVES; ++i) {
-            solution = this.findSolutionToOrientTheCube_ (cube, [], 0, i);
-            if (solution != null) {
-                // Found the solution!
-                console.log ("findSolutionToOrientTheCube", solution);
-                break;
-            }
-        }
-        console.timeEnd ("findSolutionToOrientTheCube");
-        return solution;
-    }
+        const name = "findSolutionToOrientTheCube";
+        console.log (name);
+        console.time (name);
 
-    // =======================================================================
-
-    findSolutionToOrientTheCube_ (cube, path, prevMove, limit) {
-        // solution found
-        if (this.isCentersSolved (cube)) {
-            return path;
-        }
-
-        // Ensure we aren't going to exceed the max number of moves
-        if (path.length >= limit)
-            return null;
-
-        // path not found
-        // keep searching
-        let result;
-        let movesToTry = [
-            cubeNotationMove (MOVE_X,  1),
-            cubeNotationMove (MOVE_X, -1),
-            cubeNotationMove (MOVE_Y,  1),
-            cubeNotationMove (MOVE_Y, -1),
-            cubeNotationMove (MOVE_Z,  1),
-            cubeNotationMove (MOVE_Z, -1),
-        ];
-        for (let move of movesToTry)
+        let solution = [];
+        let temp = this.findMinSolution (cube, this.MAX_CUBE_ORIENTATION_MOVES, (cube) => {
+            return this.isCentersSolved (cube);
+        }, [
+            [cubeNotationMove (MOVE_X,  1)],
+            [cubeNotationMove (MOVE_X, -1)],
+            [cubeNotationMove (MOVE_Y,  1)],
+            [cubeNotationMove (MOVE_Y, -1)],
+            [cubeNotationMove (MOVE_Z,  1)],
+            [cubeNotationMove (MOVE_Z, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
         {
-            // Ensure this move isnt the reverse of the previous move
-            // since that would undo progress
-            if (prevMove == cubeMoveNotation.getReverseMove (move))
-                // skip trying move
-                continue;
-            // Perform move on cube
-            let axisNotationMove = cubeMoveNotation.toAxisNotation (move);
-            cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
-            path.push (move);
-            result = this.findSolutionToOrientTheCube_ (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop ();
-            // undo move by reversing direction
-            cube.rotate (axisNotationMove[0], axisNotationMove[1], -axisNotationMove[2]);
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
         }
-        // no solution found
-        return null;
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
+        return solution;
     }
 
     // =======================================================================
 
     findSolutionToCross (cube) {
-        console.time ("findSolutionToCross");
-        let solution = null;
-        for (var i = 1; i < this.MAX_CROSS_MOVES; ++i) {
-            solution = this.findSolutionToCross_ (cube, [], 0, i);
-            if (solution != null) {
-                // Found the solution!
-                console.log ("findSolutionToCross", solution);
-                break;
-            }
+        const name = "findSolutionToCross";
+        console.log (name);
+        console.time (name);
+
+        let solution = [];
+
+        const maxCrossMoves = 7;
+
+        // Solve front cross piece
+        let temp = this.findMinSolution (cube, maxCrossMoves, (cube) => {
+            return cube.data[cube.FRONT + 7] == BLUE && cube.data[cube.DOWN + 1] == WHITE;
+        }, [
+            [cubeNotationMove (MOVE_L,  1)],
+            [cubeNotationMove (MOVE_L, -1)],
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            [cubeNotationMove (MOVE_D,  1)],
+            [cubeNotationMove (MOVE_D, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}: front cross piece`);
+            console.timeEnd (name);
+            return null;
         }
-        console.timeEnd ("findSolutionToCross");
+        solution = solution.concat(temp);
+
+        // Solve right cross piece
+        temp = this.findMinSolution (cube, maxCrossMoves, (cube) => {
+            return cube.data[cube.FRONT + 7] == BLUE && cube.data[cube.DOWN + 1] == WHITE
+                && cube.data[cube.RIGHT + 7] == RED  && cube.data[cube.DOWN + 5] == WHITE;
+        }, [
+            [cubeNotationMove (MOVE_L,  1)],
+            [cubeNotationMove (MOVE_L, -1)],
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            [cubeNotationMove (MOVE_D,  1)],
+            [cubeNotationMove (MOVE_D, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}: right cross piece`);
+            console.timeEnd (name);
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        // Solve back cross piece
+        temp = this.findMinSolution (cube, maxCrossMoves, (cube) => {
+            return cube.data[cube.FRONT + 7] == BLUE  && cube.data[cube.DOWN + 1] == WHITE
+                && cube.data[cube.RIGHT + 7] == RED   && cube.data[cube.DOWN + 5] == WHITE
+                && cube.data[cube.BACK  + 7] == GREEN && cube.data[cube.DOWN + 7] == WHITE;
+        }, [
+            [cubeNotationMove (MOVE_L,  1)],
+            [cubeNotationMove (MOVE_L, -1)],
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            [cubeNotationMove (MOVE_D,  1)],
+            [cubeNotationMove (MOVE_D, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}: back cross piece`);
+            console.timeEnd (name);
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        // Solve left cross piece
+        temp = this.findMinSolution (cube, maxCrossMoves, (cube) => {
+            return this.isCrossSolved (cube);
+        }, [
+            [cubeNotationMove (MOVE_L,  1)],
+            [cubeNotationMove (MOVE_L, -1)],
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            [cubeNotationMove (MOVE_D,  1)],
+            [cubeNotationMove (MOVE_D, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}: left cross piece`);
+            console.timeEnd (name);
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
         return solution;
     }
 
     // =======================================================================
 
-    findSolutionToCross_ (cube, path, prevMove, limit) {
-        // solution found
-        if (this.isCrossSolved (cube)) {
-            return path;
-        }
+    findMinSolutionToCross (cube) {
+        const name = "findMinSolutionToCross";
+        console.log (name);
+        console.time (name);
 
-        // Ensure we aren't going to exceed the max number of moves
-        if (path.length >= limit)
-            return null;
-
-        // path not found
-        // keep searching
-        let result;
-        let movesToTry = [
-            cubeNotationMove (MOVE_L,  1),
-            cubeNotationMove (MOVE_L, -1),
-            cubeNotationMove (MOVE_R,  1),
-            cubeNotationMove (MOVE_R, -1),
-            cubeNotationMove (MOVE_F,  1),
-            cubeNotationMove (MOVE_F, -1),
-            cubeNotationMove (MOVE_B,  1),
-            cubeNotationMove (MOVE_B, -1),
-            cubeNotationMove (MOVE_U,  1),
-            cubeNotationMove (MOVE_U, -1),
-            cubeNotationMove (MOVE_D,  1),
-            cubeNotationMove (MOVE_D, -1),
-        ];
-        for (let move of movesToTry)
+        let solution = [];
+        let temp = this.findMinSolution (cube, this.MAX_CROSS_MOVES, (cube) => {
+            return this.isCrossSolved (cube);
+        }, [
+            [cubeNotationMove (MOVE_L,  1)],
+            [cubeNotationMove (MOVE_L, -1)],
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            [cubeNotationMove (MOVE_D,  1)],
+            [cubeNotationMove (MOVE_D, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
         {
-            // Ensure this move isnt the reverse of the previous move
-            // since that would undo progress
-            if (prevMove == cubeMoveNotation.getReverseMove (move))
-                // skip trying move
-                continue;
-            // Perform move on cube
-            let axisNotationMove = cubeMoveNotation.toAxisNotation (move);
-            cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
-            path.push (move);
-            result = this.findSolutionToCross_ (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop ();
-            // undo move by reversing direction
-            cube.rotate (axisNotationMove[0], axisNotationMove[1], -axisNotationMove[2]);
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
         }
-        // no solution found
-        return null;
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveFirstF2LMin (cube) {
+        const name = "solveFirstF2LMin";
+        console.log (name);
+        console.time (name);
+
+        let solution = [];
+        let temp = this.findMinSolution (cube, this.MAX_F2L_MOVES, (cube) => {
+            return this.isCrossSolved (cube) && this.isFirstF2LSolved (cube);
+        }, [
+            [cubeNotationMove (MOVE_L,  1)],
+            [cubeNotationMove (MOVE_L, -1)],
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            [cubeNotationMove (MOVE_D,  1)],
+            [cubeNotationMove (MOVE_D, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
+        return solution;
     }
 
     // =======================================================================
 
     solveFirstF2L (cube) {
-        console.time ("solveFirstF2L");
-        let solution = null;
-        for (var i = 1; i < this.MAX_F2L_MOVES; ++i) {
-            solution = this.solveFirstF2L_ (cube, [], 0, i);
-            if (solution != null) {
-                // Found the solution!
-                console.log ("solveFirstF2L", solution);
-                break;
-            }
+        const name = "solveFirstF2L";
+        console.log (name);
+        console.time (name);
+        let solution = [];
+        
+        // Solve Edge Piece
+        let temp = this.solveFirstF2LEdge (cube);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
         }
-        console.timeEnd ("solveFirstF2L");
+        solution = solution.concat(temp);
+
+        // Solve Corner Piece
+        temp = this.solveFirstF2LCorner (cube);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
         return solution;
     }
 
     // =======================================================================
 
-    solveFirstF2L_ (cube, path, prevMove, limit) {
-        // solution found
-        if (this.isCrossSolved (cube) && this.isFirstF2LSolved (cube)) {
-            return path;
-        }
+    solveFirstF2LEdge (cube) {
+        let solution = [];
 
-        // Ensure we aren't going to exceed the max number of moves
-        if (path.length >= limit)
-            return null;
+        // 1. check if it is already solved
+        if (this.isFirstF2LEdgeSolved (cube))
+            return [];
 
-        // path not found
-        // keep searching
-        let result;
-        let movesToTry = [
-            cubeNotationMove (MOVE_L,  1),
-            cubeNotationMove (MOVE_L, -1),
-            cubeNotationMove (MOVE_R,  1),
-            cubeNotationMove (MOVE_R, -1),
-            cubeNotationMove (MOVE_F,  1),
-            cubeNotationMove (MOVE_F, -1),
-            cubeNotationMove (MOVE_B,  1),
-            cubeNotationMove (MOVE_B, -1),
-            cubeNotationMove (MOVE_U,  1),
-            cubeNotationMove (MOVE_U, -1),
-            cubeNotationMove (MOVE_D,  1),
-            cubeNotationMove (MOVE_D, -1),
-        ];
-        for (let move of movesToTry)
+        // 2. move edge piece to top layer anywhere
+        let temp = this.findMinSolution (cube, 4, (cube) => {
+            const color0 = ORANGE;
+            const color1 = BLUE;
+            // Ensure progress wasnt broken
+            if (!(this.isCrossSolved (cube)))
+                return false;
+            // Edge piece is in top layer
+            return (cube.data[cube.UP + 1] == color0 && cube.data[cube.BACK + 1] == color1)
+                || (cube.data[cube.UP + 1] == color1 && cube.data[cube.BACK + 1] == color0)
+                || (cube.data[cube.UP + 5] == color0 && cube.data[cube.RIGHT + 1] == color1)
+                || (cube.data[cube.UP + 5] == color1 && cube.data[cube.RIGHT + 1] == color0)
+                || (cube.data[cube.UP + 7] == color0 && cube.data[cube.FRONT + 1] == color1)
+                || (cube.data[cube.UP + 7] == color1 && cube.data[cube.FRONT + 1] == color0)
+                || (cube.data[cube.UP + 3] == color0 && cube.data[cube.LEFT + 1] == color1)
+                || (cube.data[cube.UP + 3] == color1 && cube.data[cube.LEFT + 1] == color0);
+        }, [
+            [cubeNotationMove (MOVE_L,  1)],
+            [cubeNotationMove (MOVE_L, -1)],
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            [cubeNotationMove (MOVE_D,  1)],
+            [cubeNotationMove (MOVE_D, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
         {
-            // Ensure this move isnt the reverse of the previous move
-            // since that would undo progress
-            if (prevMove == cubeMoveNotation.getReverseMove (move))
-                // skip trying move
-                continue;
-            // Perform move on cube
-            let axisNotationMove = cubeMoveNotation.toAxisNotation (move);
+            console.log ("Could not find solution to solveFirstF2LEdge: move edge to top layer");
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        // 3. move edge piece above orange center
+        temp = this.findMinSolution (cube, 3, (cube) => {
+            const color0 = ORANGE;
+            const color1 = BLUE;
+            return (cube.data[cube.UP + 3] == color0 && cube.data[cube.LEFT + 1] == color1)
+                || (cube.data[cube.UP + 3] == color1 && cube.data[cube.LEFT + 1] == color0);
+        }, [
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("Could not find solution to solveFirstF2LEdge: move edge above orange center");
+            return null;
+        }
+        solution = solution.concat(temp);
+        
+        // 4. solve edge piece (2 algorithms)
+        let moveset;
+        if (cube.data[cube.UP + 3] == BLUE)
+        {
+            moveset = [
+                cubeNotationMove (MOVE_L,  1),
+                cubeNotationMove (MOVE_F, -1),
+                cubeNotationMove (MOVE_L, -1),
+                cubeNotationMove (MOVE_F,  1),
+            ];
+        }
+        else
+        {
+            moveset = [
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_F, -1),
+                cubeNotationMove (MOVE_L,  1),
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_L, -1),
+            ];
+        }
+        for (const move of moveset)
+        {
+            const axisNotationMove = cubeMoveNotation.toAxisNotation (move);
             cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
-            path.push (move);
-            result = this.solveFirstF2L_ (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop ();
-            // undo move by reversing direction
-            cube.rotate (axisNotationMove[0], axisNotationMove[1], -axisNotationMove[2]);
+            solution.push (move);
         }
-        // no solution found
-        return null;
-    }
 
-    // =======================================================================
-
-    solveSecondF2L (cube, path, prevMove, limit) {
-        console.time ("solveSecondF2L");
-        let solution = null;
-        for (var i = 1; i < this.MAX_F2L_MOVES; ++i) {
-            solution = this.solveSecondF2L_ (cube, [], 0, i);
-            if (solution != null) {
-                // Found the solution!
-                console.log ("solveSecondF2L", solution);
-                break;
-            }
-        }
-        console.timeEnd ("solveSecondF2L");
         return solution;
     }
 
     // =======================================================================
 
-    solveSecondF2L_ (cube, path, prevMove, limit) {
-        // solution found
-        if (this.isCrossSolved (cube) 
-            && this.isFirstF2LSolved (cube) 
-            && this.isSecondF2LSolved (cube)) {
-            return path;
-        }
+    solveFirstF2LCorner (cube) {
+        let solution = [];
 
-        // Ensure we aren't going to exceed the max number of moves
-        if (path.length >= limit)
-            return null;
+        // 1. check if it is already solved
+        if (this.isFirstF2LCornerSolved (cube))
+            return [];
 
-        // path not found
-        // keep searching
-        let result;
-        // We can limit the number of moves here (no L or D)
-        // Technically this would disallow keyhole (need D for keyhole),
-        // but I assume it might be faster to have less combinations
-        // to check.
-        let movesToTry = [
-            cubeNotationMove (MOVE_R,  1),
-            cubeNotationMove (MOVE_R, -1),
-            cubeNotationMove (MOVE_F,  1),
-            cubeNotationMove (MOVE_F, -1),
-            cubeNotationMove (MOVE_B,  1),
-            cubeNotationMove (MOVE_B, -1),
-            cubeNotationMove (MOVE_U,  1),
-            cubeNotationMove (MOVE_U, -1),
-        ];
-        for (let move of movesToTry)
+        // 2. move corner to top layer
+        let temp = this.findMinSolution (cube, 4, (cube) => {
+            const color0 = ORANGE;
+            const color1 = BLUE;
+            const color2 = WHITE;
+            const colors = [color0, color1, color2];
+            // Ensure progress wasnt broken
+            if (!(this.isCrossSolved (cube) && this.isFirstF2LEdgeSolved (cube)))
+                return false;
+            return (colors.includes (cube.data[cube.UP + 0]) && colors.includes(cube.data[cube.BACK  + 2]) && colors.includes (cube.data[cube.LEFT  + 0]))
+                || (colors.includes (cube.data[cube.UP + 2]) && colors.includes(cube.data[cube.BACK  + 0]) && colors.includes (cube.data[cube.RIGHT + 2]))
+                || (colors.includes (cube.data[cube.UP + 6]) && colors.includes(cube.data[cube.FRONT + 0]) && colors.includes (cube.data[cube.LEFT  + 2]))
+                || (colors.includes (cube.data[cube.UP + 8]) && colors.includes(cube.data[cube.FRONT + 2]) && colors.includes (cube.data[cube.RIGHT + 0]));
+        }, [
+            [cubeNotationMove (MOVE_L,  1)],
+            [cubeNotationMove (MOVE_L, -1)],
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            [cubeNotationMove (MOVE_D,  1)],
+            [cubeNotationMove (MOVE_D, -1)],
+            // Algorithm to handle case when corner is 
+            // in correct position but wrong orientation
+            [
+                cubeNotationMove (MOVE_L, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_L,  1),
+                cubeNotationMove (MOVE_U, -1),
+
+                cubeNotationMove (MOVE_L,  1),
+                cubeNotationMove (MOVE_F, -1),
+                cubeNotationMove (MOVE_L, -1),
+                cubeNotationMove (MOVE_F,  1),
+            ]
+        ]);
+        // Ensure solution was found
+        if (temp == null)
         {
-            // Ensure this move isnt the reverse of the previous move
-            // since that would undo progress
-            if (prevMove == cubeMoveNotation.getReverseMove (move))
-                // skip trying move
-                continue;
-            // Perform move on cube
-            let axisNotationMove = cubeMoveNotation.toAxisNotation (move);
-            cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
-            path.push (move);
-            result = this.solveSecondF2L_ (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop ();
-            // undo move by reversing direction
-            cube.rotate (axisNotationMove[0], axisNotationMove[1], -axisNotationMove[2]);
+            console.log ("Could not find solution to solveFirstF2LCorner: move corner to top layer");
+            return null;
         }
-        // no solution found
-        return null;
+        solution = solution.concat(temp);
+
+        // 3. move corner to above edge
+        temp = this.findMinSolution (cube, 3, (cube) => {
+            const color0 = ORANGE;
+            const color1 = BLUE;
+            const color2 = WHITE;
+            const colors = [color0, color1, color2];
+            return (colors.includes (cube.data[cube.UP + 6]) && colors.includes(cube.data[cube.FRONT + 0]) && colors.includes (cube.data[cube.LEFT + 2]));
+        }, [
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("Could not find solution to solveFirstF2LCorner: move corner above edge");
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        // 4. solve corner piece (3 algorithms)
+        // white on top
+        let moveset;
+        if (cube.data[cube.UP + 6] == WHITE)
+        {
+            moveset = [
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_F, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_F, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_F, -1),
+                cubeNotationMove (MOVE_U, -1),
+            ];
+        }
+        // white left
+        else if (cube.data[cube.LEFT + 2] == WHITE)
+        {
+            moveset = [
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_F, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_F, -1),
+            ];
+        }
+        // white front
+        else
+        {
+            moveset = [
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_L, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_L,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_L, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_L,  1),
+            ];
+        }
+        for (const move of moveset)
+        {
+            const axisNotationMove = cubeMoveNotation.toAxisNotation (move);
+            cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
+            solution.push (move);
+        }
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveSecondF2LMin (cube) {
+        const name = "solveSecondF2LMin";
+        console.log (name);
+        console.time (name);
+
+        let solution = [];
+        let temp = this.findMinSolution (cube, this.MAX_F2L_MOVES, (cube) => {
+            return this.isCrossSolved (cube) 
+                && this.isFirstF2LSolved (cube) 
+                && this.isSecondF2LSolved (cube);
+        }, [
+            [cubeNotationMove (MOVE_L,  1)],
+            [cubeNotationMove (MOVE_L, -1)],
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveSecondF2L (cube) {
+        const name = "solveSecondF2L";
+        console.log (name);
+        console.time (name);
+        let solution = [];
+        
+        // Solve Edge Piece
+        let temp = this.solveSecondF2LEdge (cube);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        // Solve Corner Piece
+        temp = this.solveSecondF2LCorner (cube);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveSecondF2LEdge (cube) {
+        let solution = [];
+
+        // 1. check if it is already solved
+        if (this.isSecondF2LEdgeSolved (cube))
+            return [];
+
+        // 2. move edge piece to top layer anywhere
+        let temp = this.findMinSolution (cube, 4, (cube) => {
+            const color0 = ORANGE;
+            const color1 = GREEN;
+            // Ensure progress wasnt broken
+            if (!(this.isCrossSolved (cube)
+                && this.isFirstF2LSolved (cube)))
+                return false;
+            // Edge piece is in top layer
+            return (cube.data[cube.UP + 1] == color0 && cube.data[cube.BACK + 1] == color1)
+                || (cube.data[cube.UP + 1] == color1 && cube.data[cube.BACK + 1] == color0)
+                || (cube.data[cube.UP + 5] == color0 && cube.data[cube.RIGHT + 1] == color1)
+                || (cube.data[cube.UP + 5] == color1 && cube.data[cube.RIGHT + 1] == color0)
+                || (cube.data[cube.UP + 7] == color0 && cube.data[cube.FRONT + 1] == color1)
+                || (cube.data[cube.UP + 7] == color1 && cube.data[cube.FRONT + 1] == color0)
+                || (cube.data[cube.UP + 3] == color0 && cube.data[cube.LEFT + 1] == color1)
+                || (cube.data[cube.UP + 3] == color1 && cube.data[cube.LEFT + 1] == color0);
+        }, [
+            [cubeNotationMove (MOVE_L,  1)],
+            [cubeNotationMove (MOVE_L, -1)],
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            [cubeNotationMove (MOVE_D,  1)],
+            [cubeNotationMove (MOVE_D, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("Could not find solution to solveSecondF2LEdge: move edge to top layer");
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        // 3. move edge piece above orange center
+        temp = this.findMinSolution (cube, 3, (cube) => {
+            const color0 = ORANGE;
+            const color1 = GREEN;
+            return (cube.data[cube.UP + 3] == color0 && cube.data[cube.LEFT + 1] == color1)
+                || (cube.data[cube.UP + 3] == color1 && cube.data[cube.LEFT + 1] == color0);
+        }, [
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("Could not find solution to solveSecondF2LEdge: move edge above center");
+            return null;
+        }
+        solution = solution.concat(temp);
+        
+        // 4. solve edge piece (2 algorithms)
+        let moveset;
+        if (cube.data[cube.UP + 3] == GREEN)
+        {
+            moveset = [
+                cubeNotationMove (MOVE_L, -1),
+                cubeNotationMove (MOVE_B,  1),
+                cubeNotationMove (MOVE_L,  1),
+                cubeNotationMove (MOVE_B, -1),
+            ];
+        }
+        else
+        {
+            moveset = [
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_B,  1),
+                cubeNotationMove (MOVE_L, -1),
+                cubeNotationMove (MOVE_B, -1),
+                cubeNotationMove (MOVE_L,  1),
+            ];
+        }
+        for (const move of moveset)
+        {
+            const axisNotationMove = cubeMoveNotation.toAxisNotation (move);
+            cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
+            solution.push (move);
+        }
+
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveSecondF2LCorner (cube) {
+        let solution = [];
+
+        // 1. check if it is already solved
+        if (this.isSecondF2LCornerSolved (cube))
+            return [];
+
+        // 2. move corner to top layer
+        let temp = this.findMinSolution (cube, 4, (cube) => {
+            const color0 = ORANGE;
+            const color1 = GREEN;
+            const color2 = WHITE;
+            const colors = [color0, color1, color2];
+            // Ensure progress wasnt broken
+            if (!(this.isCrossSolved (cube)
+                && this.isFirstF2LSolved (cube)
+                && this.isSecondF2LEdgeSolved (cube)))
+                return false;
+            return (colors.includes (cube.data[cube.UP + 0]) && colors.includes(cube.data[cube.BACK + 2]) && colors.includes (cube.data[cube.LEFT + 0]))
+                || (colors.includes (cube.data[cube.UP + 2]) && colors.includes(cube.data[cube.BACK + 0]) && colors.includes (cube.data[cube.RIGHT + 2]))
+                || (colors.includes (cube.data[cube.UP + 6]) && colors.includes(cube.data[cube.FRONT + 0]) && colors.includes (cube.data[cube.LEFT + 2]))
+                || (colors.includes (cube.data[cube.UP + 8]) && colors.includes(cube.data[cube.FRONT + 2]) && colors.includes (cube.data[cube.RIGHT + 0]));
+        }, [
+            [cubeNotationMove (MOVE_L,  1)],
+            [cubeNotationMove (MOVE_L, -1)],
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            [cubeNotationMove (MOVE_D,  1)],
+            [cubeNotationMove (MOVE_D, -1)],
+            // Algorithm to handle case when corner is 
+            // in correct position but wrong orientation
+            [
+                cubeNotationMove (MOVE_L,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_L, -1),
+                cubeNotationMove (MOVE_U,  1),
+
+                cubeNotationMove (MOVE_L, -1),
+                cubeNotationMove (MOVE_B,  1),
+                cubeNotationMove (MOVE_L,  1),
+                cubeNotationMove (MOVE_B, -1),
+            ]
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("Could not find solution to solveSecondF2LCorner: move corner to top layer");
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        // 3. move corner to above edge
+        temp = this.findMinSolution (cube, 3, (cube) => {
+            const color0 = ORANGE;
+            const color1 = GREEN;
+            const color2 = WHITE;
+            const colors = [color0, color1, color2];
+            return (colors.includes (cube.data[cube.UP + 0]) && colors.includes(cube.data[cube.BACK + 2]) && colors.includes (cube.data[cube.LEFT + 0]));
+        }, [
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("Could not find solution to solveSecondF2LCorner: move corner above edge");
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        // 4. solve corner piece (3 algorithms)
+        // white on top
+        let moveset;
+        if (cube.data[cube.UP + 0] == WHITE)
+        {
+            moveset = [
+                cubeNotationMove (MOVE_L,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_L, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_L,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_L, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_L,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_L, -1),
+                cubeNotationMove (MOVE_U, -1),
+            ];
+        }
+        // white left
+        else if (cube.data[cube.LEFT + 0] == WHITE)
+        {
+            moveset = [
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_B, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_B,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_B, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_B,  1),
+            ];
+        }
+        // white back
+        else
+        {
+            moveset = [
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_L,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_L, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_L,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_L, -1),
+            ];
+        }
+        for (const move of moveset)
+        {
+            const axisNotationMove = cubeMoveNotation.toAxisNotation (move);
+            cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
+            solution.push (move);
+        }
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveThirdF2LMin (cube) {
+        const name = "solveThirdF2LMin";
+        console.log (name);
+        console.time (name);
+
+        let solution = [];
+        let temp = this.findMinSolution (cube, this.MAX_F2L_MOVES, (cube) => {
+            return this.isCrossSolved (cube) 
+                && this.isFirstF2LSolved (cube) 
+                && this.isSecondF2LSolved (cube)
+                && this.isThirdF2LSolved (cube);
+        }, [
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
+        return solution;
     }
 
     // =======================================================================
 
     solveThirdF2L (cube) {
-        console.time ("solveThirdF2L");
-        let solution = null;
-        for (var i = 1; i < this.MAX_F2L_MOVES; ++i) {
-            solution = this.solveThirdF2L_ (cube, [], 0, i);
-            if (solution != null) {
-                // Found the solution!
-                console.log ("solveThirdF2L", solution);
-                break;
-            }
+        const name = "solveThirdF2L";
+        console.log (name);
+        console.time (name);
+        let solution = [];
+        
+        // Solve Edge Piece
+        let temp = this.solveThirdF2LEdge (cube);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
         }
-        console.timeEnd ("solveThirdF2L");
+        solution = solution.concat(temp);
+
+        // Solve Corner Piece
+        temp = this.solveThirdF2LCorner (cube);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
         return solution;
     }
 
     // =======================================================================
 
-    solveThirdF2L_ (cube, path, prevMove, limit) {
-        // solution found
-        if (this.isCrossSolved (cube) 
-            && this.isFirstF2LSolved (cube) 
-            && this.isSecondF2LSolved (cube)
-            && this.isThirdF2LSolved (cube)) {
-            return path;
-        }
+    solveThirdF2LEdge (cube) {
+        let solution = [];
 
-        // Ensure we aren't going to exceed the max number of moves
-        if (path.length >= limit)
-            return null;
+        // 1. check if it is already solved
+        if (this.isThirdF2LEdgeSolved (cube))
+            return [];
 
-        // path not found
-        // keep searching
-        let result;
-        let movesToTry = [
-            cubeNotationMove (MOVE_R,  1),
-            cubeNotationMove (MOVE_R, -1),
-            cubeNotationMove (MOVE_F,  1),
-            cubeNotationMove (MOVE_F, -1),
-            cubeNotationMove (MOVE_B,  1),
-            cubeNotationMove (MOVE_B, -1),
-            cubeNotationMove (MOVE_U,  1),
-            cubeNotationMove (MOVE_U, -1),
-        ];
-        for (let move of movesToTry)
+        // 2. move edge piece to top layer anywhere
+        let temp = this.findMinSolution (cube, 4, (cube) => {
+            const color0 = RED;
+            const color1 = BLUE;
+            // Ensure progress wasnt broken
+            if (!(this.isCrossSolved (cube)
+                && this.isFirstF2LSolved (cube)
+                && this.isSecondF2LSolved (cube)))
+                return false;
+            // Edge piece is in top layer
+            return (cube.data[cube.UP + 1] == color0 && cube.data[cube.BACK + 1] == color1)
+                || (cube.data[cube.UP + 1] == color1 && cube.data[cube.BACK + 1] == color0)
+                || (cube.data[cube.UP + 5] == color0 && cube.data[cube.RIGHT + 1] == color1)
+                || (cube.data[cube.UP + 5] == color1 && cube.data[cube.RIGHT + 1] == color0)
+                || (cube.data[cube.UP + 7] == color0 && cube.data[cube.FRONT + 1] == color1)
+                || (cube.data[cube.UP + 7] == color1 && cube.data[cube.FRONT + 1] == color0)
+                || (cube.data[cube.UP + 3] == color0 && cube.data[cube.LEFT + 1] == color1)
+                || (cube.data[cube.UP + 3] == color1 && cube.data[cube.LEFT + 1] == color0);
+        }, [
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
         {
-            // Ensure this move isnt the reverse of the previous move
-            // since that would undo progress
-            if (prevMove == cubeMoveNotation.getReverseMove (move))
-                // skip trying move
-                continue;
-            // Perform move on cube
-            let axisNotationMove = cubeMoveNotation.toAxisNotation (move);
-            cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
-            path.push (move);
-            result = this.solveThirdF2L_ (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop ();
-            // undo move by reversing direction
-            cube.rotate (axisNotationMove[0], axisNotationMove[1], -axisNotationMove[2]);
+            console.log ("Could not find solution to solveThirdF2LEdge: move edge to top layer");
+            return null;
         }
-        // no solution found
-        return null;
+        solution = solution.concat(temp);
+
+        // 3. move edge piece above red center
+        temp = this.findMinSolution (cube, 3, (cube) => {
+            const color0 = RED;
+            const color1 = BLUE;
+            return (cube.data[cube.UP + 5] == color0 && cube.data[cube.RIGHT + 1] == color1)
+                || (cube.data[cube.UP + 5] == color1 && cube.data[cube.RIGHT + 1] == color0);
+        }, [
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("Could not find solution to solveThirdF2LEdge: move edge above center");
+            return null;
+        }
+        solution = solution.concat(temp);
+        
+        // 4. solve edge piece (2 algorithms)
+        let moveset;
+        if (cube.data[cube.UP + 5] == BLUE)
+        {
+            moveset = [
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_F, -1),
+            ];
+        }
+        else
+        {
+            moveset = [
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_F, -1),
+                cubeNotationMove (MOVE_R,  1),
+            ];
+        }
+        for (const move of moveset)
+        {
+            const axisNotationMove = cubeMoveNotation.toAxisNotation (move);
+            cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
+            solution.push (move);
+        }
+
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveThirdF2LCorner (cube) {
+        let solution = [];
+
+        // 1. check if it is already solved
+        if (this.isThirdF2LCornerSolved (cube))
+            return [];
+
+        // 2. move corner to top layer
+        let temp = this.findMinSolution (cube, 4, (cube) => {
+            const color0 = RED;
+            const color1 = BLUE;
+            const color2 = WHITE;
+            const colors = [color0, color1, color2];
+            // Ensure progress wasnt broken
+            if (!(this.isCrossSolved (cube)
+                && this.isFirstF2LSolved (cube)
+                && this.isSecondF2LSolved (cube)
+                && this.isThirdF2LEdgeSolved (cube)))
+                return false;
+            return (colors.includes (cube.data[cube.UP + 0]) && colors.includes(cube.data[cube.BACK + 2]) && colors.includes (cube.data[cube.LEFT + 0]))
+                || (colors.includes (cube.data[cube.UP + 2]) && colors.includes(cube.data[cube.BACK + 0]) && colors.includes (cube.data[cube.RIGHT + 2]))
+                || (colors.includes (cube.data[cube.UP + 6]) && colors.includes(cube.data[cube.FRONT + 0]) && colors.includes (cube.data[cube.LEFT + 2]))
+                || (colors.includes (cube.data[cube.UP + 8]) && colors.includes(cube.data[cube.FRONT + 2]) && colors.includes (cube.data[cube.RIGHT + 0]));
+        }, [
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            [cubeNotationMove (MOVE_D,  1)],
+            [cubeNotationMove (MOVE_D, -1)],
+            // Algorithm to handle case when corner is 
+            // in correct position but wrong orientation
+            [
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_F, -1),
+            ]
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("Could not find solution to solveThirdF2LCorner: move corner to top layer");
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        // 3. move corner to above edge
+        temp = this.findMinSolution (cube, 3, (cube) => {
+            const color0 = RED;
+            const color1 = BLUE;
+            const color2 = WHITE;
+            const colors = [color0, color1, color2];
+            return (colors.includes (cube.data[cube.UP + 8]) && colors.includes(cube.data[cube.FRONT + 2]) && colors.includes (cube.data[cube.RIGHT + 0]));
+        }, [
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("Could not find solution to solveThirdF2LCorner: move corner above edge");
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        // 4. solve corner piece (3 algorithms)
+        // white on top
+        let moveset;
+        if (cube.data[cube.UP + 8] == WHITE)
+        {
+            moveset = [
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U, -1),
+            ];
+        }
+        // white right
+        else if (cube.data[cube.RIGHT + 0] == WHITE)
+        {
+            moveset = [
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_F, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_F, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_F,  1),
+            ];
+        }
+        // white front
+        else
+        {
+            moveset = [
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+            ];
+        }
+        for (const move of moveset)
+        {
+            const axisNotationMove = cubeMoveNotation.toAxisNotation (move);
+            cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
+            solution.push (move);
+        }
+
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveFourthF2LMin (cube) {
+        const name = "solveFourthF2LMin";
+        console.log (name);
+        console.time (name);
+
+        let solution = [];
+        let temp = this.findMinSolution (cube, this.MAX_F2L_MOVES, (cube) => {
+            return this.isCrossSolved (cube) 
+                && this.isFirstF2LSolved (cube) 
+                && this.isSecondF2LSolved (cube)
+                && this.isThirdF2LSolved (cube)
+                && this.isFourthF2LSolved (cube);
+        }, [
+            [cubeNotationMove (MOVE_L,  1)],
+            [cubeNotationMove (MOVE_L, -1)],
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
+        return solution;
     }
 
     // =======================================================================
 
     solveFourthF2L (cube) {
-        console.time ("solveFourthF2L");
-        let solution = null;
-        for (var i = 1; i < this.MAX_F2L_MOVES; ++i) {
-            solution = this.solveFourthF2L_ (cube, [], 0, i);
-            if (solution != null) {
-                // Found the solution!
-                console.log ("solveFourthF2L", solution);
-                break;
-            }
+        const name = "solveFourthF2L";
+        console.log (name);
+        console.time (name);
+        let solution = [];
+        
+        // Solve Edge Piece
+        let temp = this.solveFourthF2LEdge (cube);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
         }
-        console.timeEnd ("solveFourthF2L");
+        solution = solution.concat(temp);
+
+        // Solve Corner Piece
+        temp = this.solveFourthF2LCorner (cube);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
         return solution;
     }
 
     // =======================================================================
 
-    solveFourthF2L_ (cube, path, prevMove, limit) {
-        // solution found
-        if (this.isCrossSolved (cube) 
-            && this.isFirstF2LSolved (cube) 
-            && this.isSecondF2LSolved (cube)
-            && this.isThirdF2LSolved (cube)
-            && this.isFourthF2LSolved (cube)) {
-            return path;
-        }
+    solveFourthF2LEdge (cube) {
+        let solution = [];
 
-        // Ensure we aren't going to exceed the max number of moves
-        if (path.length >= limit)
-            return null;
+        // 1. check if it is already solved
+        if (this.isFourthF2LEdgeSolved (cube))
+            return [];
 
-        // path not found
-        // keep searching
-        let result;
-        let movesToTry = [
-            cubeNotationMove (MOVE_L,  1),
-            cubeNotationMove (MOVE_L, -1),
-            cubeNotationMove (MOVE_B,  1),
-            cubeNotationMove (MOVE_B, -1),
-            cubeNotationMove (MOVE_U,  1),
-            cubeNotationMove (MOVE_U, -1),
-        ];
-        for (let move of movesToTry)
+        // 2. move edge piece to top layer anywhere
+        let temp = this.findMinSolution (cube, 4, (cube) => {
+            const color0 = RED;
+            const color1 = GREEN;
+            // Ensure progress wasnt broken
+            if (!(this.isCrossSolved (cube)
+                && this.isFirstF2LSolved (cube)
+                && this.isSecondF2LSolved (cube)
+                && this.isThirdF2LSolved (cube)))
+                return false;
+            // Edge piece is in top layer
+            return (cube.data[cube.UP + 1] == color0 && cube.data[cube.BACK + 1] == color1)
+                || (cube.data[cube.UP + 1] == color1 && cube.data[cube.BACK + 1] == color0)
+                || (cube.data[cube.UP + 5] == color0 && cube.data[cube.RIGHT + 1] == color1)
+                || (cube.data[cube.UP + 5] == color1 && cube.data[cube.RIGHT + 1] == color0)
+                || (cube.data[cube.UP + 7] == color0 && cube.data[cube.FRONT + 1] == color1)
+                || (cube.data[cube.UP + 7] == color1 && cube.data[cube.FRONT + 1] == color0)
+                || (cube.data[cube.UP + 3] == color0 && cube.data[cube.LEFT + 1] == color1)
+                || (cube.data[cube.UP + 3] == color1 && cube.data[cube.LEFT + 1] == color0);
+        }, [
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            [cubeNotationMove (MOVE_D,  1)],
+            [cubeNotationMove (MOVE_D, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
         {
-            // Ensure this move isnt the reverse of the previous move
-            // since that would undo progress
-            if (prevMove == cubeMoveNotation.getReverseMove (move))
-                // skip trying move
-                continue;
-            // Ensure it isnt the same move
-            // We're disallowing 180 degree turns here to be faster
-            // We should not need 180 degree turns to solve the
-            // last F2L pair
-            if (prevMove == move)
-                // skip trying move
-                continue;
-            // Perform move on cube
-            let axisNotationMove = cubeMoveNotation.toAxisNotation (move);
-            cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
-            path.push (move);
-            result = this.solveFourthF2L_ (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop ();
-            // undo move by reversing direction
-            cube.rotate (axisNotationMove[0], axisNotationMove[1], -axisNotationMove[2]);
+            console.log ("Could not find solution to solveFourthF2LEdge: move edge to top layer");
+            return null;
         }
-        // no solution found
-        return null;
+        solution = solution.concat(temp);
+
+        // 3. move edge piece above red center
+        temp = this.findMinSolution (cube, 3, (cube) => {
+            const color0 = RED;
+            const color1 = GREEN;
+            return (cube.data[cube.UP + 5] == color0 && cube.data[cube.RIGHT + 1] == color1)
+                || (cube.data[cube.UP + 5] == color1 && cube.data[cube.RIGHT + 1] == color0);
+        }, [
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("Could not find solution to solveFourthF2LEdge: move edge above center");
+            return null;
+        }
+        solution = solution.concat(temp);
+        
+        // 4. solve edge piece (2 algorithms)
+        let moveset;
+        if (cube.data[cube.UP + 5] == GREEN)
+        {
+            moveset = [
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_B, -1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_B,  1),
+            ];
+        }
+        else
+        {
+            moveset = [
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_B, -1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_B,  1),
+                cubeNotationMove (MOVE_R, -1),
+            ];
+        }
+        for (const move of moveset)
+        {
+            const axisNotationMove = cubeMoveNotation.toAxisNotation (move);
+            cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
+            solution.push (move);
+        }
+
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveFourthF2LCorner (cube) {
+        let solution = [];
+
+        // 1. check if it is already solved
+        if (this.isFourthF2LCornerSolved (cube))
+            return [];
+
+        // 2. move corner to top layer
+        let temp = this.findMinSolution (cube, 6, (cube) => {
+            const color0 = RED;
+            const color1 = GREEN;
+            const color2 = WHITE;
+            const colors = [color0, color1, color2];
+            // Ensure progress wasnt broken
+            if (!(this.isCrossSolved (cube)
+                && this.isFirstF2LSolved (cube)
+                && this.isSecondF2LSolved (cube)
+                && this.isThirdF2LSolved (cube)
+                && this.isFourthF2LEdgeSolved (cube)))
+                return false;
+            return (colors.includes (cube.data[cube.UP + 0]) && colors.includes(cube.data[cube.BACK + 2]) && colors.includes (cube.data[cube.LEFT + 0]))
+                || (colors.includes (cube.data[cube.UP + 2]) && colors.includes(cube.data[cube.BACK + 0]) && colors.includes (cube.data[cube.RIGHT + 2]))
+                || (colors.includes (cube.data[cube.UP + 6]) && colors.includes(cube.data[cube.FRONT + 0]) && colors.includes (cube.data[cube.LEFT + 2]))
+                || (colors.includes (cube.data[cube.UP + 8]) && colors.includes(cube.data[cube.FRONT + 2]) && colors.includes (cube.data[cube.RIGHT + 0]));
+        }, [
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            [cubeNotationMove (MOVE_D,  1)],
+            [cubeNotationMove (MOVE_D, -1)],
+            // Algorithm to handle case when corner is 
+            // in correct position but wrong orientation
+            [
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U, -1),
+
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_B, -1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_B,  1),
+            ]
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("Could not find solution to solveFourthF2LCorner: move corner to top layer");
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        // 3. move corner to above edge
+        temp = this.findMinSolution (cube, 3, (cube) => {
+            const color0 = RED;
+            const color1 = GREEN;
+            const color2 = WHITE;
+            const colors = [color0, color1, color2];
+            return (colors.includes (cube.data[cube.UP + 2]) && colors.includes(cube.data[cube.BACK + 0]) && colors.includes (cube.data[cube.RIGHT + 2]));
+        }, [
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("Could not find solution to solveFourthF2LCorner: move corner above edge");
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        // 4. solve corner piece (3 algorithms)
+        // white on top
+        let moveset;
+        if (cube.data[cube.UP + 2] == WHITE)
+        {
+            moveset = [
+                cubeNotationMove (MOVE_B,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_B, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_B,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_B, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_B,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_B, -1),
+                cubeNotationMove (MOVE_U, -1),
+            ];
+        }
+        // white left
+        else if (cube.data[cube.RIGHT + 2] == WHITE)
+        {
+            moveset = [
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_B,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_B, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_B,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_B, -1),
+            ];
+        }
+        // white back
+        else
+        {
+            moveset = [
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+            ];
+        }
+        for (const move of moveset)
+        {
+            const axisNotationMove = cubeMoveNotation.toAxisNotation (move);
+            cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
+            solution.push (move);
+        }
+
+        return solution;
     }
 
     // =======================================================================
 
     solveYellowCross (cube) {
-        console.time ("solveYellowCross");
-        let solution = null;
-        for (var i = 1; i < this.MAX_YELLOW_CROSS; ++i) {
-            solution = this.solveYellowCross_ (cube, [], 0, i);
-            if (solution != null) {
-                // Found the solution!
-                console.log ("solveYellowCross", solution);
-                break;
-            }
-        }
-        console.timeEnd ("solveYellowCross");
-        return solution;
-    }
+        const name = "solveYellowCross";
+        console.log (name);
+        console.time (name);
 
-    // =======================================================================
-
-    solveYellowCross_ (cube, path, prevMove, limit) {
-        // solution found
-        if (this.isYellowCrossSolved (cube)) {
-            return path;
-        }
-
-        // Ensure we aren't going to exceed the max number of moves
-        if (path.length >= limit)
-            return null;
-
-        // path not found
-        // keep searching
-        let result;
-        let moveSetsToTry = [
-            [
-                cubeNotationMove (MOVE_U,  1)
-            ],
-            [
-                cubeNotationMove (MOVE_U, -1)
-            ],
+        let solution = [];
+        let temp = this.findMinSolution (cube, this.MAX_YELLOW_CROSS, (cube) => {
+            return this.isYellowCrossSolved (cube);
+        }, [
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
             // Yellow cross algorithm
             [
                 cubeNotationMove (MOVE_F,  1),
@@ -540,74 +1569,31 @@ class CFOPSolver3x3
                 cubeNotationMove (MOVE_R, -1),
                 cubeNotationMove (MOVE_F, -1),
             ],
-        ];
-        for (let moveSet of moveSetsToTry)
+        ]);
+        // Ensure solution was found
+        if (temp == null)
         {
-            // Ensure this move isnt the reverse of the previous move
-            // since that would undo progress - only applies to moveSets
-            // with a single move
-            if (moveSet.length == 1 && prevMove == cubeMoveNotation.getReverseMove (moveSet[0]))
-                // skip trying move
-                continue;
-            // Apply moveSet to cube
-            for (let move of moveSet)
-            {
-                let axisMove = cubeMoveNotation.toAxisNotation (move);
-                // Perform move on cube
-                cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-                path.push (move);
-            }
-            // Try to solve from this state
-            result = this.solveYellowCross_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
-            if (result != null) return result;
-            // MoveSet did not work so
-            // Undo moveSet (by doing the reverse moves in reverse order)
-            for (let i = moveSet.length-1; i >= 0; --i)
-            {
-                let move = moveSet[i];
-                let axisMove = cubeMoveNotation.toAxisNotation (move);
-                // Do the reverse move to undo (-direction)
-                cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-                path.pop ();
-            }
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
         }
-        // no solution found
-        return null;
-    }
+        solution = solution.concat(temp);
 
-    // =======================================================================
-
-    solveYellowFace (cube) {
-        console.time ("solveYellowFace");
-        let solution = null;
-        for (var i = 1; i < this.MAX_YELLOW_CORNERS; ++i) {
-            solution = this.solveYellowFace_ (cube, [], 0, i);
-            if (solution != null) {
-                // Found the solution!
-                console.log ("solveYellowFace", solution);
-                break;
-            }
-        }
-        console.timeEnd ("solveYellowFace");
+        console.timeEnd (name);
         return solution;
     }
 
     // =======================================================================
 
-    solveYellowFace_ (cube, path, prevMove, limit) {
-        // solution found
-        if (this.isYellowCornersOrientated (cube)) {
-            return path;
-        }
+    solveYellowFace (cube) {
+        const name = "solveYellowFace";
+        console.log (name);
+        console.time (name);
 
-        // Ensure we aren't going to exceed the max number of moves
-        if (path.length >= limit)
-            return null;
-
-        // path not found
-        // keep searching
-        let result;
-        let moveSetsToTry = [
+        let solution = [];
+        let temp = this.findMinSolution (cube, this.MAX_YELLOW_CORNERS, (cube) => {
+            return this.isYellowCornersOrientated (cube);
+        }, [
             // Fishy alg
             [
                 cubeNotationMove (MOVE_R,  1),
@@ -619,80 +1605,33 @@ class CFOPSolver3x3
                 cubeNotationMove (MOVE_U,  1),
                 cubeNotationMove (MOVE_R, -1)
             ],
-            [
-                cubeNotationMove (MOVE_U,  1)
-            ],
-            [
-                cubeNotationMove (MOVE_U, -1)
-            ]
-        ];
-        for (let moveSet of moveSetsToTry)
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)]
+        ]);
+        // Ensure solution was found
+        if (temp == null)
         {
-            // Ensure this move isnt the reverse of the previous move
-            // since that would undo progress - only applies to moveSets
-            // with a single move
-            if (moveSet.length == 1 && prevMove == cubeMoveNotation.getReverseMove (moveSet[0]))
-                // skip trying move
-                continue;
-            // Apply moveSet to cube
-            for (let move of moveSet)
-            {
-                let axisMove = cubeMoveNotation.toAxisNotation (move);
-                // Perform move on cube
-                cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-                path.push (move);
-            }
-            // Try to solve from this state
-            result = this.solveYellowFace_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
-            if (result != null) return result;
-            // MoveSet did not work so
-            // Undo moveSet (by doing the reverse moves in reverse order)
-            for (let i = moveSet.length-1; i >= 0; --i)
-            {
-                let move = moveSet[i];
-                let axisMove = cubeMoveNotation.toAxisNotation (move);
-                // Do the reverse move to undo (-direction)
-                cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-                path.pop ();
-            }
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
         }
-        // no solution found
-        return null;
-    }
+        solution = solution.concat(temp);
 
-    // =======================================================================
-
-    solveYellowCorners (cube) {
-        console.time ("solveYellowCorners");
-        let solution = null;
-        for (var i = 1; i < this.MAX_YELLOW_CORNERS; ++i) {
-            solution = this.solveYellowCorners_ (cube, [], 0, i);
-            if (solution != null) {
-                // Found the solution!
-                console.log ("solveYellowCorners", solution);
-                break;
-            }
-        }
-        console.timeEnd ("solveYellowCorners");
+        console.timeEnd (name);
         return solution;
     }
 
     // =======================================================================
 
-    solveYellowCorners_ (cube, path, prevMove, limit) {
-        // solution found
-        if (this.isYellowCornersSolved (cube)) {
-            return path;
-        }
+    solveYellowCorners (cube) {
+        const name = "solveYellowCorners";
+        console.log (name);
+        console.time (name);
 
-        // Ensure we aren't going to exceed the max number of moves
-        if (path.length >= limit)
-            return null;
-
-        // path not found
-        // keep searching
-        let result;
-        let moveSetsToTry = [
+        let solution = [];
+        let temp = this.findMinSolution (cube, this.MAX_YELLOW_CORNERS, (cube) => {
+            return this.isYellowCornersSolved (cube);
+        }, [
             // J-perm algorithm
             [
                 cubeNotationMove (MOVE_R,  1),
@@ -711,80 +1650,34 @@ class CFOPSolver3x3
                 cubeNotationMove (MOVE_R, -1),
                 cubeNotationMove (MOVE_U, -1),
             ],
-            [
-                cubeNotationMove (MOVE_U,  1)
-            ],
-            [
-                cubeNotationMove (MOVE_U, -1),
-            ]
-        ];
-        for (let moveSet of moveSetsToTry)
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)]
+        ]);
+        // Ensure solution was found
+        if (temp == null)
         {
-            // Ensure this move isnt the reverse of the previous move
-            // since that would undo progress - only applies to moveSets
-            // with a single move
-            if (moveSet.length == 1 && prevMove == cubeMoveNotation.getReverseMove (moveSet[0]))
-                // skip trying move
-                continue;
-            // Apply moveSet to cube
-            for (let move of moveSet)
-            {
-                let axisMove = cubeMoveNotation.toAxisNotation (move);
-                // Perform move on cube
-                cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-                path.push (move);
-            }
-            // Try to solve from this state
-            result = this.solveYellowCorners_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
-            if (result != null) return result;
-            // MoveSet did not work so
-            // Undo moveSet (by doing the reverse moves in reverse order)
-            for (let i = moveSet.length-1; i >= 0; --i)
-            {
-                let move = moveSet[i];
-                let axisMove = cubeMoveNotation.toAxisNotation (move);
-                // Do the reverse move to undo (-direction)
-                cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-                path.pop ();
-            }
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
         }
-        // no solution found
-        return null;
-    }
+        solution = solution.concat(temp);
 
-    // =======================================================================
-
-    solveYellowEdges (cube) {
-        console.time ("solveYellowEdges");
-        let solution = null;
-        for (var i = 1; i < this.MAX_YELLOW_EDGES; ++i) {
-            solution = this.solveYellowEdges_ (cube, [], 0, i);
-            if (solution != null) {
-                // Found the solution!
-                console.log ("solveYellowEdges", solution);
-                break;
-            }
-        }
-        console.timeEnd ("solveYellowEdges");
+        console.timeEnd (name);
         return solution;
     }
 
     // =======================================================================
 
-    solveYellowEdges_ (cube, path, prevMove, limit) {
-        // solution found
-        if (this.isYellowCornersSolved (cube) && this.isYellowEdgesSolved (cube)) {
-            return path;
-        }
+    solveYellowEdges (cube) {
+        const name = "solveYellowEdges";
+        console.log (name);
+        console.time (name);
 
-        // Ensure we aren't going to exceed the max number of moves
-        if (path.length >= limit)
-            return null;
-
-        // path not found
-        // keep searching
-        let result;
-        let moveSetsToTry = [
+        let solution = [];
+        let temp = this.findMinSolution (cube, this.MAX_YELLOW_EDGES, (cube) => {
+            return this.isYellowCornersSolved (cube)
+                && this.isYellowEdgesSolved (cube);
+        }, [
             // 3 edge cycle
             [
                 cubeNotationMove (MOVE_R,  1),
@@ -800,13 +1693,53 @@ class CFOPSolver3x3
                 cubeNotationMove (MOVE_U,  1),
                 cubeNotationMove (MOVE_R, -1),
             ],
-            [
-                cubeNotationMove (MOVE_U,  1)
-            ],
-            [
-                cubeNotationMove (MOVE_U, -1),
-            ]
-        ];
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)]
+        ]);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
+        return solution;
+    }
+
+    // =======================================================================
+
+    findMinSolution (cube, maxMoves, isSolved, moveSetsToTry)
+    {
+        let solution = null;
+        for (var i = 1; i < maxMoves; ++i) {
+            solution = this.findMinSolution_ (cube, [], 0, i, isSolved, moveSetsToTry);
+            if (solution != null) {
+                // Found the solution!
+                console.log ("min solution:", solution);
+                break;
+            }
+        }
+        return solution;
+    }
+
+    // =======================================================================
+
+    findMinSolution_ (cube, path, prevMove, limit, isSolved, moveSetsToTry) {
+        // solution found
+        if (isSolved (cube)) {
+            return path;
+        }
+
+        // Ensure we aren't going to exceed the max number of moves
+        if (path.length >= limit)
+            return null;
+
+        // path not found
+        // keep searching
+        let result;
         for (let moveSet of moveSetsToTry)
         {
             // Ensure this move isnt the reverse of the previous move
@@ -824,7 +1757,7 @@ class CFOPSolver3x3
                 path.push (move);
             }
             // Try to solve from this state
-            result = this.solveYellowEdges_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
+            result = this.findMinSolution_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit, isSolved, moveSetsToTry);
             if (result != null) return result;
             // MoveSet did not work so
             // Undo moveSet (by doing the reverse moves in reverse order)
@@ -870,44 +1803,100 @@ class CFOPSolver3x3
     // =======================================================================
 
     isFirstF2LSolved (cube) {
-        if (cube.data[cube.DOWN + 0] != WHITE) return false;
-        if (cube.data[cube.FRONT + 6] != BLUE) return false;
-        if (cube.data[cube.FRONT + 3] != BLUE) return false;
-        if (cube.data[cube.LEFT + 8] != ORANGE) return false;
-        if (cube.data[cube.LEFT + 5] != ORANGE) return false;
+        return this.isFirstF2LEdgeSolved (cube)
+            && this.isFirstF2LCornerSolved (cube);
+    }
+
+    // =======================================================================
+
+    isFirstF2LEdgeSolved (cube) {
+        if (cube.data[cube.FRONT + 3] != BLUE  ) return false;
+        if (cube.data[cube.LEFT  + 5] != ORANGE) return false;
+        return true;
+    }
+
+    // =======================================================================
+
+    isFirstF2LCornerSolved (cube) {
+        if (cube.data[cube.DOWN  + 0] != WHITE ) return false;
+        if (cube.data[cube.FRONT + 6] != BLUE  ) return false;
+        if (cube.data[cube.LEFT  + 8] != ORANGE) return false;
         return true;
     }
 
     // =======================================================================
 
     isSecondF2LSolved (cube) {
-        if (cube.data[cube.DOWN + 2] != WHITE) return false;
-        if (cube.data[cube.FRONT + 5] != BLUE) return false;
-        if (cube.data[cube.FRONT + 8] != BLUE) return false;
-        if (cube.data[cube.RIGHT + 3] != RED) return false;
-        if (cube.data[cube.RIGHT + 6] != RED) return false;
+        return this.isSecondF2LEdgeSolved (cube)
+            && this.isSecondF2LCornerSolved (cube);
+    }
+
+    // =======================================================================
+
+    isSecondF2LEdgeSolved (cube) {
+        if (cube.data[cube.LEFT  + 3] != ORANGE) return false;
+        if (cube.data[cube.BACK  + 5] != GREEN ) return false;
         return true;
     }
 
     // =======================================================================
 
+    isSecondF2LCornerSolved (cube) {
+        if (cube.data[cube.LEFT  + 6] != ORANGE) return false;
+        if (cube.data[cube.BACK  + 8] != GREEN ) return false;
+        if (cube.data[cube.DOWN  + 6] != WHITE ) return false;
+        return true;
+    }
+
+    // =======================================================================
+    
     isThirdF2LSolved (cube) {
-        if (cube.data[cube.DOWN + 8] != WHITE) return false;
-        if (cube.data[cube.BACK + 3] != GREEN) return false;
-        if (cube.data[cube.BACK + 6] != GREEN) return false;
-        if (cube.data[cube.RIGHT + 5] != RED) return false;
-        if (cube.data[cube.RIGHT + 8] != RED) return false;
+        return this.isThirdF2LEdgeSolved (cube)
+            && this.isThirdF2LCornerSolved (cube);
+    }
+
+    // =======================================================================
+    
+    isThirdF2LEdgeSolved (cube) {
+        // Edge piece
+        if (cube.data[cube.RIGHT + 3] != RED ) return false;
+        if (cube.data[cube.FRONT + 5] != BLUE) return false;
         return true;
     }
 
     // =======================================================================
+    
+    isThirdF2LCornerSolved (cube) {
+        // Corner piece
+        if (cube.data[cube.RIGHT + 6] != RED   ) return false;
+        if (cube.data[cube.FRONT + 8] != BLUE  ) return false;
+        if (cube.data[cube.DOWN  + 2] != WHITE ) return false;
+        return true;
+    }
 
+    // =======================================================================
+    
     isFourthF2LSolved (cube) {
-        if (cube.data[cube.DOWN + 6] != WHITE) return false;
-        if (cube.data[cube.LEFT + 3] != ORANGE) return false;
-        if (cube.data[cube.LEFT + 6] != ORANGE) return false;
-        if (cube.data[cube.BACK + 5] != GREEN) return false;
-        if (cube.data[cube.BACK + 8] != GREEN) return false;
+        return this.isFourthF2LEdgeSolved (cube)
+            && this.isFourthF2LCornerSolved (cube);
+    }
+
+    // =======================================================================
+    
+    isFourthF2LEdgeSolved (cube) {
+        // Edge piece
+        if (cube.data[cube.RIGHT + 5] != RED   ) return false;
+        if (cube.data[cube.BACK  + 3] != GREEN ) return false;
+        return true;
+    }
+
+    // =======================================================================
+    
+    isFourthF2LCornerSolved (cube) {
+        // Corner piece
+        if (cube.data[cube.RIGHT + 8] != RED   ) return false;
+        if (cube.data[cube.BACK  + 6] != GREEN ) return false;
+        if (cube.data[cube.DOWN  + 8] != WHITE ) return false;
         return true;
     }
 

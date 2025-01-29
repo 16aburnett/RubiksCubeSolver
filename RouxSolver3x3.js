@@ -1672,14 +1672,6 @@ class RouxSolver3x3
         return solution;
     }
 
-
-
-
-
-
-
-
-
     // =======================================================================
 
     findMinSolution (cube, maxMoves, isSolved, moveSetsToTry)

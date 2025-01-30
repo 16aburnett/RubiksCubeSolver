@@ -48,24 +48,26 @@ function setup () {
         rubiksCube = new RubiksCube (1);
         solver = new CFOPSolver1x1 ();
         // Setup solver controls buttons
-        addSolverButton ("Basic Solver", solve);
+        const basicSolverSection = new UICollapsibleSection ("Basic Solver");
+        basicSolverSection.addButton ("Solve", solve);
     }
     else if (cubeType == "2x2") {
         rubiksCube = new RubiksCube (2);
         solver = new CFOPSolver2x2 ();
         // Setup solver controls buttons
-        addSolverButton ("Full CFOP-Like Solve", solve);
-        addSolverButton ("Solve First Layer", () => {
+        const CFOPSolverSection = new UICollapsibleSection ("CFOP-like Solver");
+        CFOPSolverSection.addButton ("Full CFOP-Like Solve", solve);
+        CFOPSolverSection.addButton ("Solve First Layer", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.solveFirstLayer (cube);
             });
         });
-        addSolverButton ("Solve Yellow Face", () => {
+        CFOPSolverSection.addButton ("Solve Yellow Face", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.solveYellowFace (cube);
             });
         });
-        addSolverButton ("Solve Last Layer", () => {
+        CFOPSolverSection.addButton ("Solve Last Layer", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.solveLastLayer (cube);
             });
@@ -94,120 +96,122 @@ function setup () {
         rubiksCube = new RubiksCube (3);
         solver = new CFOPSolver3x3 ();
         // Setup solver controls buttons
-        addSolverButton ("Full CFOP-Like Solve", solve);
-        addSolverButton ("Orient Cube", () => {
+        const CFOPSolverSection = new UICollapsibleSection ("CFOP Solver");
+        CFOPSolverSection.addButton ("Full CFOP-Like Solve", solve);
+        CFOPSolverSection.addButton ("Orient Cube", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.findSolutionToOrientTheCube (cube);
             });
         });
-        addSolverButton ("Solve White Cross", () => {
+        CFOPSolverSection.addButton ("Solve White Cross", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.findSolutionToCross (cube);
             });
         });
-        addSolverButton ("Solve First F2L", () => {
+        CFOPSolverSection.addButton ("Solve First F2L", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.solveFirstF2L (cube);
             });
         });
-        addSolverButton ("Solve Second F2L", () => {
+        CFOPSolverSection.addButton ("Solve Second F2L", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.solveSecondF2L (cube);
             });
         });
-        addSolverButton ("Solve Third F2L", () => {
+        CFOPSolverSection.addButton ("Solve Third F2L", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.solveThirdF2L (cube);
             });
         });
-        addSolverButton ("Solve Fourth F2L", () => {
+        CFOPSolverSection.addButton ("Solve Fourth F2L", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.solveFourthF2L (cube);
             });
         });
-        addSolverButton ("Solve Yellow Cross", () => {
+        CFOPSolverSection.addButton ("Solve Yellow Cross", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.solveYellowCross (cube);
             });
         });
-        addSolverButton ("Solve Yellow Face", () => {
+        CFOPSolverSection.addButton ("Solve Yellow Face", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.solveYellowFace (cube);
             });
         });
-        addSolverButton ("Solve Yellow Corners", () => {
+        CFOPSolverSection.addButton ("Solve Yellow Corners", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.solveYellowCorners (cube);
             });
         });
-        addSolverButton ("Solve Yellow Edges", () => {
+        CFOPSolverSection.addButton ("Solve Yellow Edges", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.solveYellowEdges (cube);
             });
         });
 
         // Roux solver
-        addSolverButton ("Full Roux Solve", () => {
+        const RouxSolverSection = new UICollapsibleSection ("Roux Solver");
+        RouxSolverSection.addButton ("Full Roux Solve", () => {
             solveFromGivenFunc ((cube) => {
                 return new RouxSolver3x3 ().findSolution (cube);
             });
         });
-        addSolverButton ("Orient Cube", () => {
+        RouxSolverSection.addButton ("Orient Cube", () => {
             solveFromGivenFunc ((cube) => {
                 return new RouxSolver3x3 ().findSolutionToOrientTheCube (cube);
             });
         });
-        addSolverButton ("First Block's Bottom Edge", () => {
+        RouxSolverSection.addButton ("First Block's Bottom Edge", () => {
             solveFromGivenFunc ((cube) => {
                 return new RouxSolver3x3 ().findSolutionToFirstBlocksBottomEdge (cube);
             });
         });
-        addSolverButton ("First Block's First Pair", () => {
+        RouxSolverSection.addButton ("First Block's First Pair", () => {
             solveFromGivenFunc ((cube) => {
                 return new RouxSolver3x3 ().findSolutionToFirstBlockFirstPair (cube);
             });
         });
-        addSolverButton ("First Block's Second Pair", () => {
+        RouxSolverSection.addButton ("First Block's Second Pair", () => {
             solveFromGivenFunc ((cube) => {
                 return new RouxSolver3x3 ().findSolutionToFirstBlockSecondPair (cube);
             });
         });
-        addSolverButton ("Second Block's Bottom Edge", () => {
+        RouxSolverSection.addButton ("Second Block's Bottom Edge", () => {
             solveFromGivenFunc ((cube) => {
                 return new RouxSolver3x3 ().findSolutionToSecondBlocksBottomEdge (cube);
             });
         });
-        addSolverButton ("Second Block's First Pair", () => {
+        RouxSolverSection.addButton ("Second Block's First Pair", () => {
             solveFromGivenFunc ((cube) => {
                 return new RouxSolver3x3 ().findSolutionToSecondBlockFirstPair (cube);
             });
         });
-        addSolverButton ("Second Block's Second Pair", () => {
+        RouxSolverSection.addButton ("Second Block's Second Pair", () => {
             solveFromGivenFunc ((cube) => {
                 return new RouxSolver3x3 ().findSolutionToSecondBlockSecondPair (cube);
             });
         });
-        addSolverButton ("CMLL", () => {
+        RouxSolverSection.addButton ("CMLL", () => {
             solveFromGivenFunc ((cube) => {
                 return new RouxSolver3x3 ().findSolutionCMLL (cube);
             });
         });
-        addSolverButton ("M Orientation", () => {
+        RouxSolverSection.addButton ("M Orientation", () => {
             solveFromGivenFunc ((cube) => {
                 return new RouxSolver3x3 ().findSolutionMOrientation (cube);
             });
         });
-        addSolverButton ("Edge Orientation", () => {
+        RouxSolverSection.addButton ("Edge Orientation", () => {
             solveFromGivenFunc ((cube) => {
                 return new RouxSolver3x3 ().findSolutionEdgeOrientation (cube);
             });
         });
-        addSolverButton ("L/R Edges", () => {
+        RouxSolverSection.addButton ("L/R Edges", () => {
             solveFromGivenFunc ((cube) => {
                 return new RouxSolver3x3 ().findSolutionLREdges (cube);
             });
         });
-        addSolverButton ("Last Edges", () => {
+        RouxSolverSection.addButton ("Last Edges", () => {
             solveFromGivenFunc ((cube) => {
                 return new RouxSolver3x3 ().findSolutionLastEdges (cube);
             });

@@ -33,6 +33,58 @@ function openTab (event, tabContentID)
 
 // =======================================================================
 
+class UICollapsibleSection
+{
+    // <div class="controlHeader collapsible">
+    //     <h2>Solver Controls</h2>
+    // </div>
+    // <div class="collapsible-content">
+    //     <table class="controlGroup" id="solverControlsTable">
+    //         <!-- Solver controls will get populated here -->
+    //     </table>
+    // </div>
+    constructor (sectionTitle)
+    {
+        const solverTab = document.getElementById ("solver-tab");
+
+        this.sectionDOM = document.createElement ("div");
+        solverTab.appendChild (this.sectionDOM);
+
+        const header = document.createElement ("div");
+        header.className = "controlHeader collapsible";
+        const h2 = document.createElement ("h2");
+        h2.innerText = sectionTitle;
+        header.appendChild (h2);
+        this.sectionDOM.appendChild (header);
+    
+        this.contentDOM = document.createElement ("div");
+        this.contentDOM.className = "collapsible-content";
+        this.sectionDOM.appendChild (this.contentDOM);
+
+        // I really dont like this being a table
+        this.controlsTableDOM = document.createElement ("table");
+        this.controlsTableDOM.className = "controlGroup";
+        this.contentDOM.appendChild (this.controlsTableDOM);
+    }
+
+    addButton (buttonLabel, onclickFunction)
+    {
+        const tr = document.createElement ("tr");
+        tr.className = "controlRow";
+        const td = document.createElement ("td");
+        td.colSpan = 4
+        const btn = document.createElement ("button");
+        btn.className = "controlButton";
+        btn.onclick = onclickFunction;
+        btn.innerText = buttonLabel;
+        td.appendChild (btn);
+        tr.appendChild (td);
+        this.controlsTableDOM.appendChild (tr);
+    }
+}
+
+// =======================================================================
+
 // Adds a solver button to the solver controls section
 // with the given buttonLabel and onclickFunction.
 function addSolverButton (buttonLabel, onclickFunction)

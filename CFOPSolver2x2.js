@@ -70,7 +70,7 @@ class CFOPSolver2x2
         for (var i = 1; i < this.MAX_WHITE_FACE_MOVES; ++i) {
             solution = this.solveFirstLayer_ (cube, [], 0, i);
             if (solution != null) {
-                console.log ("solveFirstLayer", solution);
+                console.log ("solveFirstLayer:", moveSetToString (solution));
                 break;
             }
         }
@@ -151,7 +151,7 @@ class CFOPSolver2x2
             solution = this.solveYellowFace_ (cube, [], 0, i);
             if (solution != null)
             {
-                console.log ("solveYellowFace", solution);
+                console.log ("solveYellowFace:", moveSetToString (solution));
                 break;
             }
         }
@@ -253,7 +253,7 @@ class CFOPSolver2x2
             solution = this.solveLastLayer_ (cube, [], 0, i);
             if (solution != null)
             {
-                console.log ("solveLastLayer", solution);
+                console.log ("solveLastLayer:", moveSetToString (solution));
                 break;
             }
         }

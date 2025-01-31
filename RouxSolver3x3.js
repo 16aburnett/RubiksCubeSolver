@@ -499,7 +499,7 @@ class RouxSolver3x3
             return null;
         }
         solution = solution.concat(temp);
-        console.log ("edge", temp);
+        console.log ("edge", moveSetToString (temp));
 
         // Solve Corner Piece
         temp = this.findSolutionToFirstBlockSecondPairCorner (cube);
@@ -511,7 +511,7 @@ class RouxSolver3x3
             return null;
         }
         solution = solution.concat(temp);
-        console.log ("corner", temp);
+        console.log ("corner", moveSetToString (temp));
 
         console.timeEnd ("findSolutionToFirstBlockSecondPair");
         return solution;
@@ -804,8 +804,6 @@ class RouxSolver3x3
         // Solve Edge Piece
         let temp = this.findSolutionToSecondBlockFirstPairEdge (cube);
         // Ensure solution was found
-        console.log ("edge", temp);
-        // Ensure solution was found
         if (temp == null)
         {
             console.log ("could not find solution to findSolutionToSecondBlockFirstPair")
@@ -813,6 +811,7 @@ class RouxSolver3x3
             return null;
         }
         solution = solution.concat(temp);
+        console.log ("edge", moveSetToString (temp));
 
         // Solve Corner Piece
         temp = this.findSolutionToSecondBlockFirstPairCorner (cube);
@@ -824,6 +823,7 @@ class RouxSolver3x3
             return null;
         }
         solution = solution.concat(temp);
+        console.log ("corner", moveSetToString (temp));
 
         console.timeEnd ("findSolutionToSecondBlockFirstPair");
         return solution;
@@ -1100,7 +1100,7 @@ class RouxSolver3x3
             return null;
         }
         solution = solution.concat(temp);
-        console.log ("edge", temp);
+        console.log ("edge", moveSetToString (temp));
 
         // Solve Corner Piece
         temp = this.findSolutionToSecondBlockSecondPairCorner (cube);
@@ -1112,7 +1112,7 @@ class RouxSolver3x3
             return null;
         }
         solution = solution.concat(temp);
-        console.log ("corner", temp);
+        console.log ("corner", moveSetToString (temp));
 
         console.timeEnd ("findSolutionToSecondBlockSecondPair");
         return solution;
@@ -1378,7 +1378,7 @@ class RouxSolver3x3
                 return null;
             }
         solution = solution.concat(temp);
-        console.log ("orient", temp);
+        console.log ("orient", moveSetToString (temp));
 
         // Permutate yellow corners
         temp = this.findSolutionCMLLPermutateYellowCorners (cube);
@@ -1390,7 +1390,7 @@ class RouxSolver3x3
             return null;
         }
         solution = solution.concat(temp);
-        console.log ("permutate", temp);
+        console.log ("permutate", moveSetToString (temp));
 
         console.timeEnd ("findSolutionCMLL");
         return solution;
@@ -1681,7 +1681,7 @@ class RouxSolver3x3
             solution = this.findMinSolution_ (cube, [], 0, i, isSolved, moveSetsToTry);
             if (solution != null) {
                 // Found the solution!
-                console.log ("min solution:", solution);
+                console.log ("min solution:", moveSetToString (solution));
                 break;
             }
         }

@@ -238,3 +238,13 @@ function generateMoves (dim)
     }
     return moves;
 }
+
+// =======================================================================
+
+function moveSetToString (moveSet)
+{
+    const moveSetStrings = moveSet.map (
+        (value) => cubeMoveNotation.toString (value)
+    );
+    return moveSetStrings.join (" ");
+}

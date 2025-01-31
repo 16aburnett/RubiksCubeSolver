@@ -26,7 +26,7 @@ class CFOPSolver1x1
         for (var i = 1; i < this.MAX_CUBE_ORIENTATION_MOVES; ++i) {
             let temp = this.findSolutionToOrientTheCube (cube, [], 0, i);
             if (temp != null) {
-                console.log ("findSolutionToOrientTheCube", temp);
+                console.log ("findSolutionToOrientTheCube:", moveSetToString (solution));
                 solution = solution.concat (temp);
                 break;
             }

@@ -7,12 +7,8 @@
 let backgroundColor;
 let rubiksCube;
 let scrambled = false;
-let shouldScramble = false;
 const SCRAMBLE_LENGTH = 20;
-let amountToScramble = SCRAMBLE_LENGTH;
 let solver;
-let isSolving = false;
-let solution = [];
 let cubeMoveNotation;
 let isApplyingMoveSet = false;
 let moveSetToApply = [];
@@ -49,14 +45,22 @@ function setup () {
         solver = new CFOPSolver1x1 ();
         // Setup solver controls buttons
         const basicSolverSection = new UICollapsibleSection ("Basic Solver");
-        basicSolverSection.addButton ("Solve", solve);
+        basicSolverSection.addButton ("Solve", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.findSolution (cube);
+            });
+        });
     }
     else if (cubeType == "2x2") {
         rubiksCube = new RubiksCube (2);
         solver = new CFOPSolver2x2 ();
         // Setup solver controls buttons
         const CFOPSolverSection = new UICollapsibleSection ("CFOP-like Solver");
-        CFOPSolverSection.addButton ("Full CFOP-Like Solve", solve);
+        CFOPSolverSection.addButton ("Full CFOP-Like Solve", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.findSolution (cube);
+            });
+        });
         CFOPSolverSection.addButton ("Solve First Layer", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.solveFirstLayer (cube);
@@ -77,19 +81,31 @@ function setup () {
         rubiksCube = new RubiksCube3 ();
         solver = new CFOPSolver3x3 ();
         // Setup solver controls buttons
-        addSolverButton ("CFOP-like Solver", solve);
+        addSolverButton ("CFOP-like Solver", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.findSolution (cube);
+            });
+        });
     }
     else if (cubeType == "4x4") {
         rubiksCube = new RubiksCube (4);
         solver = null;
         // Setup solver controls buttons
-        // addSolverButton ("Basic Solver", solve);
+        // addSolverButton ("Basic Solver", () => {
+        //     solveFromGivenFunc ((cube) => {
+        //         return solver.findSolution (cube);
+        //     });
+        // });
     }
     else if (cubeType == "5x5") {
         rubiksCube = new RubiksCube (5);
         solver = null;
         // Setup solver controls buttons
-        // addSolverButton ("Basic Solver", solve);
+        // addSolverButton ("Basic Solver", () => {
+        //     solveFromGivenFunc ((cube) => {
+        //         return solver.findSolution (cube);
+        //     });
+        // });
     }
     // 3x3 by default
     else {
@@ -97,7 +113,11 @@ function setup () {
         solver = new CFOPSolver3x3 ();
         // Setup solver controls buttons
         const CFOPSolverSection = new UICollapsibleSection ("CFOP Solver");
-        CFOPSolverSection.addButton ("Full CFOP-Like Solve", solve);
+        CFOPSolverSection.addButton ("Full CFOP-Like Solve", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.findSolution (cube);
+            });
+        });
         CFOPSolverSection.addButton ("Orient Cube", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.findSolutionToOrientTheCube (cube);
@@ -270,54 +290,11 @@ function draw () {
             }
         }
     }
-    // if we are currently scrambling,
-    // then perform a single scramble move for this frame
-    else if (shouldScramble) {
-        // Ensure cube is ready to receive move
-        if (!rubiksCube.isTurning)
-        {
-            // Generate a random move
-            let randomMove = random ([...cubeMoveNotation.getCubeNotationMoves ()]);
-            console.log(cubeMoveNotation.toString (randomMove));
-            // Convert the move from cube notation to axis notation
-            let axisNotationMove = cubeMoveNotation.toAxisNotation (randomMove);
-            // Start animating the move
-            // Future calls to rubikscube.update() will progress the animation
-            rubiksCube.animatedRotate (...axisNotationMove);
-            amountToScramble -= 1;
-            if (amountToScramble < 0) {
-                shouldScramble = false;
-            }
-        }
-    }
 
     // determine if cube was solved
     else if (scrambled && rubiksCube.isSolved ()) {
         scrambled = false;
-        isSolving = false;
         console.log("Congrats! You solved it!");
-    }
-
-    else if (isSolving && !rubiksCube.isTurning) {
-        // this might not be correct logic since
-        // the solver could solve the cube with more moves left?
-        // i doubt the solver will do that, but...
-        if (rubiksCube.isSolved ()) {
-            // done solving since cube is solved
-            isSolving = false;
-        }
-        else if (solution.length == 0) {
-            isSolving = false;
-            console.log("bot could not find a solution");
-        }
-        else
-        {
-            // still solving so make another move
-            let move = solution[0];
-            solution = solution.slice(1);
-            console.log(cubeMoveNotation.toString (move));
-            rubiksCube.animatedRotate (...cubeMoveNotation.toAxisNotation (move));
-        }
     }
 
     // Draw 3D graphics
@@ -333,76 +310,88 @@ function draw () {
 
 // =======================================================================
 
-// activates the bot and loads solution 
-function solve () {
-    console.log("Thinking...");
-
-    isSolving = true;
-    let tempCube = rubiksCube.copy ();
-
-    console.time ("Solve");
-    solution = solver.findSolution (tempCube);
-    console.timeEnd ("Solve");
-
-    // Ensure a solution was found
-    if (solution == null)
-    {
-        console.log ("No solution found");
-        isSolving = false;
-        return;
-    }
-
-    console.log("Solution found that has " + solution.length + " moves.")
-    console.log("Solving...")
-}
-
-// =======================================================================
-
-// activates the bot and loads solution 
+// activates the bot and loads solution
 function solveFromGivenFunc (findSolutionFunc) {
     console.log("Thinking...");
 
-    isSolving = true;
     let tempCube = rubiksCube.copy ();
 
     console.time ("Solve");
-    solution = findSolutionFunc (tempCube);
+    let solution = findSolutionFunc (tempCube);
     console.timeEnd ("Solve");
 
     // Ensure a solution was found
     if (solution == null)
     {
         console.log ("No solution found");
-        isSolving = false;
         return;
     }
 
-    console.log("Solution found that has " + solution.length + " moves.");
-    console.log("Solving...")
+    console.log ("Solution found that has " + solution.length + " moves.");
+    console.log ("Solution: ", moveSetToString (solution));
+    console.log ("Applying solution...")
+    startApplyingMoveSet (solution);
 }
 
 // =======================================================================
 
-// activates scramble 
+/**
+ * Generates a new scrambled moveset for the cube and starts
+ * applying the scrambled moveset.
+ */
 function scramble () {
     console.log ("Scrambling");
-    shouldScramble = true;
-    amountToScramble = SCRAMBLE_LENGTH;
+
+    // Ensure cube is ready to be scrambled
+    if (rubiksCube.isTurning)
+    {
+        console.log ("Cube is turning, cannot scramble");
+        return;
+    }
+
+    const validMoves = [...cubeMoveNotation.getCubeNotationMoves ()];
+    const scrambleMoves = [];
+    for (let i = 0; i < SCRAMBLE_LENGTH; ++i)
+    {
+        const randomMove = random (validMoves);
+        scrambleMoves.push (randomMove);
+    }
+    console.log ("Scramble:", moveSetToString (scrambleMoves));
+    startApplyingMoveSet (scrambleMoves);
     scrambled = true;
 }
 
 // =======================================================================
 
-// activates scramble 
+/**
+ * Parses the given string into a moveset and starts the animation
+ * of applying the moveset
+ * @param {*} moveSetString string representation of a set of moves.
+ * Moves should be space delimited, and must be valid Rubik's cube
+ * move notation.
+ * Example: "R U R' U'"
+ */
 function applyMoveSetFromString (moveSetString) {
     console.log ("Applying move set");
-    isApplyingMoveSet = true;
     scrambled = true;
     let moveStrings = moveSetString.split (" ");
     let moves = [];
     for (let moveString of moveStrings)
         moves.push (cubeMoveNotation.stringToMove (moveString));
-    moveSetToApply = moves;
+    startApplyingMoveSet (moves);
+}
+
+// =======================================================================
+
+/**
+ * Starts the animation of applying the given moveset to the cube
+ * over time.
+ * @param {*} moveSet the given moveset to apply to the cube
+ */
+function startApplyingMoveSet (moveSet)
+{
+    isApplyingMoveSet = true;
+    moveSetToApply = moveSet;
 }
 
 // =======================================================================
@@ -411,7 +400,6 @@ function applyMoveSetFromString (moveSetString) {
 function reset () {
     rubiksCube.reset();
     scrambled = false;
-    shouldScramble = false;
 }
 
 // =======================================================================

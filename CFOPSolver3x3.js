@@ -1718,7 +1718,7 @@ class CFOPSolver3x3
             solution = this.findMinSolution_ (cube, [], 0, i, isSolved, moveSetsToTry);
             if (solution != null) {
                 // Found the solution!
-                console.log ("min solution:", solution);
+                console.log ("min solution:", moveSetToString (solution));
                 break;
             }
         }

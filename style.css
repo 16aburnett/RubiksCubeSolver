@@ -70,6 +70,16 @@ main {
     width: 100%;
 }
 
+.tabHeader {
+    width: 100%;
+    /* background-color: rgb(130, 130, 250); */
+    text-align: center;
+    margin: 0;
+    font-size: 2.5vh;
+    min-height: 5vh;
+    position: relative;
+}
+
 .navForm {
     /* background-color: yellow; */
     display: inline-block;

@@ -13,9 +13,10 @@ class CFOPSolver3x3
         this.MAX_CUBE_ORIENTATION_MOVES = 4;
         this.MAX_CROSS_MOVES = 8;
         this.MAX_F2L_MOVES = 12;
-        this.MAX_YELLOW_CROSS = 20;
-        this.MAX_YELLOW_CORNERS = 40;
-        this.MAX_YELLOW_EDGES = 40;
+        this.MAX_OLL_CROSS = 20;
+        this.MAX_OLL_CORNERS = 40;
+        this.MAX_PLL_CORNERS = 22;
+        this.MAX_PLL_EDGES = 22;
     }
 
     // =======================================================================
@@ -86,8 +87,8 @@ class CFOPSolver3x3
         }
         solution = solution.concat(temp);
 
-        // OLL: yellow cross
-        temp = this.solveYellowCross (cube);
+        // OLL
+        temp = this.solve2LookOLL (cube);
         // Ensure solution was found
         if (temp == null)
         {
@@ -96,28 +97,8 @@ class CFOPSolver3x3
         }
         solution = solution.concat(temp);
 
-        // OLL: yellow face
-        temp = this.solveYellowFace (cube);
-        // Ensure solution was found
-        if (temp == null)
-        {
-            console.log ("failed to find solution");
-            return null;
-        }
-        solution = solution.concat(temp);
-
-        // PLL: yellow corners
-        temp = this.solveYellowCorners (cube);
-        // Ensure solution was found
-        if (temp == null)
-        {
-            console.log ("failed to find solution");
-            return null;
-        }
-        solution = solution.concat(temp);
-
-        // PLL: yellow edges
-        temp = this.solveYellowEdges (cube);
+        // PLL
+        temp = this.solve2LookPLL (cube);
         // Ensure solution was found
         if (temp == null)
         {
@@ -1539,18 +1520,86 @@ class CFOPSolver3x3
 
     // =======================================================================
 
-    solveYellowCross (cube) {
-        const name = "solveYellowCross";
+    solve2LookOLL (cube) {
+        const name = "solve2LookOLL";
         console.log (name);
         console.time (name);
 
         let solution = [];
-        let temp = this.findMinSolution (cube, this.MAX_YELLOW_CROSS, (cube) => {
+        // Edges
+        let temp = this.solve2LookOLLEdges (cube);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        // Corners
+        temp = this.solve2LookOLLCorners (cube);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
+        return solution;
+    }
+
+    // =======================================================================
+
+    solve2LookOLLEdges (cube) {
+        const name = "solve2LookOLLEdges";
+        console.log (name);
+        console.time (name);
+
+        let solution = [];
+        let temp = this.findMinSolution (cube, this.MAX_OLL_CROSS, (cube) => {
             return this.isYellowCrossSolved (cube);
         }, [
             [cubeNotationMove (MOVE_U,  1)],
             [cubeNotationMove (MOVE_U, -1)],
-            // Yellow cross algorithm
+            // Dot (0 edges solved)
+            //    x
+            //  +---+
+            //  |   |
+            // x| x |x
+            //  |   |
+            //  +---+
+            //    x
+            // F R U R' U' F' f R U R' U' f'
+            // F R U R' U' F' (F S) R U R' U' (F' S')
+            [
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_F, -1),
+                // F S == f
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_S,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U, -1),
+                // F' S' == f'
+                cubeNotationMove (MOVE_F, -1),
+                cubeNotationMove (MOVE_S, -1),
+            ],
+            // Bar (2 opposite edges solved)
+            //    x
+            //  +---+
+            //  |   |
+            //  |xxx|
+            //  |   |
+            //  +---+
+            //    x
+            // F R U R' U' F'
             [
                 cubeNotationMove (MOVE_F,  1),
                 cubeNotationMove (MOVE_R,  1),
@@ -1559,17 +1608,28 @@ class CFOPSolver3x3
                 cubeNotationMove (MOVE_U, -1),
                 cubeNotationMove (MOVE_F, -1),
             ],
-            // Reverse yellow cross alg
-            // this can go from L-shape directly to cross solved
+            // L-shape (2 adjacent edges solved)
+            //    x
+            //  +---+
+            //  |   |
+            // x| xx|
+            //  | x |
+            //  +---+
+            // f R U R' U' f'
+            // (F S) R U R' U' (F' S')
             [
+                // F S == f
                 cubeNotationMove (MOVE_F,  1),
-                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_S,  1),
                 cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_U,  1),
                 cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U, -1),
+                // F' S' == f'
                 cubeNotationMove (MOVE_F, -1),
-            ],
-        ]);
+                cubeNotationMove (MOVE_S, -1),
+            ]
+        ], true);
         // Ensure solution was found
         if (temp == null)
         {
@@ -1585,16 +1645,113 @@ class CFOPSolver3x3
 
     // =======================================================================
 
-    solveYellowFace (cube) {
-        const name = "solveYellowFace";
+    solve2LookOLLCorners (cube) {
+        const name = "solve2LookOLLCorners";
         console.log (name);
         console.time (name);
 
         let solution = [];
-        let temp = this.findMinSolution (cube, this.MAX_YELLOW_CORNERS, (cube) => {
+        let temp = this.findMinSolution (cube, this.MAX_OLL_CORNERS, (cube) => {
             return this.isYellowCornersOrientated (cube);
         }, [
-            // Fishy alg
+            // Antisune
+            // 
+            //  + - - - +
+            // X|   X X |
+            //  | X X X |
+            //  |   X   |X
+            //  + - - - +
+            //    X
+            // R U2 R' U' R U' R'
+            [
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R, -1),
+            ],
+            // H
+            //  + - - - +
+            // X|   X   |X
+            //  | X X X |
+            // X|   X   |X
+            //  + - - - +
+            // R U R' U R U' R' U R U2 R'
+            [
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+            ],
+            // L
+            //  + - - - +
+            //  | X X   |X
+            //  | X X X |
+            //  |   X X |
+            //  + - - - +
+            //    X
+            // F R' F' r U R U' r'
+            // F R' F' (R M') U R U' (R' M)
+            [
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_F, -1),
+                // r = R M'
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_M, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U, -1),
+                // r' = R' M
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_M,  1),
+            ],
+            // Pi
+            //        X
+            //  + - - - +
+            // X|   X   |
+            //  | X X X |
+            // X|   X   |
+            //  + - - - +
+            //        X
+            // R U2 R2 U' R2 U' R2 U2 R
+            // R (U U) (R R) U' (R R) U' (R R) (U U) R
+            [
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+            ],
+            // Sune (aka fishy alg)
+            //    X
+            //  + - - - +
+            //  |   X   |X
+            //  | X X X |
+            //  | X X   |
+            //  + - - - +
+            //        X
+            // R U R' U R U2 R'
             [
                 cubeNotationMove (MOVE_R,  1),
                 cubeNotationMove (MOVE_U,  1),
@@ -1605,9 +1762,53 @@ class CFOPSolver3x3
                 cubeNotationMove (MOVE_U,  1),
                 cubeNotationMove (MOVE_R, -1)
             ],
+            // T
+            //    X
+            //  + - - - +
+            //  |   X X |
+            //  | X X X |
+            //  |   X X |
+            //  + - - - +
+            //    X
+            // r U R' U' r' F R F'
+            // (R M') U R' U' (R' M) F R F'
+            [
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_M, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_M,  1),
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_F, -1),
+            ],
+            // U
+            //  + - - - +
+            //  | X X X |
+            //  | X X X |
+            //  |   X   |
+            //  + - - - +
+            //    X   X
+            // R2 D R' U2 R D' R' U2 R'
+            [
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_D,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_D, -1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+            ],
             [cubeNotationMove (MOVE_U,  1)],
             [cubeNotationMove (MOVE_U, -1)]
-        ]);
+        ], true);
         // Ensure solution was found
         if (temp == null)
         {
@@ -1623,17 +1824,66 @@ class CFOPSolver3x3
 
     // =======================================================================
 
-    solveYellowCorners (cube) {
-        const name = "solveYellowCorners";
+    solve2LookPLL (cube) {
+        const name = "solve2LookPLL";
         console.log (name);
         console.time (name);
 
         let solution = [];
-        let temp = this.findMinSolution (cube, this.MAX_YELLOW_CORNERS, (cube) => {
+        // Edges
+        let temp = this.solve2LookPLLCorners (cube);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        // Corners
+        temp = this.solve2LookPLLEdges (cube);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
+        return solution;
+    }
+
+    // =======================================================================
+
+    solve2LookPLLCorners (cube) {
+        const name = "solve2LookPLLCorners";
+        console.log (name);
+        console.time (name);
+
+        let solution = [];
+        let temp = this.findMinSolution (cube, this.MAX_PLL_CORNERS, (cube) => {
             return this.isYellowCornersSolved (cube);
         }, [
-            // J-perm algorithm
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            // Diagonal corner swap (Y-Perm)
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    B   G
+            //  + - - - +
+            // R| Y Y Y |R
+            //  | Y Y Y |
+            // O| Y Y Y |O
+            //  + - - - +
+            //    B   G
+            // F R U' R' U' R U R' F' R U R' U' R' F R F'
             [
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U, -1),
                 cubeNotationMove (MOVE_R,  1),
                 cubeNotationMove (MOVE_U,  1),
                 cubeNotationMove (MOVE_R, -1),
@@ -1645,14 +1895,55 @@ class CFOPSolver3x3
                 cubeNotationMove (MOVE_R, -1),
                 cubeNotationMove (MOVE_F,  1),
                 cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_F, -1),
+            ],
+            // Headlights - Adjacent corner swap (T-Perm)
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    G   R
+            //  + - - - +
+            // O| Y Y Y |B
+            //  | Y Y Y |
+            // O| Y Y Y |G
+            //  + - - - +
+            //    B   R
+            // R U R' U' R' F R2 U' R' U' R U R' F'
+            [
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_R,  1),
                 cubeNotationMove (MOVE_R,  1),
                 cubeNotationMove (MOVE_U, -1),
                 cubeNotationMove (MOVE_R, -1),
                 cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_F, -1),
             ],
-            [cubeNotationMove (MOVE_U,  1)],
-            [cubeNotationMove (MOVE_U, -1)]
-        ]);
+            // J-perm algorithm
+            // [
+            //     cubeNotationMove (MOVE_R,  1),
+            //     cubeNotationMove (MOVE_U,  1),
+            //     cubeNotationMove (MOVE_R, -1),
+            //     cubeNotationMove (MOVE_F, -1),
+            //     cubeNotationMove (MOVE_R,  1),
+            //     cubeNotationMove (MOVE_U,  1),
+            //     cubeNotationMove (MOVE_R, -1),
+            //     cubeNotationMove (MOVE_U, -1),
+            //     cubeNotationMove (MOVE_R, -1),
+            //     cubeNotationMove (MOVE_F,  1),
+            //     cubeNotationMove (MOVE_R,  1),
+            //     cubeNotationMove (MOVE_R,  1),
+            //     cubeNotationMove (MOVE_U, -1),
+            //     cubeNotationMove (MOVE_R, -1),
+            //     cubeNotationMove (MOVE_U, -1),
+            // ],
+        ], true);
         // Ensure solution was found
         if (temp == null)
         {
@@ -1668,17 +1959,79 @@ class CFOPSolver3x3
 
     // =======================================================================
 
-    solveYellowEdges (cube) {
-        const name = "solveYellowEdges";
+    solve2LookPLLEdges (cube) {
+        const name = "solve2LookPLLEdges";
         console.log (name);
         console.time (name);
 
         let solution = [];
-        let temp = this.findMinSolution (cube, this.MAX_YELLOW_EDGES, (cube) => {
+        let temp = this.findMinSolution (cube, this.MAX_PLL_EDGES, (cube) => {
             return this.isYellowCornersSolved (cube)
                 && this.isYellowEdgesSolved (cube);
         }, [
-            // 3 edge cycle
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            // PLL H-perm (swap opposite edges vertically and horizontally)
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    G B G
+            //  + - - - +
+            // O| Y Y Y |R
+            // R| Y Y Y |O
+            // O| Y Y Y |R
+            //  + - - - +
+            //    B G B
+            // M2 U M2 U2 M2 U M2
+            [
+                cubeNotationMove (MOVE_M,  1),
+                cubeNotationMove (MOVE_M,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_M,  1),
+                cubeNotationMove (MOVE_M,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_M,  1),
+                cubeNotationMove (MOVE_M,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_M,  1),
+                cubeNotationMove (MOVE_M,  1),
+            ],
+            // PLL Ua-perm (cycle 3 edges counterclockwise)
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    G G G
+            //  + - - - +
+            // O| Y Y Y |R
+            // B| Y Y Y |O
+            // O| Y Y Y |R
+            //  + - - - +
+            //    B R B
+            // R U' R U R U R U' R' U' R2
+            [
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_R,  1),
+            ],
+            // PLL Ub-perm (cycle 3 edges clockwise)
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    G G G
+            //  + - - - +
+            // O| Y Y Y |R
+            // R| Y Y Y |B
+            // O| Y Y Y |R
+            //  + - - - +
+            //    B O B
+            // R2 U R U R' U' R' U' R' U R'
             [
                 cubeNotationMove (MOVE_R,  1),
                 cubeNotationMove (MOVE_R,  1),
@@ -1693,9 +2046,33 @@ class CFOPSolver3x3
                 cubeNotationMove (MOVE_U,  1),
                 cubeNotationMove (MOVE_R, -1),
             ],
-            [cubeNotationMove (MOVE_U,  1)],
-            [cubeNotationMove (MOVE_U, -1)]
-        ]);
+            // PLL Z-perm (swap adjacent edges F<-->L R<-->B)
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    R B R
+            //  + - - - +
+            // G| Y Y Y |B
+            // O| Y Y Y |R
+            // G| Y Y Y |B
+            //  + - - - +
+            //    O G O
+            // M' U M2 U M2 U M' U2 M2
+            [
+                cubeNotationMove (MOVE_M, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_M,  1),
+                cubeNotationMove (MOVE_M,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_M,  1),
+                cubeNotationMove (MOVE_M,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_M, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_M,  1),
+                cubeNotationMove (MOVE_M,  1),
+            ],
+        ], true);
         // Ensure solution was found
         if (temp == null)
         {
@@ -1711,11 +2088,11 @@ class CFOPSolver3x3
 
     // =======================================================================
 
-    findMinSolution (cube, maxMoves, isSolved, moveSetsToTry)
+    findMinSolution (cube, maxMoves, isSolved, moveSetsToTry, shouldCheckLengthBeforeSolved)
     {
         let solution = null;
         for (var i = 1; i < maxMoves; ++i) {
-            solution = this.findMinSolution_ (cube, [], 0, i, isSolved, moveSetsToTry);
+            solution = this.findMinSolution_ (cube, [], 0, i, isSolved, moveSetsToTry, shouldCheckLengthBeforeSolved);
             if (solution != null) {
                 // Found the solution!
                 console.log ("min solution:", moveSetToString (solution));
@@ -1727,7 +2104,11 @@ class CFOPSolver3x3
 
     // =======================================================================
 
-    findMinSolution_ (cube, path, prevMove, limit, isSolved, moveSetsToTry) {
+    findMinSolution_ (cube, path, prevMove, limit, isSolved, moveSetsToTry, shouldCheckLengthBeforeSolved = false) {
+        // Ensure max moves are not exceeded before checking solution
+        if (shouldCheckLengthBeforeSolved && path.length >= limit)
+            return null;
+
         // solution found
         if (isSolved (cube)) {
             return path;
@@ -1757,7 +2138,7 @@ class CFOPSolver3x3
                 path.push (move);
             }
             // Try to solve from this state
-            result = this.findMinSolution_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit, isSolved, moveSetsToTry);
+            result = this.findMinSolution_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit, isSolved, moveSetsToTry, shouldCheckLengthBeforeSolved);
             if (result != null) return result;
             // MoveSet did not work so
             // Undo moveSet (by doing the reverse moves in reverse order)

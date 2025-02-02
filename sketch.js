@@ -148,24 +148,34 @@ function setup () {
                 return solver.solveFourthF2L (cube);
             });
         });
-        CFOPSolverSection.addButton ("Solve Yellow Cross", () => {
+        CFOPSolverSection.addButton ("Solve 2-Look OLL", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solveYellowCross (cube);
+                return solver.solve2LookOLL (cube);
             });
         });
-        CFOPSolverSection.addButton ("Solve Yellow Face", () => {
+        CFOPSolverSection.addButton ("Solve 2-Look OLL: Edges", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solveYellowFace (cube);
+                return solver.solve2LookOLLEdges (cube);
             });
         });
-        CFOPSolverSection.addButton ("Solve Yellow Corners", () => {
+        CFOPSolverSection.addButton ("Solve 2-Look OLL: Corners", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solveYellowCorners (cube);
+                return solver.solve2LookOLLCorners (cube);
             });
         });
-        CFOPSolverSection.addButton ("Solve Yellow Edges", () => {
+        CFOPSolverSection.addButton ("Solve 2-Look PLL", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solveYellowEdges (cube);
+                return solver.solve2LookPLL (cube);
+            });
+        });
+        CFOPSolverSection.addButton ("Solve 2-Look PLL: Corners", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.solve2LookPLLCorners (cube);
+            });
+        });
+        CFOPSolverSection.addButton ("Solve 2-Look PLL: Edges", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.solve2LookPLLEdges (cube);
             });
         });
 

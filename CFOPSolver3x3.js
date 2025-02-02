@@ -47,38 +47,7 @@ class CFOPSolver3x3
         solution = solution.concat(temp);
 
         // solve f2l
-        // F2L: First
-        temp = this.solveFirstF2L (cube);
-        // Ensure solution was found
-        if (temp == null)
-        {
-            console.log ("failed to find solution");
-            return null;
-        }
-        solution = solution.concat(temp);
-
-        // F2L: Second
-        temp = this.solveSecondF2L (cube);
-        // Ensure solution was found
-        if (temp == null)
-        {
-            console.log ("failed to find solution");
-            return null;
-        }
-        solution = solution.concat(temp);
-
-        // F2L: Third
-        temp = this.solveThirdF2L (cube);
-        // Ensure solution was found
-        if (temp == null)
-        {
-            console.log ("failed to find solution");
-            return null;
-        }
-        solution = solution.concat(temp);
-
-        // F2L: Fourth
-        temp = this.solveFourthF2L (cube);
+        temp = this.solveF2L (cube);
         // Ensure solution was found
         if (temp == null)
         {
@@ -292,6 +261,58 @@ class CFOPSolver3x3
         {
             console.log (`Failed: Could not find solution to ${name}`);
             console.timeEnd (name);
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveF2L (cube) {
+        const name = "solveF2L";
+        console.log (name);
+        console.time (name);
+
+        let solution = [];
+        // F2L: First
+        let temp = this.solveFirstF2L (cube);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        // F2L: Second
+        temp = this.solveSecondF2L (cube);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        // F2L: Third
+        temp = this.solveThirdF2L (cube);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        // F2L: Fourth
+        temp = this.solveFourthF2L (cube);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log ("failed to find solution");
             return null;
         }
         solution = solution.concat(temp);

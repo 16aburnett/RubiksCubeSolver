@@ -128,22 +128,27 @@ function setup () {
                 return solver.findSolutionToCross (cube);
             });
         });
-        CFOPSolverSection.addButton ("Solve First F2L", () => {
+        CFOPSolverSection.addButton ("Solve F2L", () => {
+            solveFromGivenFunc ((cube) => {
+                return solver.solveF2L (cube);
+            });
+        });
+        CFOPSolverSection.addButton ("Solve F2L: First Pair", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.solveFirstF2L (cube);
             });
         });
-        CFOPSolverSection.addButton ("Solve Second F2L", () => {
+        CFOPSolverSection.addButton ("Solve F2L: Second Pair", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.solveSecondF2L (cube);
             });
         });
-        CFOPSolverSection.addButton ("Solve Third F2L", () => {
+        CFOPSolverSection.addButton ("Solve F2L: Third Pair", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.solveThirdF2L (cube);
             });
         });
-        CFOPSolverSection.addButton ("Solve Fourth F2L", () => {
+        CFOPSolverSection.addButton ("Solve F2L: Fourth Pair", () => {
             solveFromGivenFunc ((cube) => {
                 return solver.solveFourthF2L (cube);
             });

@@ -258,7 +258,6 @@ function setup () {
 
     // Setup collapsible
     const collapsibleElements = document.getElementsByClassName ("collapsible");
-
     for (let i = 0; i < collapsibleElements.length; i++)
     {
         collapsibleElements[i].addEventListener ("click", function() {
@@ -271,6 +270,31 @@ function setup () {
             }
         });
     }
+
+    // Turn speed UI input
+    const turnSpeedSlider = document.getElementById ("turnSpeedSlider");
+    const turnSpeedTextbox = document.getElementById ("turnSpeedTextbox");
+    turnSpeedTextbox.value = turnSpeedSlider.value;
+    turnSpeedSlider.oninput = function () {
+        // Sync with textbox
+        turnSpeedTextbox.value = this.value;
+        // Sync with cube's speed
+        rubiksCube.currentSpeed = Number (this.value);
+    };
+    turnSpeedTextbox.oninput = function () {
+        const value = Number (this.value);
+        const min = Number (this.min);
+        const max = Number (this.max);
+        // Ensure number is in range
+        if (value < min)
+            this.value = min;
+        else if (value > max)
+            this.value = max;
+        // Sync with slider
+        turnSpeedSlider.value = value;
+        // Sync with cube's speed
+        rubiksCube.currentSpeed = Number (value);
+    };
 }
 
 // =======================================================================

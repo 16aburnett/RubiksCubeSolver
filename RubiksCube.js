@@ -243,7 +243,6 @@ class RubiksCube
             return false;
         // this.currentMove = move;
         this.currentAngle = 0;
-        this.currentSpeed = TURN_SPEED;
         this.isTurning = true;
         this.currentMoveAxis = axis;
         this.currentMoveSlices = slices;

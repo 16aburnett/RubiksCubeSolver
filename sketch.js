@@ -294,20 +294,6 @@ function setupCube (N)
     const turnSpeedTextbox = document.getElementById ("turnSpeedTextbox");
     rubiksCube.currentSpeed = Number (turnSpeedTextbox.value);
 
-    // Setup collapsible
-    const collapsibleElements = document.getElementsByClassName ("collapsible");
-    for (let i = 0; i < collapsibleElements.length; i++)
-    {
-        collapsibleElements[i].addEventListener ("click", function() {
-            this.classList.toggle("active");
-            let content = this.nextElementSibling;
-            if (content.style.display === "") {
-                content.style.display = "none";
-            } else {
-                content.style.display = "";
-            }
-        });
-    }
 }
 
 // =======================================================================

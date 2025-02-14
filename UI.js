@@ -71,7 +71,16 @@ class UICollapsibleSection
         h2.innerText = sectionTitle;
         header.appendChild (h2);
         this.sectionDOM.appendChild (header);
-    
+        header.addEventListener ("click", function() {
+            this.classList.toggle("active");
+            let content = this.nextElementSibling;
+            if (content.style.display === "") {
+                content.style.display = "none";
+            } else {
+                content.style.display = "";
+            }
+        });
+
         this.contentDOM = document.createElement ("div");
         this.contentDOM.className = "collapsible-content";
         this.sectionDOM.appendChild (this.contentDOM);

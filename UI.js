@@ -6,7 +6,21 @@
 
 // =======================================================================
 
+function clearCubeControls ()
+{
+    const cubeControlsTable = document.getElementById ("cubeControlsTable");
+    // Remove all controls
+    cubeControlsTable.innerHTML = '';
+}
 
+// =======================================================================
+
+function clearSolverControls ()
+{
+    const solverTab = document.getElementById ("solverTabContent");
+    // Remove all controls
+    solverTab.innerHTML = '';
+}
 
 // =======================================================================
 
@@ -45,7 +59,8 @@ class UICollapsibleSection
     // </div>
     constructor (sectionTitle)
     {
-        const solverTab = document.getElementById ("solver-tab");
+        // TODO: Make this not hardcoded to the solver tab
+        const solverTab = document.getElementById ("solverTabContent");
 
         this.sectionDOM = document.createElement ("div");
         solverTab.appendChild (this.sectionDOM);
@@ -81,27 +96,6 @@ class UICollapsibleSection
         tr.appendChild (td);
         this.controlsTableDOM.appendChild (tr);
     }
-}
-
-// =======================================================================
-
-// Adds a solver button to the solver controls section
-// with the given buttonLabel and onclickFunction.
-function addSolverButton (buttonLabel, onclickFunction)
-{
-    let solverControlsTable = document.getElementById ("solverControlsTable");
-    let tr = document.createElement ("tr");
-    tr.className = "controlRow";
-    solverControlsTable.appendChild (tr);
-    let td = document.createElement ("td");
-    td.colSpan = 4
-    let btn = document.createElement ("button");
-    btn.className = "controlButton";
-    btn.onclick = onclickFunction;
-    btn.innerText = buttonLabel;
-    td.appendChild (btn);
-    tr.appendChild (td);
-    tr.appendChild (td);
 }
 
 // =======================================================================

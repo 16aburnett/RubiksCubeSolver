@@ -8,17 +8,10 @@ let backgroundColor;
 let rubiksCube;
 let scrambled = false;
 const SCRAMBLE_LENGTH = 20;
-let solver;
+const DEFAULT_CUBE_N = 3;
 let cubeMoveNotation;
 let isApplyingMoveSet = false;
 let moveSetToApply = [];
-
-// get rubiks cube type from the url
-let cubeType = new URLSearchParams(window.location.search).get("type");
-// 3x3 by default 
-if (cubeType == null) {
-    cubeType = "3x3";
-}
 
 // 3D Graphics globals
 let graphics = null;
@@ -39,148 +32,185 @@ function setup () {
     graphics.background (backgroundColor);
     graphics.angleMode (DEGREES);
     cam = graphics.createCamera ();
+
+    setupCube (DEFAULT_CUBE_N);
+
+    // Turn speed UI input
+    const turnSpeedSlider = document.getElementById ("turnSpeedSlider");
+    const turnSpeedTextbox = document.getElementById ("turnSpeedTextbox");
+    turnSpeedTextbox.value = turnSpeedSlider.value;
+    turnSpeedSlider.oninput = function () {
+        // Sync with textbox
+        turnSpeedTextbox.value = this.value;
+        // Sync with cube's speed
+        rubiksCube.currentSpeed = Number (this.value);
+    };
+    turnSpeedTextbox.oninput = function () {
+        const value = Number (this.value);
+        const min = Number (this.min);
+        const max = Number (this.max);
+        // Ensure number is in range
+        if (value < min)
+            this.value = min;
+        else if (value > max)
+            this.value = max;
+        // Sync with slider
+        turnSpeedSlider.value = value;
+        // Sync with cube's speed
+        rubiksCube.currentSpeed = Number (value);
+    };
+    // Cube setup: N UI input
+    const NSlider = document.getElementById ("NSlider");
+    const NTextbox = document.getElementById ("NTextbox");
+    NTextbox.value = NSlider.value;
+    NSlider.oninput = function () {
+        // Sync with textbox
+        NTextbox.value = this.value;
+    };
+    NTextbox.oninput = function () {
+        const value = Number (this.value);
+        const min = Number (this.min);
+        const max = Number (this.max);
+        // Ensure number is in range
+        if (value < min)
+            this.value = min;
+        else if (value > max)
+            this.value = max;
+        // Sync with slider
+        NSlider.value = value;
+    };
+}
+
+// =======================================================================
+
+/**
+ * Replaces the current cube, controls, and solvers for the cube
+ * that matches the given N value.
+ * @param {*} N the number of layers for the Rubik's cube (NxNxN cube)
+ */
+function setupCube (N)
+{
+    clearCubeControls ();
+    clearSolverControls ();
+
+    scrambled = false;
+    isApplyingMoveSet = false;
+
     // setup rubiks cube model
-    if (cubeType == "1x1") {
+    if (N == 1) {
         rubiksCube = new RubiksCube (1);
-        solver = new CFOPSolver1x1 ();
         // Setup solver controls buttons
         const basicSolverSection = new UICollapsibleSection ("Basic Solver");
         basicSolverSection.addButton ("Solve", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.findSolution (cube);
+                return new CFOPSolver1x1 ().findSolution (cube);
             });
         });
     }
-    else if (cubeType == "2x2") {
+    else if (N == 2) {
         rubiksCube = new RubiksCube (2);
-        solver = new CFOPSolver2x2 ();
         // Setup solver controls buttons
         const CFOPSolverSection = new UICollapsibleSection ("CFOP-like Solver");
         CFOPSolverSection.addButton ("Full CFOP-Like Solve", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.findSolution (cube);
+                return new CFOPSolver2x2 ().findSolution (cube);
             });
         });
         CFOPSolverSection.addButton ("Solve First Layer", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solveFirstLayer (cube);
+                return new CFOPSolver2x2 ().solveFirstLayer (cube);
             });
         });
         CFOPSolverSection.addButton ("Solve Yellow Face", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solveYellowFace (cube);
+                return new CFOPSolver2x2 ().solveYellowFace (cube);
             });
         });
         CFOPSolverSection.addButton ("Solve Last Layer", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solveLastLayer (cube);
+                return new CFOPSolver2x2 ().solveLastLayer (cube);
             });
         });
     }
-    else if (cubeType == "old 3x3") {
-        rubiksCube = new RubiksCube3 ();
-        solver = new CFOPSolver3x3 ();
-        // Setup solver controls buttons
-        addSolverButton ("CFOP-like Solver", () => {
-            solveFromGivenFunc ((cube) => {
-                return solver.findSolution (cube);
-            });
-        });
-    }
-    else if (cubeType == "4x4") {
+    else if (N == 4) {
         rubiksCube = new RubiksCube (4);
-        solver = null;
-        // Setup solver controls buttons
-        // addSolverButton ("Basic Solver", () => {
-        //     solveFromGivenFunc ((cube) => {
-        //         return solver.findSolution (cube);
-        //     });
-        // });
     }
-    else if (cubeType == "5x5") {
+    else if (N == 5) {
         rubiksCube = new RubiksCube (5);
-        solver = null;
-        // Setup solver controls buttons
-        // addSolverButton ("Basic Solver", () => {
-        //     solveFromGivenFunc ((cube) => {
-        //         return solver.findSolution (cube);
-        //     });
-        // });
     }
-    // 3x3 by default
-    else {
+    // 3x3
+    else if (N == 3) {
         rubiksCube = new RubiksCube (3);
-        solver = new CFOPSolver3x3 ();
         // Setup solver controls buttons
         const CFOPSolverSection = new UICollapsibleSection ("CFOP Solver");
         CFOPSolverSection.addButton ("Full CFOP-Like Solve", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.findSolution (cube);
+                return new CFOPSolver3x3 ().findSolution (cube);
             });
         });
         CFOPSolverSection.addButton ("Orient Cube", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.findSolutionToOrientTheCube (cube);
+                return new CFOPSolver3x3 ().findSolutionToOrientTheCube (cube);
             });
         });
         CFOPSolverSection.addButton ("Solve White Cross", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.findSolutionToCross (cube);
+                return new CFOPSolver3x3 ().findSolutionToCross (cube);
             });
         });
         CFOPSolverSection.addButton ("Solve F2L", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solveF2L (cube);
+                return new CFOPSolver3x3 ().solveF2L (cube);
             });
         });
         CFOPSolverSection.addButton ("Solve F2L: First Pair", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solveFirstF2L (cube);
+                return new CFOPSolver3x3 ().solveFirstF2L (cube);
             });
         });
         CFOPSolverSection.addButton ("Solve F2L: Second Pair", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solveSecondF2L (cube);
+                return new CFOPSolver3x3 ().solveSecondF2L (cube);
             });
         });
         CFOPSolverSection.addButton ("Solve F2L: Third Pair", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solveThirdF2L (cube);
+                return new CFOPSolver3x3 ().solveThirdF2L (cube);
             });
         });
         CFOPSolverSection.addButton ("Solve F2L: Fourth Pair", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solveFourthF2L (cube);
+                return new CFOPSolver3x3 ().solveFourthF2L (cube);
             });
         });
         CFOPSolverSection.addButton ("Solve 2-Look OLL", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solve2LookOLL (cube);
+                return new CFOPSolver3x3 ().solve2LookOLL (cube);
             });
         });
         CFOPSolverSection.addButton ("Solve 2-Look OLL: Edges", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solve2LookOLLEdges (cube);
+                return new CFOPSolver3x3 ().solve2LookOLLEdges (cube);
             });
         });
         CFOPSolverSection.addButton ("Solve 2-Look OLL: Corners", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solve2LookOLLCorners (cube);
+                return new CFOPSolver3x3 ().solve2LookOLLCorners (cube);
             });
         });
         CFOPSolverSection.addButton ("Solve 2-Look PLL", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solve2LookPLL (cube);
+                return new CFOPSolver3x3 ().solve2LookPLL (cube);
             });
         });
         CFOPSolverSection.addButton ("Solve 2-Look PLL: Corners", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solve2LookPLLCorners (cube);
+                return new CFOPSolver3x3 ().solve2LookPLLCorners (cube);
             });
         });
         CFOPSolverSection.addButton ("Solve 2-Look PLL: Edges", () => {
             solveFromGivenFunc ((cube) => {
-                return solver.solve2LookPLLEdges (cube);
+                return new CFOPSolver3x3 ().solve2LookPLLEdges (cube);
             });
         });
 
@@ -252,9 +282,17 @@ function setup () {
             });
         });
     }
+    // NxN cube
+    else {
+        rubiksCube = new RubiksCube (N);
+    }
     cubeMoveNotation = new CubeMoveNotation (rubiksCube.dim);
     // Setup cube control buttons
     addCubeControlButtons ();
+
+    // Sync turn speed
+    const turnSpeedTextbox = document.getElementById ("turnSpeedTextbox");
+    rubiksCube.currentSpeed = Number (turnSpeedTextbox.value);
 
     // Setup collapsible
     const collapsibleElements = document.getElementsByClassName ("collapsible");
@@ -270,31 +308,18 @@ function setup () {
             }
         });
     }
+}
 
-    // Turn speed UI input
-    const turnSpeedSlider = document.getElementById ("turnSpeedSlider");
-    const turnSpeedTextbox = document.getElementById ("turnSpeedTextbox");
-    turnSpeedTextbox.value = turnSpeedSlider.value;
-    turnSpeedSlider.oninput = function () {
-        // Sync with textbox
-        turnSpeedTextbox.value = this.value;
-        // Sync with cube's speed
-        rubiksCube.currentSpeed = Number (this.value);
-    };
-    turnSpeedTextbox.oninput = function () {
-        const value = Number (this.value);
-        const min = Number (this.min);
-        const max = Number (this.max);
-        // Ensure number is in range
-        if (value < min)
-            this.value = min;
-        else if (value > max)
-            this.value = max;
-        // Sync with slider
-        turnSpeedSlider.value = value;
-        // Sync with cube's speed
-        rubiksCube.currentSpeed = Number (value);
-    };
+// =======================================================================
+
+/**
+ * Sets up the Rubiks cube that matches the N value from the UI slider.
+ */
+function setupNxNCube ()
+{
+    const NTextbox = document.getElementById ("NTextbox");
+    const N = Number (NTextbox.value);
+    setupCube (N);
 }
 
 // =======================================================================

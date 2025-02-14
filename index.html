@@ -38,76 +38,79 @@
                 <div class="tabHeader">
                     <h2>Cube Setup</h2>
                 </div>
+                <div class="tabHeader">
+                    <h2>Common Rubik's Cubes</h2>
+                </div>
                 <div class="collapsible-content">
                     <table class="controlGroup" id="cubeSetupTable">
                         <tr class="controlRow">
                             <td colspan="3">
-                                <form class="navForm" action="./index.html" method="GET">
-                                    <input type="input" name="type" value="1x1" hidden>
-                                    <input class="navButton" type="submit" value="1x1 Rubik's Cube">
-                                </form>
+                                <button class="controlButton" onclick="setupCube (1)">Load 1x1 Rubik's Cube</button>
                             </td>
                         </tr>
                         <tr class="controlRow">
                             <td colspan="3">
-                                <form class="navForm" action="./index.html" method="GET">
-                                    <input type="input" name="type" value="2x2" hidden>
-                                    <input class="navButton" type="submit" value="2x2 Rubik's Cube">
-                                </form>
+                                <button class="controlButton" onclick="setupCube (2)">Load 2x2 Rubik's Cube</button>
                             </td>
                         </tr>
                         <tr class="controlRow">
                             <td colspan="3">
-                                <form class="navForm" action="./index.html" method="GET">
-                                    <input type="input" name="type" value="3x3" hidden>
-                                    <input class="navButton" type="submit" value="3x3 Rubik's Cube">
-                                </form>
+                                <button class="controlButton" onclick="setupCube (3)">Load 3x3 Rubik's Cube</button>
                             </td>
                         </tr>
-                        <tr class="controlRow">
+                        <!-- <tr class="controlRow">
                             <td colspan="3">
                                 <form class="navForm" action="./index.html" method="GET">
                                     <input type="input" name="type" value="old 3x3" hidden>
                                     <input class="navButton" type="submit" value="old 3x3 Rubik's Cube">
                                 </form>
                             </td>
-                        </tr>
+                        </tr> -->
                         <tr class="controlRow">
                             <td colspan="3">
-                                <form class="navForm" action="./index.html" method="GET">
-                                    <input type="input" name="type" value="4x4" hidden>
-                                    <input class="navButton" type="submit" value="4x4 Rubik's Cube">
-                                </form>
+                                <button class="controlButton" onclick="setupCube (4)">Load 4x4 Rubik's Cube</button>
                             </td>
                         </tr>
                         <tr class="controlRow">
                             <td colspan="3">
-                                <form class="navForm" action="./index.html" method="GET">
-                                    <input type="input" name="type" value="5x5" hidden>
-                                    <input class="navButton" type="submit" value="5x5 Rubik's Cube">
-                                </form>
+                                <button class="controlButton" onclick="setupCube (5)">Load 5x5 Rubik's Cube</button>
                             </td>
                         </tr>
                     </table>
                 </div>
+                <div class="tabHeader">
+                    <h2>NxN Cubes</h2>
+                </div>
+                <div class="sliderContainer">
+                    <div class="sliderLabel">
+                        N
+                    </div>
+                    <div class="sliderSliderContainer">
+                        <input class="sliderSlider" type="range" min="1" max="20" value="3" id="NSlider">
+                    </div>
+                    <div class="sliderTextboxContainer">
+                        <input class="sliderTextbox" type="number" min="1" max="20" value="3" id="NTextbox">
+                    </div>
+                </div>
+                <button class="controlButton" onclick="setupNxNCube ()">Load NxN Rubik's Cube</button>
             </div>
             <div class="tab-content" id="controls-tab" style="display: none;">
                 <div class="tabHeader">
                     <h2>Cube Controls</h2>
                 </div>
-                <div class="collapsible-content">
-                    <table class="controlGroup" id="cubeControlsTable">
-                        <tr class="controlRow">
-                            <td colspan="2">
-                                <button class="controlButton" onclick="scramble()">Scramble</button>
-                            </td>
-                            <td colspan="2">
-                                <button class="controlButton" onclick="reset()">Reset</button>
-                            </td>
-                        </tr>
-                        <!-- Cube controls will get populated here -->
-                    </table>
-                </div>
+                <table class="controlGroup">
+                    <tr class="controlRow">
+                        <td colspan="2">
+                            <button class="controlButton" onclick="scramble()">Scramble</button>
+                        </td>
+                        <td colspan="2">
+                            <button class="controlButton" onclick="reset()">Reset</button>
+                        </td>
+                    </tr>
+                </table>
+                <table class="controlGroup" id="cubeControlsTable">
+                    <!-- Cube controls will get populated here -->
+                </table>
                 <div class="sliderContainer">
                     <div class="sliderLabel">
                         Turn speed
@@ -124,10 +127,8 @@
                 <div class="tabHeader">
                     <h2>Solver Controls</h2>
                 </div>
-                <div class="collapsible-content">
-                    <table class="controlGroup" id="solverControlsTable">
-                        <!-- Solver controls will get populated here -->
-                    </table>
+                <div id="solverTabContent">
+                    <!-- Solver controls will get populated here -->
                 </div>
             </div>
         </div>

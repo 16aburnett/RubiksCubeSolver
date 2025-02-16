@@ -154,7 +154,7 @@ class RouxSolver3x3
         console.time ("findSolutionToOrientTheCube");
         let solution = [];
 
-        let temp = this.findMinSolution (cube, this.MAX_CUBE_ORIENTATION_MOVES, (cube) => {
+        let temp = findMinSolution (cube, this.MAX_CUBE_ORIENTATION_MOVES, (cube) => {
             return this.isRouxCentersSolved (cube);
         }, [
             [cubeNotationMove (MOVE_X,  1)],
@@ -184,7 +184,7 @@ class RouxSolver3x3
         console.time ("findSolutionToFirstBlocksBottomEdge");
         let solution = [];
 
-        let temp = this.findMinSolution (cube, this.MAX_FIRST_BLOCK_BOTTOM_EDGE_MOVES, (cube) => {
+        let temp = findMinSolution (cube, this.MAX_FIRST_BLOCK_BOTTOM_EDGE_MOVES, (cube) => {
             return this.isRouxCentersSolved (cube)
                 && this.isFirstBlockBottomEdgeSolved (cube);
         }, [
@@ -257,7 +257,7 @@ class RouxSolver3x3
             return [];
 
         // 2. move edge piece to top layer anywhere
-        let temp = this.findMinSolution (cube, 4, (cube) => {
+        let temp = findMinSolution (cube, 4, (cube) => {
             const color0 = ORANGE;
             const color1 = BLUE;
             // Ensure progress wasnt broken
@@ -295,7 +295,7 @@ class RouxSolver3x3
         solution = solution.concat(temp);
 
         // 3. move edge piece above orange center
-        temp = this.findMinSolution (cube, 3, (cube) => {
+        temp = findMinSolution (cube, 3, (cube) => {
             const color0 = ORANGE;
             const color1 = BLUE;
             return (cube.data[cube.UP + 3] == color0 && cube.data[cube.LEFT + 1] == color1)
@@ -358,7 +358,7 @@ class RouxSolver3x3
             return [];
 
         // 2. move corner to top layer
-        let temp = this.findMinSolution (cube, 4, (cube) => {
+        let temp = findMinSolution (cube, 4, (cube) => {
             const color0 = ORANGE;
             const color1 = BLUE;
             const color2 = WHITE;
@@ -394,7 +394,7 @@ class RouxSolver3x3
         solution = solution.concat(temp);
 
         // 3. move corner to above edge
-        temp = this.findMinSolution (cube, 3, (cube) => {
+        temp = findMinSolution (cube, 3, (cube) => {
             const color0 = ORANGE;
             const color1 = BLUE;
             const color2 = WHITE;
@@ -527,7 +527,7 @@ class RouxSolver3x3
             return [];
 
         // 2. move edge piece to top layer anywhere
-        let temp = this.findMinSolution (cube, 4, (cube) => {
+        let temp = findMinSolution (cube, 4, (cube) => {
             const color0 = ORANGE;
             const color1 = GREEN;
             // Ensure progress wasnt broken
@@ -567,7 +567,7 @@ class RouxSolver3x3
         solution = solution.concat(temp);
 
         // 3. move edge piece above orange center
-        temp = this.findMinSolution (cube, 3, (cube) => {
+        temp = findMinSolution (cube, 3, (cube) => {
             const color0 = ORANGE;
             const color1 = GREEN;
             return (cube.data[cube.UP + 3] == color0 && cube.data[cube.LEFT + 1] == color1)
@@ -630,7 +630,7 @@ class RouxSolver3x3
             return [];
 
         // 2. move corner to top layer
-        let temp = this.findMinSolution (cube, 4, (cube) => {
+        let temp = findMinSolution (cube, 4, (cube) => {
             const color0 = ORANGE;
             const color1 = GREEN;
             const color2 = WHITE;
@@ -668,7 +668,7 @@ class RouxSolver3x3
         solution = solution.concat(temp);
 
         // 3. move corner to above edge
-        temp = this.findMinSolution (cube, 3, (cube) => {
+        temp = findMinSolution (cube, 3, (cube) => {
             const color0 = ORANGE;
             const color1 = GREEN;
             const color2 = WHITE;
@@ -763,7 +763,7 @@ class RouxSolver3x3
         console.time ("findSolutionToSecondBlocksBottomEdge");
         let solution = [];
 
-        let temp = this.findMinSolution (cube, this.MAX_FIRST_BLOCK_BOTTOM_EDGE_MOVES, (cube) => {
+        let temp = findMinSolution (cube, this.MAX_FIRST_BLOCK_BOTTOM_EDGE_MOVES, (cube) => {
             return this.isRouxCentersSolved (cube)
                 && this.isFirstBlockSolved (cube)
                 && this.isSecondBlockBottomEdgeSolved (cube);
@@ -839,7 +839,7 @@ class RouxSolver3x3
             return [];
 
         // 2. move edge piece to top layer anywhere
-        let temp = this.findMinSolution (cube, 4, (cube) => {
+        let temp = findMinSolution (cube, 4, (cube) => {
             const color0 = RED;
             const color1 = BLUE;
             // Ensure progress wasnt broken
@@ -879,7 +879,7 @@ class RouxSolver3x3
         solution = solution.concat(temp);
 
         // 3. move edge piece above red center
-        temp = this.findMinSolution (cube, 3, (cube) => {
+        temp = findMinSolution (cube, 3, (cube) => {
             const color0 = RED;
             const color1 = BLUE;
             return (cube.data[cube.UP + 5] == color0 && cube.data[cube.RIGHT + 1] == color1)
@@ -942,7 +942,7 @@ class RouxSolver3x3
             return [];
 
         // 2. move corner to top layer
-        let temp = this.findMinSolution (cube, 4, (cube) => {
+        let temp = findMinSolution (cube, 4, (cube) => {
             const color0 = RED;
             const color1 = BLUE;
             const color2 = WHITE;
@@ -995,7 +995,7 @@ class RouxSolver3x3
         solution = solution.concat(temp);
 
         // 3. move corner to above edge
-        temp = this.findMinSolution (cube, 3, (cube) => {
+        temp = findMinSolution (cube, 3, (cube) => {
             const color0 = RED;
             const color1 = BLUE;
             const color2 = WHITE;
@@ -1128,7 +1128,7 @@ class RouxSolver3x3
             return [];
 
         // 2. move edge piece to top layer anywhere
-        let temp = this.findMinSolution (cube, 4, (cube) => {
+        let temp = findMinSolution (cube, 4, (cube) => {
             const color0 = RED;
             const color1 = GREEN;
             // Ensure progress wasnt broken
@@ -1169,7 +1169,7 @@ class RouxSolver3x3
         solution = solution.concat(temp);
 
         // 3. move edge piece above red center
-        temp = this.findMinSolution (cube, 3, (cube) => {
+        temp = findMinSolution (cube, 3, (cube) => {
             const color0 = RED;
             const color1 = GREEN;
             return (cube.data[cube.UP + 5] == color0 && cube.data[cube.RIGHT + 1] == color1)
@@ -1232,7 +1232,7 @@ class RouxSolver3x3
             return [];
 
         // 2. move corner to top layer
-        let temp = this.findMinSolution (cube, 6, (cube) => {
+        let temp = findMinSolution (cube, 6, (cube) => {
             const color0 = RED;
             const color1 = GREEN;
             const color2 = WHITE;
@@ -1271,7 +1271,7 @@ class RouxSolver3x3
         solution = solution.concat(temp);
 
         // 3. move corner to above edge
-        temp = this.findMinSolution (cube, 3, (cube) => {
+        temp = findMinSolution (cube, 3, (cube) => {
             const color0 = RED;
             const color1 = GREEN;
             const color2 = WHITE;
@@ -1401,7 +1401,7 @@ class RouxSolver3x3
     findSolutionCMLLOrientYellowCorners (cube) {
         let solution = [];
 
-        let temp = this.findMinSolution (cube, 40, (cube) => {
+        let temp = findMinSolution (cube, 40, (cube) => {
             // Ensure progress wasnt broken
             if (!(this.isRouxCentersSolved (cube)
                 && this.isFirstBlockSolved (cube)
@@ -1442,7 +1442,7 @@ class RouxSolver3x3
     findSolutionCMLLPermutateYellowCorners (cube) {
         let solution = [];
 
-        let temp = this.findMinSolution (cube, 40, (cube) => {
+        let temp = findMinSolution (cube, 40, (cube) => {
             // Ensure progress wasnt broken
             if (!(this.isRouxCentersSolved (cube)
                 && this.isFirstBlockSolved (cube)
@@ -1500,7 +1500,7 @@ class RouxSolver3x3
         console.time ("findSolutionMOrientation");
         let solution = [];
 
-        let temp = this.findMinSolution (cube, 2, (cube) => {
+        let temp = findMinSolution (cube, 2, (cube) => {
             // Ensure progress wasnt broken
             if (!(this.isRouxCentersSolved (cube)
                 && this.isFirstBlockSolved (cube)
@@ -1538,7 +1538,7 @@ class RouxSolver3x3
         // According to https://www.youtube.com/watch?v=ImBWkk-7teA
         // we can solve this in a max of 12 moves, but might need U moves
         // to set up for cases
-        let temp = this.findMinSolution (cube, 13, (cube) => {
+        let temp = findMinSolution (cube, 13, (cube) => {
             // Ensure progress wasnt broken
             if (!(this.isRouxCentersSolved (cube)
                 && this.isFirstBlockSolved (cube)
@@ -1582,7 +1582,7 @@ class RouxSolver3x3
         console.time ("findSolutionLREdges");
         let solution = [];
 
-        let temp = this.findMinSolution (cube, 12, (cube) => {
+        let temp = findMinSolution (cube, 12, (cube) => {
             // Ensure progress wasnt broken
             if (!(this.isRouxCentersSolved (cube)
                 && this.isFirstBlockSolved (cube)
@@ -1631,7 +1631,7 @@ class RouxSolver3x3
         console.time ("findSolutionLastEdges");
         let solution = [];
 
-        let temp = this.findMinSolution (cube, 10, (cube) => {
+        let temp = findMinSolution (cube, 10, (cube) => {
             return cube.isSolved ();
         }, [
             [cubeNotationMove (MOVE_U,  1)],
@@ -1670,71 +1670,6 @@ class RouxSolver3x3
 
         console.timeEnd ("findSolutionLastEdges");
         return solution;
-    }
-
-    // =======================================================================
-
-    findMinSolution (cube, maxMoves, isSolved, moveSetsToTry)
-    {
-        let solution = null;
-        for (var i = 1; i < maxMoves; ++i) {
-            solution = this.findMinSolution_ (cube, [], 0, i, isSolved, moveSetsToTry);
-            if (solution != null) {
-                // Found the solution!
-                console.log ("min solution:", moveSetToString (solution));
-                break;
-            }
-        }
-        return solution;
-    }
-
-    // =======================================================================
-
-    findMinSolution_ (cube, path, prevMove, limit, isSolved, moveSetsToTry) {
-        // solution found
-        if (isSolved (cube)) {
-            return path;
-        }
-
-        // Ensure we aren't going to exceed the max number of moves
-        if (path.length >= limit)
-            return null;
-
-        // path not found
-        // keep searching
-        let result;
-        for (let moveSet of moveSetsToTry)
-        {
-            // Ensure this move isnt the reverse of the previous move
-            // since that would undo progress - only applies to moveSets
-            // with a single move
-            if (moveSet.length == 1 && prevMove == cubeMoveNotation.getReverseMove (moveSet[0]))
-                // skip trying move
-                continue;
-            // Apply moveSet to cube
-            for (let move of moveSet)
-            {
-                let axisMove = cubeMoveNotation.toAxisNotation (move);
-                // Perform move on cube
-                cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-                path.push (move);
-            }
-            // Try to solve from this state
-            result = this.findMinSolution_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit, isSolved, moveSetsToTry);
-            if (result != null) return result;
-            // MoveSet did not work so
-            // Undo moveSet (by doing the reverse moves in reverse order)
-            for (let i = moveSet.length-1; i >= 0; --i)
-            {
-                let move = moveSet[i];
-                let axisMove = cubeMoveNotation.toAxisNotation (move);
-                // Do the reverse move to undo (-direction)
-                cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-                path.pop ();
-            }
-        }
-        // no solution found
-        return null;
     }
 
     // =======================================================================

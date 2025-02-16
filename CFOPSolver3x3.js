@@ -22,7 +22,6 @@ class CFOPSolver3x3
     // =======================================================================
 
     // returns a list of moves to solve the cube from the current state
-    // this can fluctuate in time between instant and a few seconds
     findSolution (cube)
     {
         let solution = [];
@@ -87,7 +86,7 @@ class CFOPSolver3x3
         console.time (name);
 
         let solution = [];
-        let temp = this.findMinSolution (cube, this.MAX_CUBE_ORIENTATION_MOVES, (cube) => {
+        let temp = findMinSolution (cube, this.MAX_CUBE_ORIENTATION_MOVES, (cube) => {
             return this.isCentersSolved (cube);
         }, [
             [cubeNotationMove (MOVE_X,  1)],
@@ -122,7 +121,7 @@ class CFOPSolver3x3
         const maxCrossMoves = 7;
 
         // Solve front cross piece
-        let temp = this.findMinSolution (cube, maxCrossMoves, (cube) => {
+        let temp = findMinSolution (cube, maxCrossMoves, (cube) => {
             return cube.data[cube.FRONT + 7] == BLUE && cube.data[cube.DOWN + 1] == WHITE;
         }, [
             [cubeNotationMove (MOVE_L,  1)],
@@ -148,7 +147,7 @@ class CFOPSolver3x3
         solution = solution.concat(temp);
 
         // Solve right cross piece
-        temp = this.findMinSolution (cube, maxCrossMoves, (cube) => {
+        temp = findMinSolution (cube, maxCrossMoves, (cube) => {
             return cube.data[cube.FRONT + 7] == BLUE && cube.data[cube.DOWN + 1] == WHITE
                 && cube.data[cube.RIGHT + 7] == RED  && cube.data[cube.DOWN + 5] == WHITE;
         }, [
@@ -175,7 +174,7 @@ class CFOPSolver3x3
         solution = solution.concat(temp);
 
         // Solve back cross piece
-        temp = this.findMinSolution (cube, maxCrossMoves, (cube) => {
+        temp = findMinSolution (cube, maxCrossMoves, (cube) => {
             return cube.data[cube.FRONT + 7] == BLUE  && cube.data[cube.DOWN + 1] == WHITE
                 && cube.data[cube.RIGHT + 7] == RED   && cube.data[cube.DOWN + 5] == WHITE
                 && cube.data[cube.BACK  + 7] == GREEN && cube.data[cube.DOWN + 7] == WHITE;
@@ -203,7 +202,7 @@ class CFOPSolver3x3
         solution = solution.concat(temp);
 
         // Solve left cross piece
-        temp = this.findMinSolution (cube, maxCrossMoves, (cube) => {
+        temp = findMinSolution (cube, maxCrossMoves, (cube) => {
             return this.isCrossSolved (cube);
         }, [
             [cubeNotationMove (MOVE_L,  1)],
@@ -240,7 +239,7 @@ class CFOPSolver3x3
         console.time (name);
 
         let solution = [];
-        let temp = this.findMinSolution (cube, this.MAX_CROSS_MOVES, (cube) => {
+        let temp = findMinSolution (cube, this.MAX_CROSS_MOVES, (cube) => {
             return this.isCrossSolved (cube);
         }, [
             [cubeNotationMove (MOVE_L,  1)],
@@ -329,7 +328,7 @@ class CFOPSolver3x3
         console.time (name);
 
         let solution = [];
-        let temp = this.findMinSolution (cube, this.MAX_F2L_MOVES, (cube) => {
+        let temp = findMinSolution (cube, this.MAX_F2L_MOVES, (cube) => {
             return this.isCrossSolved (cube) && this.isFirstF2LSolved (cube);
         }, [
             [cubeNotationMove (MOVE_L,  1)],
@@ -402,7 +401,7 @@ class CFOPSolver3x3
             return [];
 
         // 2. move edge piece to top layer anywhere
-        let temp = this.findMinSolution (cube, 4, (cube) => {
+        let temp = findMinSolution (cube, 4, (cube) => {
             const color0 = ORANGE;
             const color1 = BLUE;
             // Ensure progress wasnt broken
@@ -440,7 +439,7 @@ class CFOPSolver3x3
         solution = solution.concat(temp);
 
         // 3. move edge piece above orange center
-        temp = this.findMinSolution (cube, 3, (cube) => {
+        temp = findMinSolution (cube, 3, (cube) => {
             const color0 = ORANGE;
             const color1 = BLUE;
             return (cube.data[cube.UP + 3] == color0 && cube.data[cube.LEFT + 1] == color1)
@@ -498,7 +497,7 @@ class CFOPSolver3x3
             return [];
 
         // 2. move corner to top layer
-        let temp = this.findMinSolution (cube, 4, (cube) => {
+        let temp = findMinSolution (cube, 4, (cube) => {
             const color0 = ORANGE;
             const color1 = BLUE;
             const color2 = WHITE;
@@ -546,7 +545,7 @@ class CFOPSolver3x3
         solution = solution.concat(temp);
 
         // 3. move corner to above edge
-        temp = this.findMinSolution (cube, 3, (cube) => {
+        temp = findMinSolution (cube, 3, (cube) => {
             const color0 = ORANGE;
             const color1 = BLUE;
             const color2 = WHITE;
@@ -631,7 +630,7 @@ class CFOPSolver3x3
         console.time (name);
 
         let solution = [];
-        let temp = this.findMinSolution (cube, this.MAX_F2L_MOVES, (cube) => {
+        let temp = findMinSolution (cube, this.MAX_F2L_MOVES, (cube) => {
             return this.isCrossSolved (cube) 
                 && this.isFirstF2LSolved (cube) 
                 && this.isSecondF2LSolved (cube);
@@ -704,7 +703,7 @@ class CFOPSolver3x3
             return [];
 
         // 2. move edge piece to top layer anywhere
-        let temp = this.findMinSolution (cube, 4, (cube) => {
+        let temp = findMinSolution (cube, 4, (cube) => {
             const color0 = ORANGE;
             const color1 = GREEN;
             // Ensure progress wasnt broken
@@ -743,7 +742,7 @@ class CFOPSolver3x3
         solution = solution.concat(temp);
 
         // 3. move edge piece above orange center
-        temp = this.findMinSolution (cube, 3, (cube) => {
+        temp = findMinSolution (cube, 3, (cube) => {
             const color0 = ORANGE;
             const color1 = GREEN;
             return (cube.data[cube.UP + 3] == color0 && cube.data[cube.LEFT + 1] == color1)
@@ -801,7 +800,7 @@ class CFOPSolver3x3
             return [];
 
         // 2. move corner to top layer
-        let temp = this.findMinSolution (cube, 4, (cube) => {
+        let temp = findMinSolution (cube, 4, (cube) => {
             const color0 = ORANGE;
             const color1 = GREEN;
             const color2 = WHITE;
@@ -851,7 +850,7 @@ class CFOPSolver3x3
         solution = solution.concat(temp);
 
         // 3. move corner to above edge
-        temp = this.findMinSolution (cube, 3, (cube) => {
+        temp = findMinSolution (cube, 3, (cube) => {
             const color0 = ORANGE;
             const color1 = GREEN;
             const color2 = WHITE;
@@ -936,7 +935,7 @@ class CFOPSolver3x3
         console.time (name);
 
         let solution = [];
-        let temp = this.findMinSolution (cube, this.MAX_F2L_MOVES, (cube) => {
+        let temp = findMinSolution (cube, this.MAX_F2L_MOVES, (cube) => {
             return this.isCrossSolved (cube) 
                 && this.isFirstF2LSolved (cube) 
                 && this.isSecondF2LSolved (cube)
@@ -1008,7 +1007,7 @@ class CFOPSolver3x3
             return [];
 
         // 2. move edge piece to top layer anywhere
-        let temp = this.findMinSolution (cube, 4, (cube) => {
+        let temp = findMinSolution (cube, 4, (cube) => {
             const color0 = RED;
             const color1 = BLUE;
             // Ensure progress wasnt broken
@@ -1044,7 +1043,7 @@ class CFOPSolver3x3
         solution = solution.concat(temp);
 
         // 3. move edge piece above red center
-        temp = this.findMinSolution (cube, 3, (cube) => {
+        temp = findMinSolution (cube, 3, (cube) => {
             const color0 = RED;
             const color1 = BLUE;
             return (cube.data[cube.UP + 5] == color0 && cube.data[cube.RIGHT + 1] == color1)
@@ -1102,7 +1101,7 @@ class CFOPSolver3x3
             return [];
 
         // 2. move corner to top layer
-        let temp = this.findMinSolution (cube, 4, (cube) => {
+        let temp = findMinSolution (cube, 4, (cube) => {
             const color0 = RED;
             const color1 = BLUE;
             const color2 = WHITE;
@@ -1153,7 +1152,7 @@ class CFOPSolver3x3
         solution = solution.concat(temp);
 
         // 3. move corner to above edge
-        temp = this.findMinSolution (cube, 3, (cube) => {
+        temp = findMinSolution (cube, 3, (cube) => {
             const color0 = RED;
             const color1 = BLUE;
             const color2 = WHITE;
@@ -1239,7 +1238,7 @@ class CFOPSolver3x3
         console.time (name);
 
         let solution = [];
-        let temp = this.findMinSolution (cube, this.MAX_F2L_MOVES, (cube) => {
+        let temp = findMinSolution (cube, this.MAX_F2L_MOVES, (cube) => {
             return this.isCrossSolved (cube) 
                 && this.isFirstF2LSolved (cube) 
                 && this.isSecondF2LSolved (cube)
@@ -1314,7 +1313,7 @@ class CFOPSolver3x3
             return [];
 
         // 2. move edge piece to top layer anywhere
-        let temp = this.findMinSolution (cube, 4, (cube) => {
+        let temp = findMinSolution (cube, 4, (cube) => {
             const color0 = RED;
             const color1 = GREEN;
             // Ensure progress wasnt broken
@@ -1353,7 +1352,7 @@ class CFOPSolver3x3
         solution = solution.concat(temp);
 
         // 3. move edge piece above red center
-        temp = this.findMinSolution (cube, 3, (cube) => {
+        temp = findMinSolution (cube, 3, (cube) => {
             const color0 = RED;
             const color1 = GREEN;
             return (cube.data[cube.UP + 5] == color0 && cube.data[cube.RIGHT + 1] == color1)
@@ -1411,7 +1410,7 @@ class CFOPSolver3x3
             return [];
 
         // 2. move corner to top layer
-        let temp = this.findMinSolution (cube, 6, (cube) => {
+        let temp = findMinSolution (cube, 6, (cube) => {
             const color0 = RED;
             const color1 = GREEN;
             const color2 = WHITE;
@@ -1461,7 +1460,7 @@ class CFOPSolver3x3
         solution = solution.concat(temp);
 
         // 3. move corner to above edge
-        temp = this.findMinSolution (cube, 3, (cube) => {
+        temp = findMinSolution (cube, 3, (cube) => {
             const color0 = RED;
             const color1 = GREEN;
             const color2 = WHITE;
@@ -1579,7 +1578,7 @@ class CFOPSolver3x3
         console.time (name);
 
         let solution = [];
-        let temp = this.findMinSolution (cube, this.MAX_OLL_CROSS, (cube) => {
+        let temp = findMinSolution (cube, this.MAX_OLL_CROSS, (cube) => {
             return this.isYellowCrossSolved (cube);
         }, [
             [cubeNotationMove (MOVE_U,  1)],
@@ -1672,7 +1671,7 @@ class CFOPSolver3x3
         console.time (name);
 
         let solution = [];
-        let temp = this.findMinSolution (cube, this.MAX_OLL_CORNERS, (cube) => {
+        let temp = findMinSolution (cube, this.MAX_OLL_CORNERS, (cube) => {
             return this.isYellowCornersOrientated (cube);
         }, [
             // Antisune
@@ -1883,7 +1882,7 @@ class CFOPSolver3x3
         console.time (name);
 
         let solution = [];
-        let temp = this.findMinSolution (cube, this.MAX_PLL_CORNERS, (cube) => {
+        let temp = findMinSolution (cube, this.MAX_PLL_CORNERS, (cube) => {
             return this.isYellowCornersSolved (cube);
         }, [
             [cubeNotationMove (MOVE_U,  1)],
@@ -1986,7 +1985,7 @@ class CFOPSolver3x3
         console.time (name);
 
         let solution = [];
-        let temp = this.findMinSolution (cube, this.MAX_PLL_EDGES, (cube) => {
+        let temp = findMinSolution (cube, this.MAX_PLL_EDGES, (cube) => {
             return this.isYellowCornersSolved (cube)
                 && this.isYellowEdgesSolved (cube);
         }, [
@@ -2105,75 +2104,6 @@ class CFOPSolver3x3
 
         console.timeEnd (name);
         return solution;
-    }
-
-    // =======================================================================
-
-    findMinSolution (cube, maxMoves, isSolved, moveSetsToTry, shouldCheckLengthBeforeSolved)
-    {
-        let solution = null;
-        for (var i = 1; i < maxMoves; ++i) {
-            solution = this.findMinSolution_ (cube, [], 0, i, isSolved, moveSetsToTry, shouldCheckLengthBeforeSolved);
-            if (solution != null) {
-                // Found the solution!
-                console.log ("min solution:", moveSetToString (solution));
-                break;
-            }
-        }
-        return solution;
-    }
-
-    // =======================================================================
-
-    findMinSolution_ (cube, path, prevMove, limit, isSolved, moveSetsToTry, shouldCheckLengthBeforeSolved = false) {
-        // Ensure max moves are not exceeded before checking solution
-        if (shouldCheckLengthBeforeSolved && path.length >= limit)
-            return null;
-
-        // solution found
-        if (isSolved (cube)) {
-            return path;
-        }
-
-        // Ensure we aren't going to exceed the max number of moves
-        if (path.length >= limit)
-            return null;
-
-        // path not found
-        // keep searching
-        let result;
-        for (let moveSet of moveSetsToTry)
-        {
-            // Ensure this move isnt the reverse of the previous move
-            // since that would undo progress - only applies to moveSets
-            // with a single move
-            if (moveSet.length == 1 && prevMove == cubeMoveNotation.getReverseMove (moveSet[0]))
-                // skip trying move
-                continue;
-            // Apply moveSet to cube
-            for (let move of moveSet)
-            {
-                let axisMove = cubeMoveNotation.toAxisNotation (move);
-                // Perform move on cube
-                cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-                path.push (move);
-            }
-            // Try to solve from this state
-            result = this.findMinSolution_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit, isSolved, moveSetsToTry, shouldCheckLengthBeforeSolved);
-            if (result != null) return result;
-            // MoveSet did not work so
-            // Undo moveSet (by doing the reverse moves in reverse order)
-            for (let i = moveSet.length-1; i >= 0; --i)
-            {
-                let move = moveSet[i];
-                let axisMove = cubeMoveNotation.toAxisNotation (move);
-                // Do the reverse move to undo (-direction)
-                cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-                path.pop ();
-            }
-        }
-        // no solution found
-        return null;
     }
 
     // =======================================================================

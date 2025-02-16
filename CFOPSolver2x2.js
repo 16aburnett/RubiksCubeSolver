@@ -13,7 +13,8 @@ class CFOPSolver2x2
     {
         this.MAX_WHITE_FACE_MOVES = 10;
         this.MAX_YELLOW_FACE_MOVES  = 30;
-        // enough for 2 jperms 
+        // enough for 2 jperms
+        // TODO: you should not need 2 jperms, this is inefficient (add y-perm)
         this.MAX_PERMUTATE_LAST_LAYER_MOVES = 32;
     }
 
@@ -65,69 +66,38 @@ class CFOPSolver2x2
 
     solveFirstLayer (cube)
     {
-        console.time ("solveFirstLayer");
-        let solution = null;
-        for (var i = 1; i < this.MAX_WHITE_FACE_MOVES; ++i) {
-            solution = this.solveFirstLayer_ (cube, [], 0, i);
-            if (solution != null) {
-                console.log ("solveFirstLayer:", moveSetToString (solution));
-                break;
-            }
-        }
-        console.timeEnd ("solveFirstLayer");
-        return solution;
-    }
+        const name = "solveFirstLayer";
+        console.log (name);
+        console.time (name);
 
-    // =======================================================================
-
-    solveFirstLayer_ (cube, path, prevMove, limit)
-    {
-        // solution found
-        if (this.isFirstLayerSolved (cube))
+        let solution = [];
+        let temp = findMinSolution (cube, this.MAX_WHITE_FACE_MOVES, (cube) => {
+            return this.isFirstLayerSolved (cube);
+        }, [
+            [cubeNotationMove (MOVE_L,  1)],
+            [cubeNotationMove (MOVE_L, -1)],
+            [cubeNotationMove (MOVE_R,  1)],
+            [cubeNotationMove (MOVE_R, -1)],
+            [cubeNotationMove (MOVE_F,  1)],
+            [cubeNotationMove (MOVE_F, -1)],
+            [cubeNotationMove (MOVE_B,  1)],
+            [cubeNotationMove (MOVE_B, -1)],
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            [cubeNotationMove (MOVE_D,  1)], 
+            [cubeNotationMove (MOVE_D, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
         {
-            return path;
-        }
-
-        // Ensure we aren't going to exceed the max number of moves
-        if (path.length >= limit)
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
             return null;
-
-        // path not found
-        // keep searching
-        let result;
-        let movesToTry = [
-            cubeNotationMove (MOVE_L,  1),
-            cubeNotationMove (MOVE_L, -1),
-            cubeNotationMove (MOVE_R,  1),
-            cubeNotationMove (MOVE_R, -1),
-            cubeNotationMove (MOVE_F,  1),
-            cubeNotationMove (MOVE_F, -1),
-            cubeNotationMove (MOVE_B,  1),
-            cubeNotationMove (MOVE_B, -1),
-            cubeNotationMove (MOVE_U,  1),
-            cubeNotationMove (MOVE_U, -1),
-            cubeNotationMove (MOVE_D,  1), 
-            cubeNotationMove (MOVE_D, -1)
-        ];
-        for (let move of movesToTry)
-        {
-            // Ensure this move isnt the reverse of the previous move
-            // since that would undo progress
-            if (prevMove == cubeMoveNotation.getReverseMove (move))
-                // skip trying move
-                continue;
-            // Perform move on cube
-            let axisNotationMove = cubeMoveNotation.toAxisNotation (move);
-            cube.rotate (axisNotationMove[0], axisNotationMove[1], axisNotationMove[2]);
-            path.push (move);
-            result = this.solveFirstLayer_ (cube, path, move, limit);
-            if (result != null) return result;
-            path.pop ();
-            // undo move by reversing direction
-            cube.rotate (axisNotationMove[0], axisNotationMove[1], -axisNotationMove[2]);
         }
-        // no solution found
-        return null;
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
+        return solution;
     }
 
     // =======================================================================
@@ -144,38 +114,15 @@ class CFOPSolver2x2
 
     solveYellowFace (cube)
     {
-        console.time ("solveYellowFace");
-        let solution = null;
-        for (var i = 1; i < this.MAX_YELLOW_FACE_MOVES; ++i)
-        {
-            solution = this.solveYellowFace_ (cube, [], 0, i);
-            if (solution != null)
-            {
-                console.log ("solveYellowFace:", moveSetToString (solution));
-                break;
-            }
-        }
-        console.timeEnd ("solveYellowFace");
-        return solution;
-    }
+        const name = "solveYellowFace";
+        console.log (name);
+        console.time (name);
 
-    // =======================================================================
-
-    solveYellowFace_ (cube, path, prevMove, limit) {
-        // solution found
-        if (this.isYellowFaceSolved(cube)) {
-            return path;
-        }
-
-        // Ensure we aren't going to exceed the max number of moves
-        if (path.length >= limit)
-            return null;
-
-        // path not found
-        // keep searching
-        let result;
-        // Fishy alg
-        let moveSetsToTry = [
+        let solution = [];
+        let temp = findMinSolution (cube, this.MAX_YELLOW_FACE_MOVES, (cube) => {
+            return this.isYellowFaceSolved(cube);
+        }, [
+            // Sune algorithm
             [
                 cubeNotationMove (MOVE_R,  1),
                 cubeNotationMove (MOVE_U,  1),
@@ -186,46 +133,20 @@ class CFOPSolver2x2
                 cubeNotationMove (MOVE_U,  1),
                 cubeNotationMove (MOVE_R, -1)
             ],
-            [
-                cubeNotationMove (MOVE_U,  1)
-            ],
-            [
-                cubeNotationMove (MOVE_U, -1)
-            ]
-        ];
-        for (let moveSet of moveSetsToTry)
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
         {
-            // Ensure this move isnt the reverse of the previous move
-            // since that would undo progress - only applies to moveSets
-            // with a single move
-            if (moveSet.length == 1 && prevMove == cubeMoveNotation.getReverseMove (moveSet[0]))
-                // skip trying move
-                continue;
-            // Apply moveSet to cube
-            for (let move of moveSet)
-            {
-                let axisMove = cubeMoveNotation.toAxisNotation (move);
-                // Perform move on cube
-                cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-                path.push (move);
-            }
-            // Try to solve from this state
-            result = this.solveYellowFace_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
-            if (result != null) return result;
-            // MoveSet did not work so
-            // Undo moveSet (by doing the reverse moves in reverse order)
-            for (let i = moveSet.length-1; i >= 0; --i)
-            {
-                let move = moveSet[i];
-                let axisMove = cubeMoveNotation.toAxisNotation (move);
-                // Do the reverse move to undo (-direction)
-                cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-                path.pop ();
-            }
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
         }
+        solution = solution.concat(temp);
 
-        // no solution found
-        return null;
+        console.timeEnd (name);
+        return solution;
     }
 
     // =======================================================================
@@ -246,37 +167,14 @@ class CFOPSolver2x2
 
     solveLastLayer (cube)
     {
-        console.time ("solveLastLayer");
-        let solution = null;
-        for (var i = 1; i < this.MAX_PERMUTATE_LAST_LAYER_MOVES; ++i)
-        {
-            solution = this.solveLastLayer_ (cube, [], 0, i);
-            if (solution != null)
-            {
-                console.log ("solveLastLayer:", moveSetToString (solution));
-                break;
-            }
-        }
-        console.timeEnd ("solveLastLayer");
-        return solution;
-    }
+        const name = "solveLastLayer";
+        console.log (name);
+        console.time (name);
 
-    // =======================================================================
-
-    solveLastLayer_ (cube, path, prevMove, limit) {
-        // solution found
-        if (this.isLastLayerSolved(cube)) {
-            return path;
-        }
-
-        // Ensure we aren't going to exceed the max number of moves
-        if (path.length >= limit)
-            return null;
-
-        // path not found
-        // keep searching
-        let result;
-        let moveSetsToTry = [
+        let solution = [];
+        let temp = findMinSolution (cube, this.MAX_PERMUTATE_LAST_LAYER_MOVES, (cube) => {
+            return this.isLastLayerSolved (cube);
+        }, [
             // J-perm algorithm
             [
                 cubeNotationMove (MOVE_R,  1),
@@ -295,49 +193,21 @@ class CFOPSolver2x2
                 cubeNotationMove (MOVE_R, -1),
                 cubeNotationMove (MOVE_U, -1),
             ],
-            [
-                cubeNotationMove (MOVE_U,  1)
-            ],
-            [
-                cubeNotationMove (MOVE_U, -1),
-            ]
-        ];
-        for (let moveSet of moveSetsToTry)
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+        ]);
+        // Ensure solution was found
+        if (temp == null)
         {
-            // Ensure this move isnt the reverse of the previous move
-            // since that would undo progress - only applies to moveSets
-            // with a single move
-            if (moveSet.length == 1 && prevMove == cubeMoveNotation.getReverseMove (moveSet[0]))
-                // skip trying move
-                continue;
-            // Apply moveSet to cube
-            for (let move of moveSet)
-            {
-                let axisMove = cubeMoveNotation.toAxisNotation (move);
-                // Perform move on cube
-                cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
-                path.push (move);
-            }
-            // Try to solve from this state
-            result = this.solveLastLayer_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit);
-            if (result != null) return result;
-            // MoveSet did not work so
-            // Undo moveSet (by doing the reverse moves in reverse order)
-            for (let i = moveSet.length-1; i >= 0; --i)
-            {
-                let move = moveSet[i];
-                let axisMove = cubeMoveNotation.toAxisNotation (move);
-                // Do the reverse move to undo (-direction)
-                cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
-                path.pop ();
-            }
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
         }
+        solution = solution.concat(temp);
 
-        // no solution found
-        return null;
+        console.timeEnd (name);
+        return solution;
     }
-
-    // =======================================================================
 
 }
 

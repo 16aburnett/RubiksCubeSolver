@@ -121,14 +121,14 @@ function setupCube (N)
                 return new CFOPSolver2x2 ().solveFirstLayer (cube);
             });
         });
-        CFOPSolverSection.addButton ("Solve Yellow Face", () => {
+        CFOPSolverSection.addButton ("Solve OLL", () => {
             solveFromGivenFunc ((cube) => {
-                return new CFOPSolver2x2 ().solveYellowFace (cube);
+                return new CFOPSolver2x2 ().solveOLL (cube);
             });
         });
-        CFOPSolverSection.addButton ("Solve Last Layer", () => {
+        CFOPSolverSection.addButton ("Solve PLL", () => {
             solveFromGivenFunc ((cube) => {
-                return new CFOPSolver2x2 ().solveLastLayer (cube);
+                return new CFOPSolver2x2 ().solvePLL (cube);
             });
         });
     }

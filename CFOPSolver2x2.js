@@ -12,10 +12,8 @@ class CFOPSolver2x2
     constructor ()
     {
         this.MAX_WHITE_FACE_MOVES = 10;
-        this.MAX_YELLOW_FACE_MOVES  = 30;
-        // enough for 2 jperms
-        // TODO: you should not need 2 jperms, this is inefficient (add y-perm)
-        this.MAX_PERMUTATE_LAST_LAYER_MOVES = 32;
+        this.MAX_OLL_MOVES  = 20;
+        this.MAX_PLL_MOVES = 22;
     }
 
     // =======================================================================
@@ -31,12 +29,12 @@ class CFOPSolver2x2
             solution = solution.concat(temp);
 
         // solve yellow face
-        temp = this.solveYellowFace (cube);
+        temp = this.solveOLL (cube);
         if (temp != null)
             solution = solution.concat(temp);
 
         // permutate last layer
-        temp = this.solveLastLayer (cube);
+        temp = this.solvePLL (cube);
         if (temp != null)
             solution = solution.concat(temp);
 
@@ -307,17 +305,104 @@ class CFOPSolver2x2
 
     // =======================================================================
 
-    solveYellowFace (cube)
+    solveOLL (cube)
     {
-        const name = "solveYellowFace";
+        const name = "solveOLL";
         console.log (name);
         console.time (name);
 
         let solution = [];
-        let temp = findMinSolution (cube, this.MAX_YELLOW_FACE_MOVES, (cube) => {
+        let temp = findMinSolution (cube, this.MAX_OLL_MOVES, (cube) => {
             return this.isYellowFaceSolved(cube);
         }, [
-            // Sune algorithm
+            // Antisune
+            // 
+            //  + - - +
+            // X|   X |
+            //  |     |X
+            //  + - - +
+            //    X
+            // R U2 R' U' R U' R'
+            [
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R, -1),
+            ],
+            // H
+            //  + - - +
+            // X|     |X
+            // X|     |X
+            //  + - - +
+            // R U R' U R U' R' U R U2 R'
+            [
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+            ],
+            // L
+            //  + - - +
+            //  | X   |X
+            //  |   X |
+            //  + - - +
+            //    X
+            // F R' F' R U R U' R
+            [
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_F, -1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R, -1),
+            ],
+            // Pi
+            //      X
+            //  + - - +
+            // X|     |
+            // X|     |
+            //  + - - +
+            //      X
+            // R U2 R2 U' R2 U' R2 U2 R
+            // R (U U) (R R) U' (R R) U' (R R) (U U) R
+            [
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+            ],
+            // Sune (aka fishy alg)
+            //    X
+            //  + - - +
+            //  |     |X
+            //  | X   |
+            //  + - - +
+            //      X
+            // R U R' U R U2 R'
             [
                 cubeNotationMove (MOVE_R,  1),
                 cubeNotationMove (MOVE_U,  1),
@@ -327,6 +412,45 @@ class CFOPSolver2x2
                 cubeNotationMove (MOVE_U,  1),
                 cubeNotationMove (MOVE_U,  1),
                 cubeNotationMove (MOVE_R, -1)
+            ],
+            // T
+            //    X
+            //  + - - +
+            //  |   X |
+            //  |   X |
+            //  + - - +
+            //    X
+            // R U R' U' R' F R F'
+            [
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U, -1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_F,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_F, -1),
+            ],
+            // U
+            //  + - - +
+            //  | X X |
+            //  |     |
+            //  + - - +
+            //    X X
+            // R2 D R' U2 R D' R' U2 R'
+            [
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_D,  1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R,  1),
+                cubeNotationMove (MOVE_D, -1),
+                cubeNotationMove (MOVE_R, -1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_U,  1),
+                cubeNotationMove (MOVE_R, -1),
             ],
             [cubeNotationMove (MOVE_U,  1)],
             [cubeNotationMove (MOVE_U, -1)],
@@ -346,28 +470,29 @@ class CFOPSolver2x2
 
     // =======================================================================
 
-    isLastLayerSolved (cube) {
-        if (cube.data[cube.FRONT    ] != BLUE) return false;
-        if (cube.data[cube.FRONT + 1] != BLUE) return false;
-        if (cube.data[cube.LEFT    ] != ORANGE) return false;
-        if (cube.data[cube.LEFT + 1] != ORANGE) return false;
-        if (cube.data[cube.RIGHT    ] != RED) return false;
-        if (cube.data[cube.RIGHT + 1] != RED) return false;
-        if (cube.data[cube.BACK    ] != GREEN) return false;
-        if (cube.data[cube.BACK + 1] != GREEN) return false;
+    isLastLayerSolved (cube)
+    {
+        if (cube.data[cube.FRONT    ] != BLUE  ) return false;
+        if (cube.data[cube.FRONT + 1] != BLUE  ) return false;
+        if (cube.data[cube.LEFT     ] != ORANGE) return false;
+        if (cube.data[cube.LEFT  + 1] != ORANGE) return false;
+        if (cube.data[cube.RIGHT    ] != RED   ) return false;
+        if (cube.data[cube.RIGHT + 1] != RED   ) return false;
+        if (cube.data[cube.BACK     ] != GREEN ) return false;
+        if (cube.data[cube.BACK  + 1] != GREEN ) return false;
         return true;
     }
 
     // =======================================================================
 
-    solveLastLayer (cube)
+    solvePLL (cube)
     {
-        const name = "solveLastLayer";
+        const name = "solvePLL";
         console.log (name);
         console.time (name);
 
         let solution = [];
-        let temp = findMinSolution (cube, this.MAX_PERMUTATE_LAST_LAYER_MOVES, (cube) => {
+        let temp = findMinSolution (cube, this.MAX_PLL_MOVES, (cube) => {
             return this.isLastLayerSolved (cube);
         }, [
             // Adjacent corner swap (J-Perm)
@@ -411,7 +536,7 @@ class CFOPSolver2x2
             ],
             [cubeNotationMove (MOVE_U,  1)],
             [cubeNotationMove (MOVE_U, -1)],
-        ]);
+        ], true); // this needs to be true so we dont exceed move limit
         // Ensure solution was found
         if (temp == null)
         {

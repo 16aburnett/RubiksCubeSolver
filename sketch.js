@@ -256,9 +256,19 @@ function setupCube (N)
                 return new RouxSolver3x3 ().findSolutionToSecondBlockSecondPair (cube);
             });
         });
-        RouxSolverSection.addButton ("CMLL", () => {
+        RouxSolverSection.addButton ("2LCMLL", () => {
             solveFromGivenFunc ((cube) => {
-                return new RouxSolver3x3 ().findSolutionCMLL (cube);
+                return new RouxSolver3x3 ().findSolution2LookCMLL (cube);
+            });
+        });
+        RouxSolverSection.addButton ("2LCMLL: Orient Corners", () => {
+            solveFromGivenFunc ((cube) => {
+                return new RouxSolver3x3 ().findSolution2LookCMLLOrientCorners (cube);
+            });
+        });
+        RouxSolverSection.addButton ("2LCMLL: Permutate Corners", () => {
+            solveFromGivenFunc ((cube) => {
+                return new RouxSolver3x3 ().findSolution2LookCMLLPermutateCorners (cube);
             });
         });
         RouxSolverSection.addButton ("M Orientation", () => {

@@ -1593,24 +1593,35 @@ class CFOPSolver3x3
             //    x
             // F R U R' U' F' f R U R' U' f'
             // F R U R' U' F' (F S) R U R' U' (F' S')
-            [
-                cubeNotationMove (MOVE_F,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_F, -1),
-                // F S == f
-                cubeNotationMove (MOVE_F,  1),
-                cubeNotationMove (MOVE_S,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U, -1),
-                // F' S' == f'
-                cubeNotationMove (MOVE_F, -1),
-                cubeNotationMove (MOVE_S, -1),
-            ],
+            new PatternAlgorithm (
+                "2LOLL:Dot",
+                (cube) => {
+                    if (cube.data[cube.UP    + 4] != YELLOW) return false;
+                    if (cube.data[cube.LEFT  + 1] != YELLOW) return false;
+                    if (cube.data[cube.FRONT + 1] != YELLOW) return false;
+                    if (cube.data[cube.RIGHT + 1] != YELLOW) return false;
+                    if (cube.data[cube.BACK  + 1] != YELLOW) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                    // F S == f
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_S,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    // F' S' == f'
+                    cubeNotationMove (MOVE_F, -1),
+                    cubeNotationMove (MOVE_S, -1),
+                ]
+            ),
             // Bar (2 opposite edges solved)
             //    x
             //  +---+
@@ -1620,14 +1631,25 @@ class CFOPSolver3x3
             //  +---+
             //    x
             // F R U R' U' F'
-            [
-                cubeNotationMove (MOVE_F,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_F, -1),
-            ],
+            new PatternAlgorithm (
+                "2LOLL:Bar",
+                (cube) => {
+                    if (cube.data[cube.UP    + 3] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 4] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 5] != YELLOW) return false;
+                    if (cube.data[cube.FRONT + 1] != YELLOW) return false;
+                    if (cube.data[cube.BACK  + 1] != YELLOW) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                ],
+            ),
             // L-shape (2 adjacent edges solved)
             //    x
             //  +---+
@@ -1637,197 +1659,29 @@ class CFOPSolver3x3
             //  +---+
             // f R U R' U' f'
             // (F S) R U R' U' (F' S')
-            [
-                // F S == f
-                cubeNotationMove (MOVE_F,  1),
-                cubeNotationMove (MOVE_S,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U, -1),
-                // F' S' == f'
-                cubeNotationMove (MOVE_F, -1),
-                cubeNotationMove (MOVE_S, -1),
-            ]
-        ], true);
-        // Ensure solution was found
-        if (temp == null)
-        {
-            console.log (`Failed: Could not find solution to ${name}`);
-            console.timeEnd (name);
-            return null;
-        }
-        solution = solution.concat(temp);
-
-        console.timeEnd (name);
-        return solution;
-    }
-
-    // =======================================================================
-
-    solve2LookOLLCornersNoPatternMatching (cube) {
-        const name = "solve2LookOLLCornersNoPatternMatching";
-        console.log (name);
-        console.time (name);
-
-        let solution = [];
-        let temp = findMinSolution (cube, this.MAX_OLL_CORNERS, (cube) => {
-            return this.isYellowCornersOrientated (cube);
-        }, [
-            // Antisune
-            // 
-            //  + - - - +
-            // X|   X X |
-            //  | X X X |
-            //  |   X   |X
-            //  + - - - +
-            //    X
-            // R U2 R' U' R U' R'
-            [
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R, -1),
-            ],
-            // H
-            //  + - - - +
-            // X|   X   |X
-            //  | X X X |
-            // X|   X   |X
-            //  + - - - +
-            // R U R' U R U' R' U R U2 R'
-            [
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-            ],
-            // L
-            //  + - - - +
-            //  | X X   |X
-            //  | X X X |
-            //  |   X X |
-            //  + - - - +
-            //    X
-            // F R' F' r U R U' r'
-            // F R' F' (R M') U R U' (R' M)
-            [
-                cubeNotationMove (MOVE_F,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_F, -1),
-                // r = R M'
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_M, -1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U, -1),
-                // r' = R' M
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_M,  1),
-            ],
-            // Pi
-            //        X
-            //  + - - - +
-            // X|   X   |
-            //  | X X X |
-            // X|   X   |
-            //  + - - - +
-            //        X
-            // R U2 R2 U' R2 U' R2 U2 R
-            // R (U U) (R R) U' (R R) U' (R R) (U U) R
-            [
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R,  1),
-            ],
-            // Sune (aka fishy alg)
-            //    X
-            //  + - - - +
-            //  |   X   |X
-            //  | X X X |
-            //  | X X   |
-            //  + - - - +
-            //        X
-            // R U R' U R U2 R'
-            [
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1)
-            ],
-            // T
-            //    X
-            //  + - - - +
-            //  |   X X |
-            //  | X X X |
-            //  |   X X |
-            //  + - - - +
-            //    X
-            // r U R' U' r' F R F'
-            // (R M') U R' U' (R' M) F R F'
-            [
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_M, -1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_M,  1),
-                cubeNotationMove (MOVE_F,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_F, -1),
-            ],
-            // U
-            //  + - - - +
-            //  | X X X |
-            //  | X X X |
-            //  |   X   |
-            //  + - - - +
-            //    X   X
-            // R2 D R' U2 R D' R' U2 R'
-            [
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_D,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_D, -1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-            ],
-            [cubeNotationMove (MOVE_U,  1)],
-            [cubeNotationMove (MOVE_U, -1)]
+            new PatternAlgorithm (
+                "2LOLL:L-Shape",
+                (cube) => {
+                    if (cube.data[cube.UP    + 4] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 5] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 7] != YELLOW) return false;
+                    if (cube.data[cube.LEFT  + 1] != YELLOW) return false;
+                    if (cube.data[cube.BACK  + 1] != YELLOW) return false;
+                    return true;
+                },
+                [
+                    // F S == f
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_S,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    // F' S' == f'
+                    cubeNotationMove (MOVE_F, -1),
+                    cubeNotationMove (MOVE_S, -1),
+                ],
+            ),
         ], true);
         // Ensure solution was found
         if (temp == null)
@@ -2183,25 +2037,35 @@ class CFOPSolver3x3
             //  + - - - +
             //    B   G
             // F R U' R' U' R U R' F' R U R' U' R' F R F'
-            [
-                cubeNotationMove (MOVE_F,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_F, -1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_F,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_F, -1),
-            ],
+            new PatternAlgorithm (
+                "2LPLL:Y-Perm",
+                (cube) => {
+                    if (cube.data[cube.LEFT    + 0] != cube.data[cube.RIGHT   + 2]) return false;
+                    if (cube.data[cube.LEFT    + 2] != cube.data[cube.RIGHT   + 0]) return false;
+                    if (cube.data[cube.FRONT   + 0] != cube.data[cube.BACK    + 2]) return false;
+                    if (cube.data[cube.FRONT   + 2] != cube.data[cube.BACK    + 0]) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_F, -1),
+                ],
+            ),
             // Headlights - Adjacent corner swap (T-Perm)
             // Note: letters only show pairing - not exact colors
             // i.e. B could be red, but if it is, then both Bs are red - etc
@@ -2213,41 +2077,33 @@ class CFOPSolver3x3
             //  + - - - +
             //    B   R
             // R U R' U' R' F R2 U' R' U' R U R' F'
-            [
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_F,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_F, -1),
-            ],
-            // J-perm algorithm
-            // [
-            //     cubeNotationMove (MOVE_R,  1),
-            //     cubeNotationMove (MOVE_U,  1),
-            //     cubeNotationMove (MOVE_R, -1),
-            //     cubeNotationMove (MOVE_F, -1),
-            //     cubeNotationMove (MOVE_R,  1),
-            //     cubeNotationMove (MOVE_U,  1),
-            //     cubeNotationMove (MOVE_R, -1),
-            //     cubeNotationMove (MOVE_U, -1),
-            //     cubeNotationMove (MOVE_R, -1),
-            //     cubeNotationMove (MOVE_F,  1),
-            //     cubeNotationMove (MOVE_R,  1),
-            //     cubeNotationMove (MOVE_R,  1),
-            //     cubeNotationMove (MOVE_U, -1),
-            //     cubeNotationMove (MOVE_R, -1),
-            //     cubeNotationMove (MOVE_U, -1),
-            // ],
+            new PatternAlgorithm (
+                "2LPLL:T-Perm",
+                (cube) => {
+                    if (cube.data[cube.LEFT    + 0] != cube.data[cube.LEFT    + 0]) return false;
+                    if (cube.data[cube.FRONT   + 0] != cube.data[cube.RIGHT   + 2]) return false;
+                    if (cube.data[cube.FRONT   + 2] != cube.data[cube.BACK    + 0]) return false;
+                    if (cube.data[cube.RIGHT   + 0] != cube.data[cube.BACK    + 2]) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                ],
+            ),
         ], true);
         // Ensure solution was found
         if (temp == null)
@@ -2287,20 +2143,30 @@ class CFOPSolver3x3
             //  + - - - +
             //    B G B
             // M2 U M2 U2 M2 U M2
-            [
-                cubeNotationMove (MOVE_M,  1),
-                cubeNotationMove (MOVE_M,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_M,  1),
-                cubeNotationMove (MOVE_M,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_M,  1),
-                cubeNotationMove (MOVE_M,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_M,  1),
-                cubeNotationMove (MOVE_M,  1),
-            ],
+            new PatternAlgorithm (
+                "2LPLL:H-Perm",
+                (cube) => {
+                    if (cube.data[cube.FRONT   + 1] != cube.data[cube.BACK   + 0]) return false;
+                    if (cube.data[cube.LEFT    + 1] != cube.data[cube.RIGHT  + 0]) return false;
+                    if (cube.data[cube.RIGHT   + 1] != cube.data[cube.LEFT   + 0]) return false;
+                    if (cube.data[cube.BACK    + 1] != cube.data[cube.FRONT  + 0]) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                ],
+            ),
             // PLL Ua-perm (cycle 3 edges counterclockwise)
             // Note: letters only show pairing - not exact colors
             // i.e. B could be red, but if it is, then both Bs are red - etc
@@ -2312,20 +2178,30 @@ class CFOPSolver3x3
             //  + - - - +
             //    B R B
             // R U' R U R U R U' R' U' R2
-            [
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_R,  1),
-            ],
+            new PatternAlgorithm (
+                "2LPLL:Ua-Perm",
+                (cube) => {
+                    if (cube.data[cube.FRONT   + 1] != cube.data[cube.RIGHT  + 0]) return false;
+                    if (cube.data[cube.LEFT    + 1] != cube.data[cube.FRONT  + 0]) return false;
+                    if (cube.data[cube.RIGHT   + 1] != cube.data[cube.LEFT   + 0]) return false;
+                    if (cube.data[cube.BACK    + 1] != cube.data[cube.BACK   + 0]) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                ],
+            ),
             // PLL Ub-perm (cycle 3 edges clockwise)
             // Note: letters only show pairing - not exact colors
             // i.e. B could be red, but if it is, then both Bs are red - etc
@@ -2337,20 +2213,30 @@ class CFOPSolver3x3
             //  + - - - +
             //    B O B
             // R2 U R U R' U' R' U' R' U R'
-            [
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-            ],
+            new PatternAlgorithm (
+                "2LPLL:Ub-Perm",
+                (cube) => {
+                    if (cube.data[cube.FRONT   + 1] != cube.data[cube.LEFT   + 0]) return false;
+                    if (cube.data[cube.LEFT    + 1] != cube.data[cube.RIGHT  + 0]) return false;
+                    if (cube.data[cube.RIGHT   + 1] != cube.data[cube.FRONT  + 0]) return false;
+                    if (cube.data[cube.BACK    + 1] != cube.data[cube.BACK   + 0]) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                ],
+            ),
             // PLL Z-perm (swap adjacent edges F<-->L R<-->B)
             // Note: letters only show pairing - not exact colors
             // i.e. B could be red, but if it is, then both Bs are red - etc
@@ -2362,21 +2248,31 @@ class CFOPSolver3x3
             //  + - - - +
             //    O G O
             // M' U M2 U M2 U M' U2 M2
-            [
-                cubeNotationMove (MOVE_M, -1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_M,  1),
-                cubeNotationMove (MOVE_M,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_M,  1),
-                cubeNotationMove (MOVE_M,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_M, -1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_M,  1),
-                cubeNotationMove (MOVE_M,  1),
-            ],
+            new PatternAlgorithm (
+                "2LPLL:Z-Perm",
+                (cube) => {
+                    if (cube.data[cube.FRONT   + 1] != cube.data[cube.LEFT   + 0]) return false;
+                    if (cube.data[cube.LEFT    + 1] != cube.data[cube.FRONT  + 0]) return false;
+                    if (cube.data[cube.RIGHT   + 1] != cube.data[cube.BACK   + 0]) return false;
+                    if (cube.data[cube.BACK    + 1] != cube.data[cube.RIGHT  + 0]) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_M, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_M, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                ],
+            ),
         ], true);
         // Ensure solution was found
         if (temp == null)

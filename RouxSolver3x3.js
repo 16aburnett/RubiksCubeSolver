@@ -95,7 +95,7 @@ class RouxSolver3x3
         solution = solution.concat(temp);
 
         // CMLL - corners last layer (allows middle slice turns)
-        temp = this.findSolutionCMLL (cube);
+        temp = this.findSolution2LookCMLL (cube);
         // Ensure solution was found
         if (temp == null)
         {
@@ -1361,47 +1361,54 @@ class RouxSolver3x3
 
     // =======================================================================
 
-    findSolutionCMLL (cube) {
-        console.log ("Finding solution to CMLL");
-        console.time ("findSolutionCMLL");
+    // CMLL: Corners of Last Layer ignoring M slice
+    // 2LookCMLL (2LCMLL): CMLL done in 2 passes: 1st pass to orient corners
+    // and 2nd pass to permutate corners. Less algorithms than full CMLL.
+    findSolution2LookCMLL (cube) {
+        const name = "findSolution2LookCMLL";
+        console.log (name);
+        console.time (name);
+
         let solution = [];
 
         // Using 2-look CMLL for now
         
         // Orient yellow corners
-        let temp = this.findSolutionCMLLOrientYellowCorners (cube);
-        // Ensure solution was found
-        if (temp == null)
-            {
-                console.log ("Could not find solution to CMLL");
-                console.timeEnd ("findSolutionCMLL");
-                return null;
-            }
-        solution = solution.concat(temp);
-        console.log ("orient", moveSetToString (temp));
-
-        // Permutate yellow corners
-        temp = this.findSolutionCMLLPermutateYellowCorners (cube);
+        let temp = this.findSolution2LookCMLLOrientCorners (cube);
         // Ensure solution was found
         if (temp == null)
         {
-            console.log ("Could not find solution to CMLL");
-            console.timeEnd ("findSolutionCMLL");
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
             return null;
         }
         solution = solution.concat(temp);
-        console.log ("permutate", moveSetToString (temp));
 
-        console.timeEnd ("findSolutionCMLL");
+        // Permutate yellow corners
+        temp = this.findSolution2LookCMLLPermutateCorners (cube);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
         return solution;
     }
 
     // =======================================================================
 
-    findSolutionCMLLOrientYellowCorners (cube) {
-        let solution = [];
+    // 2 Look CMLL from: https://cubingapp.com/algorithms/2-Look-CMLL/
+    findSolution2LookCMLLOrientCorners (cube) {
+        const name = "findSolution2LookCMLLOrientCorners";
+        console.log (name);
+        console.time (name);
 
-        let temp = findMinSolution (cube, 40, (cube) => {
+        let solution = [];
+        let temp = findMinSolution (cube, 20, (cube) => {
             // Ensure progress wasnt broken
             if (!(this.isRouxCentersSolved (cube)
                 && this.isFirstBlockSolved (cube)
@@ -1412,37 +1419,244 @@ class RouxSolver3x3
                 && cube.data[cube.UP + 6] == YELLOW
                 && cube.data[cube.UP + 8] == YELLOW;
         }, [
-            // Fishy alg - sune
-            [
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-            ],
             [cubeNotationMove (MOVE_U,  1)],
             [cubeNotationMove (MOVE_U, -1)],
+            // Sune
+            //    X
+            //  + - - - +
+            //  |       |X
+            //  |       |
+            //  | X     |
+            //  + - - - +
+            //        X
+            // R U R' U R U2 R'
+            // R U R' U R U U R'
+            new PatternAlgorithm (
+                "Sune",
+                (cube) => {
+                    if (cube.data[cube.UP    + 6] != YELLOW) return false;
+                    if (cube.data[cube.FRONT + 2] != YELLOW) return false;
+                    if (cube.data[cube.RIGHT + 2] != YELLOW) return false;
+                    if (cube.data[cube.BACK  + 2] != YELLOW) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                ],
+            ),
+            // Antisune
+            // 
+            //  + - - - +
+            // X|     X |
+            //  |       |
+            //  |       |X
+            //  + - - - +
+            //    X
+            // R U2 R' U' R U' R'
+            // R U U R' U' R U' R'
+            new PatternAlgorithm (
+                "Antisune",
+                (cube) => {
+                    if (cube.data[cube.UP    + 2] != YELLOW) return false;
+                    if (cube.data[cube.FRONT + 0] != YELLOW) return false;
+                    if (cube.data[cube.RIGHT + 0] != YELLOW) return false;
+                    if (cube.data[cube.LEFT  + 0] != YELLOW) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                ],
+            ),
+            // H CMLL
+            //    X   X
+            //  + - - - +
+            //  |       |
+            //  |       |
+            //  |       |
+            //  + - - - +
+            //    X   X
+            // U R U R' U R U' R' U R U2 R' (double sune with cancel)
+            // U R U R' U R U' R' U R U U R'
+            new PatternAlgorithm (
+                "2LCMLL:H",
+                (cube) => {
+                    if (cube.data[cube.FRONT + 0] != YELLOW) return false;
+                    if (cube.data[cube.FRONT + 2] != YELLOW) return false;
+                    if (cube.data[cube.BACK  + 0] != YELLOW) return false;
+                    if (cube.data[cube.BACK  + 2] != YELLOW) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                ],
+            ),
+            // T CMLL
+            //    X
+            //  + - - - +
+            //  |     X |
+            //  |       |
+            //  |     X |
+            //  + - - - +
+            //    X
+            // R U R' U' R' F R F' (sexy sledge)
+            new PatternAlgorithm (
+                "2LCMLL:T",
+                (cube) => {
+                    if (cube.data[cube.UP    + 2] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 8] != YELLOW) return false;
+                    if (cube.data[cube.FRONT + 0] != YELLOW) return false;
+                    if (cube.data[cube.BACK  + 2] != YELLOW) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_F, -1),
+                ],
+            ),
+            // L CMLL
+            // 
+            //  + - - - +
+            //  | X     |X
+            //  |       |
+            //  |     X |
+            //  + - - - +
+            //    X
+            // F R' F' R U R U' R' (Inverse of T CMLL)
+            new PatternAlgorithm (
+                "2LCMLL:L",
+                (cube) => {
+                    if (cube.data[cube.UP    + 0] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 8] != YELLOW) return false;
+                    if (cube.data[cube.FRONT + 0] != YELLOW) return false;
+                    if (cube.data[cube.RIGHT + 2] != YELLOW) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                ],
+            ),
+            // U CMLL
+            // 
+            //  + - - - +
+            // X|     X |
+            //  |       |
+            // X|     X |
+            //  + - - - +
+            // 
+            //  F (R U R' U') F' (F sexy F')
+            //  F R U R' U' F'
+            new PatternAlgorithm (
+                "2LCMLL:U",
+                (cube) => {
+                    if (cube.data[cube.UP    + 2] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 8] != YELLOW) return false;
+                    if (cube.data[cube.LEFT  + 0] != YELLOW) return false;
+                    if (cube.data[cube.LEFT  + 2] != YELLOW) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                ],
+            ),
+            // Pi CMLL
+            //        X
+            //  + - - - +
+            // X|       |
+            //  |       |
+            // X|       |
+            //  + - - - +
+            //        X
+            //   F (R U R' U') (R U R' U') F' (F double sexy F')
+            //   F R U R' U' R U R' U' F'
+            new PatternAlgorithm (
+                "2LCMLL:Pi",
+                (cube) => {
+                    if (cube.data[cube.LEFT  + 0] != YELLOW) return false;
+                    if (cube.data[cube.LEFT  + 2] != YELLOW) return false;
+                    if (cube.data[cube.BACK  + 0] != YELLOW) return false;
+                    if (cube.data[cube.FRONT + 2] != YELLOW) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                ],
+            ),
         ]);
         // Ensure solution was found
         if (temp == null)
         {
-            console.log ("Could not find solution to CMLL: Orient yellow corners");
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
             return null;
         }
         solution = solution.concat(temp);
-        
+
+        console.timeEnd (name);
         return solution;
     }
 
     // =======================================================================
 
-    findSolutionCMLLPermutateYellowCorners (cube) {
-        let solution = [];
+    findSolution2LookCMLLPermutateCorners (cube) {
+        const name = "findSolution2LookCMLLPermutateCorners";
+        console.log (name);
+        console.time (name);
 
-        let temp = findMinSolution (cube, 40, (cube) => {
+        let solution = [];
+        let temp = findMinSolution (cube, 20, (cube) => {
             // Ensure progress wasnt broken
             if (!(this.isRouxCentersSolved (cube)
                 && this.isFirstBlockSolved (cube)
@@ -1461,35 +1675,97 @@ class RouxSolver3x3
                 && cube.data[cube.LEFT  + 0] == ORANGE
                 && cube.data[cube.LEFT  + 2] == ORANGE;
         }, [
-            // J-perm algorithm
-            [
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_F, -1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U,  1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_F,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_R,  1),
-                cubeNotationMove (MOVE_U, -1),
-                cubeNotationMove (MOVE_R, -1),
-                cubeNotationMove (MOVE_U, -1),
-            ],
             [cubeNotationMove (MOVE_U,  1)],
             [cubeNotationMove (MOVE_U, -1)],
+            // Diagonal corner swap (Y-Perm)
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    B   G
+            //  + - - - +
+            // R| Y   Y |R
+            //  |       |
+            // O| Y   Y |O
+            //  + - - - +
+            //    B   G
+            // F R U' R' U' R U R' F' R U R' U' R' F R F'
+            new PatternAlgorithm (
+                "2LCMLL:Y-Perm",
+                (cube) => {
+                    if (cube.data[cube.LEFT    + 0] != cube.data[cube.RIGHT   + 2]) return false;
+                    if (cube.data[cube.LEFT    + 2] != cube.data[cube.RIGHT   + 0]) return false;
+                    if (cube.data[cube.FRONT   + 0] != cube.data[cube.BACK    + 2]) return false;
+                    if (cube.data[cube.FRONT   + 2] != cube.data[cube.BACK    + 0]) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_F, -1),
+                ],
+            ),
+            // Headlights - Adjacent corner swap (T-Perm)
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    G   R
+            //  + - - - +
+            // O| Y   Y |B
+            //  |       |
+            // O| Y   Y |G
+            //  + - - - +
+            //    B   R
+            // R U R' U' R' F R2 U' R' U' R U R' F'
+            new PatternAlgorithm (
+                "2LCMLL:T-Perm",
+                (cube) => {
+                    if (cube.data[cube.LEFT    + 0] != cube.data[cube.LEFT    + 0]) return false;
+                    if (cube.data[cube.FRONT   + 0] != cube.data[cube.RIGHT   + 2]) return false;
+                    if (cube.data[cube.FRONT   + 2] != cube.data[cube.BACK    + 0]) return false;
+                    if (cube.data[cube.RIGHT   + 0] != cube.data[cube.BACK    + 2]) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                ],
+            ),
         ]);
         // Ensure solution was found
         if (temp == null)
         {
-            console.log ("Could not find solution to CMLL: Permutate Yellow Corners");
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
             return null;
         }
         solution = solution.concat(temp);
-        
+
+        console.timeEnd (name);
         return solution;
     }
 

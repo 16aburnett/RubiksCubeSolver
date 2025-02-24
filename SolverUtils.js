@@ -22,16 +22,27 @@
  * @returns the solution if one was found, otherwise null.
  * Note that if a solution is found, the cube remains in the solved state
  */
-function findMinSolution (cube, maxMoves, isSolved, moveSetsToTry, shouldCheckLengthBeforeSolved)
+function findMinSolution (cube, maxMoves, isSolved, moveSetsToTry, shouldCheckLengthBeforeSolved = false)
 {
     // This is using an iterative deepening Depth First Search
     // algorithm to find the solution with the minimum number of moves.
     let solution = null;
     for (var i = 1; i < maxMoves; ++i) {
-        solution = findMinSolution_ (cube, [], 0, i, isSolved, moveSetsToTry, shouldCheckLengthBeforeSolved);
+        let abbreviatedSolution = [];
+        solution = findMinSolution_ (cube, [], 0, i, isSolved, moveSetsToTry, shouldCheckLengthBeforeSolved, abbreviatedSolution);
         if (solution != null) {
             // Found the solution!
             console.log ("min solution:", moveSetToString (solution));
+            const abbreviatedSolutionStrings = [];
+            for (let j = 0; j < abbreviatedSolution.length; ++j)
+            {
+                if (abbreviatedSolution[j] instanceof PatternAlgorithm)
+                    abbreviatedSolutionStrings.push (`Alg(${abbreviatedSolution[j].getName ()})`);
+                else
+                    abbreviatedSolutionStrings.push (cubeMoveNotation.toString (abbreviatedSolution[j]));
+            }
+            console.log ("min solution (abbreviated):", abbreviatedSolutionStrings.join(" "));
+                
             break;
         }
     }
@@ -52,7 +63,7 @@ function findMinSolution (cube, maxMoves, isSolved, moveSetsToTry, shouldCheckLe
  * @param {*} shouldCheckLengthBeforeSolved 
  * @returns 
  */
-function findMinSolution_ (cube, path, prevMove, limit, isSolved, moveSetsToTry, shouldCheckLengthBeforeSolved = false) {
+function findMinSolution_ (cube, path, prevMove, limit, isSolved, moveSetsToTry, shouldCheckLengthBeforeSolved, abbreviatedSolution) {
     // Ensure max moves are not exceeded before checking solution
     if (shouldCheckLengthBeforeSolved && path.length >= limit)
         return null;
@@ -69,35 +80,52 @@ function findMinSolution_ (cube, path, prevMove, limit, isSolved, moveSetsToTry,
     // path not found
     // keep searching
     let result;
-    for (let moveSet of moveSetsToTry)
+    for (const moveSetOrPattern of moveSetsToTry)
     {
+        const moveSet = moveSetOrPattern instanceof PatternAlgorithm ? moveSetOrPattern.getAlgorithm () : moveSetOrPattern;
+        // If algorithm requires a pattern, ensure the pattern matches
+        if (moveSetOrPattern instanceof PatternAlgorithm && !moveSetOrPattern.matches (cube))
+            // Pattern doesnt match - skip algorithm
+            continue;
+
         // Ensure this move isnt the reverse of the previous move
         // since that would undo progress - only applies to moveSets
         // with a single move
         if (moveSet.length == 1 && prevMove == cubeMoveNotation.getReverseMove (moveSet[0]))
             // skip trying move
             continue;
+
+        if (moveSetOrPattern instanceof PatternAlgorithm)
+            abbreviatedSolution.push (moveSetOrPattern);
+
         // Apply moveSet to cube
-        for (let move of moveSet)
+        for (const move of moveSet)
         {
-            let axisMove = cubeMoveNotation.toAxisNotation (move);
+            const axisMove = cubeMoveNotation.toAxisNotation (move);
             // Perform move on cube
             cube.rotate (axisMove[0], axisMove[1], axisMove[2]);
             path.push (move);
+            if (!(moveSetOrPattern instanceof PatternAlgorithm))
+                abbreviatedSolution.push (move);
         }
         // Try to solve from this state
-        result = findMinSolution_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit, isSolved, moveSetsToTry, shouldCheckLengthBeforeSolved);
+        result = findMinSolution_ (cube, path, moveSet.length == 1 ? moveSet[0] : 0, limit, isSolved, moveSetsToTry, shouldCheckLengthBeforeSolved, abbreviatedSolution);
         if (result != null) return result;
         // MoveSet did not work so
         // Undo moveSet (by doing the reverse moves in reverse order)
         for (let i = moveSet.length-1; i >= 0; --i)
         {
-            let move = moveSet[i];
-            let axisMove = cubeMoveNotation.toAxisNotation (move);
+            const move = moveSet[i];
+            const axisMove = cubeMoveNotation.toAxisNotation (move);
             // Do the reverse move to undo (-direction)
             cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
             path.pop ();
+            if (!(moveSetOrPattern instanceof PatternAlgorithm))
+                abbreviatedSolution.pop ();
         }
+
+        if (moveSetOrPattern instanceof PatternAlgorithm)
+            abbreviatedSolution.pop ();
     }
     // no solution found
     return null;

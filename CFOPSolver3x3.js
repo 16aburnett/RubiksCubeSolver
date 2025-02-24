@@ -1665,8 +1665,8 @@ class CFOPSolver3x3
 
     // =======================================================================
 
-    solve2LookOLLCorners (cube) {
-        const name = "solve2LookOLLCorners";
+    solve2LookOLLCornersNoPatternMatching (cube) {
+        const name = "solve2LookOLLCornersNoPatternMatching";
         console.log (name);
         console.time (name);
 
@@ -1828,6 +1828,291 @@ class CFOPSolver3x3
             ],
             [cubeNotationMove (MOVE_U,  1)],
             [cubeNotationMove (MOVE_U, -1)]
+        ], true);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
+        return solution;
+    }
+
+    // =======================================================================
+
+    solve2LookOLLCorners (cube) {
+        const name = "solve2LookOLLCorners";
+        console.log (name);
+        console.time (name);
+
+        let solution = [];
+        let temp = findMinSolution (cube, this.MAX_OLL_CORNERS, (cube) => {
+            return this.isYellowCornersOrientated (cube);
+        }, [
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            // Antisune
+            // 
+            //  + - - - +
+            // X|   X X |
+            //  | X X X |
+            //  |   X   |X
+            //  + - - - +
+            //    X
+            // R U2 R' U' R U' R'
+            new PatternAlgorithm (
+                "Antisune",
+                (cube) => {
+                    if (cube.data[cube.UP    + 1] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 2] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 3] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 4] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 5] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 7] != YELLOW) return false;
+                    if (cube.data[cube.LEFT  + 0] != YELLOW) return false;
+                    if (cube.data[cube.FRONT + 0] != YELLOW) return false;
+                    if (cube.data[cube.RIGHT + 0] != YELLOW) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                ],
+            ),
+            // H
+            //  + - - - +
+            // X|   X   |X
+            //  | X X X |
+            // X|   X   |X
+            //  + - - - +
+            // R U R' U R U' R' U R U2 R'
+            new PatternAlgorithm (
+                "H",
+                (cube) => {
+                    if (cube.data[cube.UP    + 1] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 3] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 4] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 5] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 7] != YELLOW) return false;
+                    if (cube.data[cube.LEFT  + 0] != YELLOW) return false;
+                    if (cube.data[cube.LEFT  + 2] != YELLOW) return false;
+                    if (cube.data[cube.RIGHT + 0] != YELLOW) return false;
+                    if (cube.data[cube.RIGHT + 2] != YELLOW) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                ],
+            ),
+            // L
+            //  + - - - +
+            //  | X X   |X
+            //  | X X X |
+            //  |   X X |
+            //  + - - - +
+            //    X
+            // F R' F' r U R U' r'
+            // F R' F' (R M') U R U' (R' M)
+            new PatternAlgorithm (
+                "L",
+                (cube) => {
+                    if (cube.data[cube.UP    + 0] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 1] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 3] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 4] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 5] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 7] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 8] != YELLOW) return false;
+                    if (cube.data[cube.FRONT + 0] != YELLOW) return false;
+                    if (cube.data[cube.RIGHT + 2] != YELLOW) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                    // r = R M'
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_M, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    // r' = R' M
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_M,  1),
+                ],
+            ),
+            // Pi
+            //        X
+            //  + - - - +
+            // X|   X   |
+            //  | X X X |
+            // X|   X   |
+            //  + - - - +
+            //        X
+            // R U2 R2 U' R2 U' R2 U2 R
+            // R (U U) (R R) U' (R R) U' (R R) (U U) R
+            new PatternAlgorithm (
+                "Pi",
+                (cube) => {
+                    if (cube.data[cube.UP    + 1] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 3] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 4] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 5] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 7] != YELLOW) return false;
+                    if (cube.data[cube.LEFT  + 0] != YELLOW) return false;
+                    if (cube.data[cube.LEFT  + 2] != YELLOW) return false;
+                    if (cube.data[cube.FRONT + 2] != YELLOW) return false;
+                    if (cube.data[cube.BACK  + 0] != YELLOW) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                ],
+            ),
+            // Sune (aka fishy alg)
+            //    X
+            //  + - - - +
+            //  |   X   |X
+            //  | X X X |
+            //  | X X   |
+            //  + - - - +
+            //        X
+            // R U R' U R U2 R'
+            new PatternAlgorithm (
+                "Sune",
+                (cube) => {
+                    if (cube.data[cube.UP    + 1] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 3] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 4] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 5] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 6] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 7] != YELLOW) return false;
+                    if (cube.data[cube.FRONT + 2] != YELLOW) return false;
+                    if (cube.data[cube.RIGHT + 2] != YELLOW) return false;
+                    if (cube.data[cube.BACK  + 2] != YELLOW) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                ],
+            ),
+            // T
+            //    X
+            //  + - - - +
+            //  |   X X |
+            //  | X X X |
+            //  |   X X |
+            //  + - - - +
+            //    X
+            // r U R' U' r' F R F'
+            // (R M') U R' U' (R' M) F R F'
+            new PatternAlgorithm (
+                "T",
+                (cube) => {
+                    if (cube.data[cube.UP    + 1] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 2] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 3] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 4] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 5] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 7] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 8] != YELLOW) return false;
+                    if (cube.data[cube.FRONT + 0] != YELLOW) return false;
+                    if (cube.data[cube.BACK  + 2] != YELLOW) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_M, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_F, -1),
+                ],
+            ),
+            // U
+            //  + - - - +
+            //  | X X X |
+            //  | X X X |
+            //  |   X   |
+            //  + - - - +
+            //    X   X
+            // R2 D R' U2 R D' R' U2 R'
+            // R R D R' U U R D' R' U U R'
+            new PatternAlgorithm (
+                "U",
+                (cube) => {
+                    if (cube.data[cube.UP    + 0] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 1] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 2] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 3] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 4] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 5] != YELLOW) return false;
+                    if (cube.data[cube.UP    + 7] != YELLOW) return false;
+                    if (cube.data[cube.FRONT + 0] != YELLOW) return false;
+                    if (cube.data[cube.FRONT + 2] != YELLOW) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_D,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_D, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                ],
+            ),
         ], true);
         // Ensure solution was found
         if (temp == null)

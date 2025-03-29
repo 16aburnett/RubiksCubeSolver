@@ -130,3 +130,14 @@ function findMinSolution_ (cube, path, prevMove, limit, isSolved, moveSetsToTry,
     // no solution found
     return null;
 }
+
+
+// =======================================================================
+
+function areSameStickers (cube, stickerPositions) {
+    const color = cube.data[stickerPositions[0]];
+    for (let i = 1; i < stickerPositions.length; ++i)
+        if (cube.data[stickerPositions[i]] != color)
+            return false;
+    return true;
+}

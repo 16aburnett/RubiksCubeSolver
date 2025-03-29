@@ -213,6 +213,11 @@ function setupCube (N)
                 return new CFOPSolver3x3 ().solve2LookPLLEdges (cube);
             });
         });
+        CFOPSolverSection.addButton ("Solve PLL", () => {
+            solveFromGivenFunc ((cube) => {
+                return new CFOPSolver3x3 ().solvePLL (cube);
+            });
+        });
 
         // Roux solver
         const RouxSolverSection = new UICollapsibleSection ("Roux Solver");

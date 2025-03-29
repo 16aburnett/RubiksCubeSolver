@@ -17,6 +17,7 @@ class CFOPSolver3x3
         this.MAX_OLL_CORNERS = 40;
         this.MAX_PLL_CORNERS = 22;
         this.MAX_PLL_EDGES = 22;
+        this.MAX_PLL = 25;
     }
 
     // =======================================================================
@@ -66,7 +67,7 @@ class CFOPSolver3x3
         solution = solution.concat(temp);
 
         // PLL
-        temp = this.solve2LookPLL (cube);
+        temp = this.solvePLL (cube);
         // Ensure solution was found
         if (temp == null)
         {
@@ -2250,6 +2251,923 @@ class CFOPSolver3x3
             // M' U M2 U M2 U M' U2 M2
             new PatternAlgorithm (
                 "2LPLL:Z-Perm",
+                (cube) => {
+                    if (cube.data[cube.FRONT   + 1] != cube.data[cube.LEFT   + 0]) return false;
+                    if (cube.data[cube.LEFT    + 1] != cube.data[cube.FRONT  + 0]) return false;
+                    if (cube.data[cube.RIGHT   + 1] != cube.data[cube.BACK   + 0]) return false;
+                    if (cube.data[cube.BACK    + 1] != cube.data[cube.RIGHT  + 0]) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_M, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_M, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                ],
+            ),
+        ], true);
+        // Ensure solution was found
+        if (temp == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
+        }
+        solution = solution.concat(temp);
+
+        console.timeEnd (name);
+        return solution;
+    }
+
+    // =======================================================================
+
+    // This is one-look PLL (permute last layer)
+    solvePLL (cube) {
+        const name = "solvePLL";
+        console.log (name);
+        console.time (name);
+
+        let solution = [];
+        let temp = findMinSolution (cube, this.MAX_PLL, (cube) => {
+            return this.isYellowCornersSolved (cube)
+                && this.isYellowEdgesSolved (cube);
+        }, [
+            [cubeNotationMove (MOVE_U,  1)],
+            [cubeNotationMove (MOVE_U, -1)],
+            // PLL Aa-Perm
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    R G B
+            //  + - - - +
+            // G| Y Y Y |O
+            // O| Y Y Y |R
+            // G| Y Y Y |R
+            //  + - - - +
+            //    O B B
+            // x L2 D2 L' U' L D2 L' U L' x'
+            new PatternAlgorithm (
+                "PLL:Aa-Perm",
+                (cube) => {
+                    // Orange
+                    if (!areSameStickers(cube, [cube.FRONT + 0, cube.RIGHT + 2, cube.LEFT  + 1])) return false;
+                    // Blue
+                    if (!areSameStickers(cube, [cube.FRONT + 1, cube.FRONT + 2, cube.BACK  + 0])) return false;
+                    // Red
+                    if (!areSameStickers(cube, [cube.RIGHT + 0, cube.RIGHT + 1, cube.BACK  + 2])) return false;
+                    // Green
+                    if (!areSameStickers(cube, [cube.BACK  + 1, cube.LEFT  + 2, cube.LEFT  + 0])) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_X,  1),
+                    cubeNotationMove (MOVE_L,  1),
+                    cubeNotationMove (MOVE_L,  1),
+                    cubeNotationMove (MOVE_D,  1),
+                    cubeNotationMove (MOVE_D,  1),
+                    cubeNotationMove (MOVE_L, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_L,  1),
+                    cubeNotationMove (MOVE_D,  1),
+                    cubeNotationMove (MOVE_D,  1),
+                    cubeNotationMove (MOVE_L, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_L, -1),
+                    cubeNotationMove (MOVE_X, -1),
+                ],
+            ),
+            // PLL Ab-Perm
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    O G G
+            //  + - - - +
+            // B| Y Y Y |R
+            // O| Y Y Y |R
+            // B| Y Y Y |O
+            //  + - - - +
+            //    R B G
+            // x' L2 D2 L U L' D2 L U' L x
+            new PatternAlgorithm (
+                "PLL:Ab-Perm",
+                (cube) => {
+                    // Orange
+                    if (!areSameStickers(cube, [cube.LEFT  + 1, cube.BACK  + 2, cube.RIGHT + 0])) return false;
+                    // Blue
+                    if (!areSameStickers(cube, [cube.LEFT  + 2, cube.LEFT  + 0, cube.FRONT + 1])) return false;
+                    // Red
+                    if (!areSameStickers(cube, [cube.FRONT + 0, cube.RIGHT + 1, cube.RIGHT + 2])) return false;
+                    // Green
+                    if (!areSameStickers(cube, [cube.FRONT + 2, cube.BACK  + 0, cube.BACK  + 1])) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_X, -1),
+                    cubeNotationMove (MOVE_L,  1),
+                    cubeNotationMove (MOVE_L,  1),
+                    cubeNotationMove (MOVE_D,  1),
+                    cubeNotationMove (MOVE_D,  1),
+                    cubeNotationMove (MOVE_L,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_L, -1),
+                    cubeNotationMove (MOVE_D,  1),
+                    cubeNotationMove (MOVE_D,  1),
+                    cubeNotationMove (MOVE_L,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_L,  1),
+                    cubeNotationMove (MOVE_X,  1),
+                ],
+            ),
+            // PLL F-Perm
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    G B R
+            //  + - - - +
+            // O| Y Y Y |B
+            // O| Y Y Y |R
+            // O| Y Y Y |G
+            //  + - - - +
+            //    B G R
+            // R' U' F' R U R' U' R' F R2 U' R' U' R U R' U R
+            new PatternAlgorithm (
+                "PLL:F-Perm",
+                (cube) => {
+                    // Orange
+                    if (!areSameStickers(cube, [cube.LEFT  + 2, cube.LEFT  + 1, cube.LEFT  + 0])) return false;
+                    // Blue
+                    if (!areSameStickers(cube, [cube.FRONT + 0, cube.RIGHT + 2, cube.BACK  + 1])) return false;
+                    // Red
+                    if (!areSameStickers(cube, [cube.FRONT + 2, cube.RIGHT + 1, cube.BACK  + 0])) return false;
+                    // Green
+                    if (!areSameStickers(cube, [cube.FRONT + 1, cube.RIGHT + 0, cube.BACK  + 2])) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                ],
+            ),
+            // PLL Ga-Perm
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    G B R
+            //  + - - - +
+            // O| Y Y Y |B
+            // G| Y Y Y |O
+            // O| Y Y Y |G
+            //  + - - - +
+            //    B R R
+            // R2 U R' U R' U' R U' R2 U' D R' U R D'
+            new PatternAlgorithm (
+                "PLL:Ga-Perm",
+                (cube) => {
+                    // Orange
+                    if (!areSameStickers(cube, [cube.LEFT  + 2, cube.RIGHT + 1, cube.LEFT  + 0])) return false;
+                    // Blue
+                    if (!areSameStickers(cube, [cube.FRONT + 0, cube.RIGHT + 2, cube.BACK  + 1])) return false;
+                    // Red
+                    if (!areSameStickers(cube, [cube.FRONT + 1, cube.FRONT + 2, cube.BACK  + 0])) return false;
+                    // Green
+                    if (!areSameStickers(cube, [cube.LEFT  + 1, cube.RIGHT + 0, cube.BACK  + 2])) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_D,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_D, -1),
+                ],
+            ),
+            // PLL Gb-Perm
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    G O R
+            //  + - - - +
+            // O| Y Y Y |B
+            // R| Y Y Y |B
+            // O| Y Y Y |G
+            //  + - - - +
+            //    B G R
+            // R' U' R U D' R2 U R' U R U' R U' R2 D
+            new PatternAlgorithm (
+                "PLL:Gb-Perm",
+                (cube) => {
+                    // Orange
+                    if (!areSameStickers(cube, [cube.LEFT  + 2, cube.BACK  + 1, cube.LEFT  + 0])) return false;
+                    // Blue
+                    if (!areSameStickers(cube, [cube.FRONT + 0, cube.RIGHT + 1, cube.RIGHT + 2])) return false;
+                    // Red
+                    if (!areSameStickers(cube, [cube.LEFT  + 1, cube.FRONT + 2, cube.BACK  + 0])) return false;
+                    // Green
+                    if (!areSameStickers(cube, [cube.FRONT + 1, cube.RIGHT + 0, cube.BACK  + 2])) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_D, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_D,  1),
+                ],
+            ),
+            // PLL Gc-Perm
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    G R R
+            //  + - - - +
+            // O| Y Y Y |B
+            // B| Y Y Y |O
+            // O| Y Y Y |G
+            //  + - - - +
+            //    B G R
+            // R2 U' R U' R U R' U R2 U D' R U' R' D
+            new PatternAlgorithm (
+                "PLL:Gc-Perm",
+                (cube) => {
+                    // Orange
+                    if (!areSameStickers(cube, [cube.LEFT  + 2, cube.RIGHT + 1, cube.LEFT  + 0])) return false;
+                    // Blue
+                    if (!areSameStickers(cube, [cube.FRONT + 0, cube.RIGHT + 2, cube.LEFT  + 1])) return false;
+                    // Red
+                    if (!areSameStickers(cube, [cube.FRONT + 2, cube.BACK  + 0, cube.BACK  + 1])) return false;
+                    // Green
+                    if (!areSameStickers(cube, [cube.FRONT + 1, cube.RIGHT + 0, cube.BACK  + 2])) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_D, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_D,  1),
+                ],
+            ),
+            // PLL Gd-Perm
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    G B R
+            //  + - - - +
+            // O| Y Y Y |B
+            // R| Y Y Y |G
+            // O| Y Y Y |G
+            //  + - - - +
+            //    B O R
+            // R U R' U' D R2 U' R U' R' U R' U R2 D'
+            new PatternAlgorithm (
+                "PLL:Gd-Perm",
+                (cube) => {
+                    // Orange
+                    if (!areSameStickers(cube, [cube.LEFT  + 2, cube.FRONT + 1, cube.LEFT  + 0])) return false;
+                    // Blue
+                    if (!areSameStickers(cube, [cube.FRONT + 0, cube.RIGHT + 2, cube.BACK  + 1])) return false;
+                    // Red
+                    if (!areSameStickers(cube, [cube.FRONT + 2, cube.BACK  + 0, cube.LEFT  + 1])) return false;
+                    // Green
+                    if (!areSameStickers(cube, [cube.RIGHT + 0, cube.RIGHT + 1, cube.BACK  + 2])) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_D,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_D, -1),
+                ],
+            ),
+            // PLL Ja-Perm
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    G R R
+            //  + - - - +
+            // O| Y Y Y |B
+            // O| Y Y Y |G
+            // O| Y Y Y |G
+            //  + - - - +
+            //    B B R
+            // x R2 F R F' R U2 r' U r U2 x'
+            // x (R R) F R F' R (U U) (R' M) U (R M') (U U) x'
+            new PatternAlgorithm (
+                "PLL:Ja-Perm",
+                (cube) => {
+                    // Orange
+                    if (!areSameStickers(cube, [cube.LEFT  + 2, cube.LEFT  + 1, cube.LEFT  + 0])) return false;
+                    // Blue
+                    if (!areSameStickers(cube, [cube.FRONT + 0, cube.FRONT + 1, cube.RIGHT + 2])) return false;
+                    // Red
+                    if (!areSameStickers(cube, [cube.FRONT + 2, cube.BACK  + 0, cube.BACK  + 1])) return false;
+                    // Green
+                    if (!areSameStickers(cube, [cube.RIGHT + 0, cube.RIGHT + 1, cube.BACK  + 2])) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_X,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_F, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_M, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_X, -1),
+                ],
+            ),
+            // PLL Jb-Perm
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    R R B
+            //  + - - - +
+            // G| Y Y Y |O
+            // G| Y Y Y |O
+            // G| Y Y Y |R
+            //  + - - - +
+            //    O B B
+            // R U R' F' R U R' U' R' F R2 U' R'
+            new PatternAlgorithm (
+                "PLL:Jb-Perm",
+                (cube) => {
+                    // Orange
+                    if (!areSameStickers(cube, [cube.FRONT + 0, cube.RIGHT + 1, cube.RIGHT + 2])) return false;
+                    // Blue
+                    if (!areSameStickers(cube, [cube.FRONT + 1, cube.FRONT + 2, cube.BACK  + 0])) return false;
+                    // Red
+                    if (!areSameStickers(cube, [cube.RIGHT + 0, cube.BACK  + 1, cube.BACK  + 2])) return false;
+                    // Green
+                    if (!areSameStickers(cube, [cube.LEFT  + 2, cube.LEFT  + 1, cube.LEFT  + 0])) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                ],
+            ),
+            // PLL Ra-Perm
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    R G B
+            //  + - - - +
+            // G| Y Y Y |O
+            // R| Y Y Y |B
+            // G| Y Y Y |R
+            //  + - - - +
+            //    O O B
+            // R U' R' U' R U R D R' U' R D' R' U2 R'
+            new PatternAlgorithm (
+                "PLL:Ra-Perm",
+                (cube) => {
+                    // Orange
+                    if (!areSameStickers(cube, [cube.FRONT + 0, cube.FRONT + 1, cube.RIGHT + 2])) return false;
+                    // Blue
+                    if (!areSameStickers(cube, [cube.FRONT + 2, cube.RIGHT + 1, cube.BACK  + 0])) return false;
+                    // Red
+                    if (!areSameStickers(cube, [cube.LEFT  + 1, cube.RIGHT + 0, cube.BACK  + 2])) return false;
+                    // Green
+                    if (!areSameStickers(cube, [cube.LEFT  + 2, cube.BACK  + 1, cube.LEFT  + 0])) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_D,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_D, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                ],
+            ),
+            // PLL Rb-Perm
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    O O G
+            //  + - - - +
+            // B| Y Y Y |R
+            // R| Y Y Y |G
+            // B| Y Y Y |O
+            //  + - - - +
+            //    R B G
+            // R2 F R U R U' R' F' R U2 R' U2 R
+            new PatternAlgorithm (
+                "PLL:Rb-Perm",
+                (cube) => {
+                    // Orange
+                    if (!areSameStickers(cube, [cube.RIGHT + 0, cube.BACK  + 1, cube.BACK  + 2])) return false;
+                    // Blue
+                    if (!areSameStickers(cube, [cube.LEFT  + 2, cube.FRONT + 1, cube.LEFT  + 0])) return false;
+                    // Red
+                    if (!areSameStickers(cube, [cube.LEFT  + 1, cube.FRONT + 0, cube.RIGHT + 2])) return false;
+                    // Green
+                    if (!areSameStickers(cube, [cube.FRONT + 2, cube.RIGHT + 1, cube.BACK  + 0])) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                ],
+            ),
+            // PLL T-Perm
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    G G R
+            //  + - - - +
+            // O| Y Y Y |B
+            // R| Y Y Y |O
+            // O| Y Y Y |G
+            //  + - - - +
+            //    B B R
+            // R U R' U' R' F R2 U' R' U' R U R' F'
+            new PatternAlgorithm (
+                "PLL:T-Perm",
+                (cube) => {
+                    // Orange
+                    if (!areSameStickers(cube, [cube.LEFT  + 2, cube.RIGHT + 1, cube.LEFT  + 0])) return false;
+                    // Blue
+                    if (!areSameStickers(cube, [cube.FRONT + 0, cube.FRONT + 1, cube.RIGHT + 2])) return false;
+                    // Red
+                    if (!areSameStickers(cube, [cube.LEFT  + 1, cube.FRONT + 2, cube.BACK  + 0])) return false;
+                    // Green
+                    if (!areSameStickers(cube, [cube.RIGHT + 0, cube.BACK  + 1, cube.BACK  + 2])) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                ],
+            ),
+            // PLL E-Perm
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    O G R
+            //  + - - - +
+            // B| Y Y Y |B
+            // O| Y Y Y |R
+            // G| Y Y Y |G
+            //  + - - - +
+            //    O B R
+            // x' L' U L D' L' U' L D L' U' L D' L' U L D x
+            new PatternAlgorithm (
+                "PLL:E-Perm",
+                (cube) => {
+                    // Orange
+                    if (!areSameStickers(cube, [cube.LEFT  + 1, cube.FRONT + 0, cube.BACK  + 2])) return false;
+                    // Blue
+                    if (!areSameStickers(cube, [cube.LEFT  + 0, cube.FRONT + 1, cube.RIGHT + 2])) return false;
+                    // Red
+                    if (!areSameStickers(cube, [cube.FRONT + 2, cube.RIGHT + 1, cube.BACK  + 0])) return false;
+                    // Green
+                    if (!areSameStickers(cube, [cube.LEFT  + 2, cube.RIGHT + 0, cube.BACK  + 1])) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_X, -1),
+                    cubeNotationMove (MOVE_L, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_L,  1),
+                    cubeNotationMove (MOVE_D, -1),
+                    cubeNotationMove (MOVE_L, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_L,  1),
+                    cubeNotationMove (MOVE_D,  1),
+                    cubeNotationMove (MOVE_L, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_L,  1),
+                    cubeNotationMove (MOVE_D, -1),
+                    cubeNotationMove (MOVE_L, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_L,  1),
+                    cubeNotationMove (MOVE_D,  1),
+                    cubeNotationMove (MOVE_X,  1),
+                ],
+            ),
+            // PLL Na-Perm
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    G G B
+            //  + - - - +
+            // O| Y Y Y |O
+            // R| Y Y Y |O
+            // R| Y Y Y |R
+            //  + - - - +
+            //    G B B
+            // R U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R'
+            new PatternAlgorithm (
+                "PLL:Na-Perm",
+                (cube) => {
+                    // Orange
+                    if (!areSameStickers(cube, [cube.LEFT  + 0, cube.RIGHT + 1, cube.RIGHT + 2])) return false;
+                    // Blue
+                    if (!areSameStickers(cube, [cube.FRONT + 1, cube.FRONT + 2, cube.BACK  + 0])) return false;
+                    // Red
+                    if (!areSameStickers(cube, [cube.LEFT  + 2, cube.LEFT  + 1, cube.RIGHT + 0])) return false;
+                    // Green
+                    if (!areSameStickers(cube, [cube.FRONT + 0, cube.BACK  + 1, cube.BACK  + 2])) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                ],
+            ),
+            // PLL Nb-Perm
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    B G G
+            //  + - - - +
+            // R| Y Y Y |R
+            // R| Y Y Y |O
+            // O| Y Y Y |O
+            //  + - - - +
+            //    B B G
+            // R' U R U' R' F' U' F R U R' F R' F' R U' R
+            new PatternAlgorithm (
+                "PLL:Nb-Perm",
+                (cube) => {
+                    // Orange
+                    if (!areSameStickers(cube, [cube.LEFT  + 2, cube.RIGHT + 0, cube.RIGHT + 1])) return false;
+                    // Blue
+                    if (!areSameStickers(cube, [cube.FRONT + 0, cube.FRONT + 1, cube.BACK  + 2])) return false;
+                    // Red
+                    if (!areSameStickers(cube, [cube.LEFT  + 1, cube.LEFT  + 0, cube.RIGHT + 2])) return false;
+                    // Green
+                    if (!areSameStickers(cube, [cube.FRONT + 2, cube.BACK  + 0, cube.BACK  + 1])) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                ],
+            ),
+            // PLL V-Perm
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    B R G
+            //  + - - - +
+            // R| Y Y Y |R
+            // O| Y Y Y |G
+            // O| Y Y Y |O
+            //  + - - - +
+            //    B B G
+            // R' U R' U' y R' F' R2 U' R' U R' F R F
+            // **need to reset y bc solver assumes blue in front
+            // R' U R' U' y R' F' R2 U' R' U R' F R F y'
+            new PatternAlgorithm (
+                "PLL:V-Perm",
+                (cube) => {
+                    // Orange
+                    if (!areSameStickers(cube, [cube.LEFT  + 2, cube.LEFT  + 1, cube.RIGHT + 0])) return false;
+                    // Blue
+                    if (!areSameStickers(cube, [cube.FRONT + 0, cube.FRONT + 1, cube.BACK  + 2])) return false;
+                    // Red
+                    if (!areSameStickers(cube, [cube.LEFT  + 0, cube.RIGHT + 2, cube.BACK  + 1])) return false;
+                    // Green
+                    if (!areSameStickers(cube, [cube.FRONT + 2, cube.RIGHT + 1, cube.BACK  + 0])) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_Y,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_Y, -1),
+                ],
+            ),
+            // PLL Y-Perm
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    B O G
+            //  + - - - +
+            // R| Y Y Y |R
+            // G| Y Y Y |R
+            // O| Y Y Y |O
+            //  + - - - +
+            //    B B G
+            // F R U' R' U' R U R' F' R U R' U' R' F R F'
+            new PatternAlgorithm (
+                "PLL:Y-Perm",
+                (cube) => {
+                    // Orange
+                    if (!areSameStickers(cube, [cube.LEFT  + 2, cube.RIGHT + 0, cube.BACK  + 1])) return false;
+                    // Blue
+                    if (!areSameStickers(cube, [cube.FRONT + 0, cube.FRONT + 1, cube.BACK  + 2])) return false;
+                    // Red
+                    if (!areSameStickers(cube, [cube.LEFT  + 0, cube.RIGHT + 1, cube.RIGHT + 2])) return false;
+                    // Green
+                    if (!areSameStickers(cube, [cube.LEFT  + 1, cube.FRONT + 2, cube.BACK  + 0])) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_F,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_F, -1),
+                ],
+            ),
+            // PLL H-Perm (swap opposite edges vertically and horizontally)
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    G B G
+            //  + - - - +
+            // O| Y Y Y |R
+            // R| Y Y Y |O
+            // O| Y Y Y |R
+            //  + - - - +
+            //    B G B
+            // M2 U M2 U2 M2 U M2
+            new PatternAlgorithm (
+                "PLL:H-Perm",
+                (cube) => {
+                    if (cube.data[cube.FRONT   + 1] != cube.data[cube.BACK   + 0]) return false;
+                    if (cube.data[cube.LEFT    + 1] != cube.data[cube.RIGHT  + 0]) return false;
+                    if (cube.data[cube.RIGHT   + 1] != cube.data[cube.LEFT   + 0]) return false;
+                    if (cube.data[cube.BACK    + 1] != cube.data[cube.FRONT  + 0]) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                    cubeNotationMove (MOVE_M,  1),
+                ],
+            ),
+            // PLL Ua-perm (cycle 3 edges counterclockwise)
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    G G G
+            //  + - - - +
+            // O| Y Y Y |R
+            // B| Y Y Y |O
+            // O| Y Y Y |R
+            //  + - - - +
+            //    B R B
+            // R U' R U R U R U' R' U' R2
+            new PatternAlgorithm (
+                "PLL:Ua-Perm",
+                (cube) => {
+                    if (cube.data[cube.FRONT   + 1] != cube.data[cube.RIGHT  + 0]) return false;
+                    if (cube.data[cube.LEFT    + 1] != cube.data[cube.FRONT  + 0]) return false;
+                    if (cube.data[cube.RIGHT   + 1] != cube.data[cube.LEFT   + 0]) return false;
+                    if (cube.data[cube.BACK    + 1] != cube.data[cube.BACK   + 0]) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                ],
+            ),
+            // PLL Ub-perm (cycle 3 edges clockwise)
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    G G G
+            //  + - - - +
+            // O| Y Y Y |R
+            // R| Y Y Y |B
+            // O| Y Y Y |R
+            //  + - - - +
+            //    B O B
+            // R2 U R U R' U' R' U' R' U R'
+            new PatternAlgorithm (
+                "PLL:Ub-Perm",
+                (cube) => {
+                    if (cube.data[cube.FRONT   + 1] != cube.data[cube.LEFT   + 0]) return false;
+                    if (cube.data[cube.LEFT    + 1] != cube.data[cube.RIGHT  + 0]) return false;
+                    if (cube.data[cube.RIGHT   + 1] != cube.data[cube.FRONT  + 0]) return false;
+                    if (cube.data[cube.BACK    + 1] != cube.data[cube.BACK   + 0]) return false;
+                    return true;
+                },
+                [
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R,  1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U, -1),
+                    cubeNotationMove (MOVE_R, -1),
+                    cubeNotationMove (MOVE_U,  1),
+                    cubeNotationMove (MOVE_R, -1),
+                ],
+            ),
+            // PLL Z-perm (swap adjacent edges F<-->L R<-->B)
+            // Note: letters only show pairing - not exact colors
+            // i.e. B could be red, but if it is, then both Bs are red - etc
+            //    R B R
+            //  + - - - +
+            // G| Y Y Y |B
+            // O| Y Y Y |R
+            // G| Y Y Y |B
+            //  + - - - +
+            //    O G O
+            // M' U M2 U M2 U M' U2 M2
+            new PatternAlgorithm (
+                "PLL:Z-Perm",
                 (cube) => {
                     if (cube.data[cube.FRONT   + 1] != cube.data[cube.LEFT   + 0]) return false;
                     if (cube.data[cube.LEFT    + 1] != cube.data[cube.FRONT  + 0]) return false;

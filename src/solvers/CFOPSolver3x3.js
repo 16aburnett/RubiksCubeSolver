@@ -17,7 +17,7 @@ class CFOPSolver3x3
         this.MAX_OLL_CORNERS = 40;
         this.MAX_PLL_CORNERS = 22;
         this.MAX_PLL_EDGES = 22;
-        this.MAX_PLL = 25;
+        this.MAX_PLL = 30;
     }
 
     // =======================================================================
@@ -1593,7 +1593,7 @@ class CFOPSolver3x3
             //  +---+
             //    x
             // F R U R' U' F' f R U R' U' f'
-            // F R U R' U' F' (F S) R U R' U' (F' S')
+            // F R U R' U' F' F S R U R' U' F' S'
             new PatternAlgorithm (
                 "2LOLL:Dot",
                 (cube) => {
@@ -1604,24 +1604,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.BACK  + 1] != YELLOW) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_F, -1),
-                    // F S == f
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_S,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    // F' S' == f'
-                    cubeNotationMove (MOVE_F, -1),
-                    cubeNotationMove (MOVE_S, -1),
-                ]
+                cubeMoveNotation.stringToMoveSet ("F R U R' U' F' F S R U R' U' F' S'")
             ),
             // Bar (2 opposite edges solved)
             //    x
@@ -1642,14 +1625,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.BACK  + 1] != YELLOW) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_F, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("F R U R' U' F'")
             ),
             // L-shape (2 adjacent edges solved)
             //    x
@@ -1659,7 +1635,7 @@ class CFOPSolver3x3
             //  | x |
             //  +---+
             // f R U R' U' f'
-            // (F S) R U R' U' (F' S')
+            // F S R U R' U' F' S'
             new PatternAlgorithm (
                 "2LOLL:L-Shape",
                 (cube) => {
@@ -1670,18 +1646,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.BACK  + 1] != YELLOW) return false;
                     return true;
                 },
-                [
-                    // F S == f
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_S,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    // F' S' == f'
-                    cubeNotationMove (MOVE_F, -1),
-                    cubeNotationMove (MOVE_S, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("F S R U R' U' F' S'")
             ),
         ], true);
         // Ensure solution was found
@@ -1719,6 +1684,7 @@ class CFOPSolver3x3
             //  + - - - +
             //    X
             // R U2 R' U' R U' R'
+            // R U U R' U' R U' R'
             new PatternAlgorithm (
                 "Antisune",
                 (cube) => {
@@ -1733,16 +1699,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.RIGHT + 0] != YELLOW) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R U U R' U' R U' R'")
             ),
             // H
             //  + - - - +
@@ -1751,6 +1708,7 @@ class CFOPSolver3x3
             // X|   X   |X
             //  + - - - +
             // R U R' U R U' R' U R U2 R'
+            // R U R' U R U' R' U R U U R'
             new PatternAlgorithm (
                 "H",
                 (cube) => {
@@ -1765,20 +1723,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.RIGHT + 2] != YELLOW) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R U R' U R U' R' U R U U R'")
             ),
             // L
             //  + - - - +
@@ -1788,7 +1733,7 @@ class CFOPSolver3x3
             //  + - - - +
             //    X
             // F R' F' r U R U' r'
-            // F R' F' (R M') U R U' (R' M)
+            // F R' F' R M' U R U' R' M
             new PatternAlgorithm (
                 "L",
                 (cube) => {
@@ -1803,20 +1748,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.RIGHT + 2] != YELLOW) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F, -1),
-                    // r = R M'
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_M, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    // r' = R' M
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_M,  1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("F R' F' R M' U R U' R' M")
             ),
             // Pi
             //        X
@@ -1827,7 +1759,7 @@ class CFOPSolver3x3
             //  + - - - +
             //        X
             // R U2 R2 U' R2 U' R2 U2 R
-            // R (U U) (R R) U' (R R) U' (R R) (U U) R
+            // R U U R R U' R R U' R R U U R
             new PatternAlgorithm (
                 "Pi",
                 (cube) => {
@@ -1842,22 +1774,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.BACK  + 0] != YELLOW) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R U U R R U' R R U' R R U U R")
             ),
             // Sune (aka fishy alg)
             //    X
@@ -1868,6 +1785,7 @@ class CFOPSolver3x3
             //  + - - - +
             //        X
             // R U R' U R U2 R'
+            // R U R' U R U U R'
             new PatternAlgorithm (
                 "Sune",
                 (cube) => {
@@ -1882,16 +1800,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.BACK  + 2] != YELLOW) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R U R' U R U U R'")
             ),
             // T
             //    X
@@ -1902,7 +1811,7 @@ class CFOPSolver3x3
             //  + - - - +
             //    X
             // r U R' U' r' F R F'
-            // (R M') U R' U' (R' M) F R F'
+            // R M' U R' U' R' M F R F'
             new PatternAlgorithm (
                 "T",
                 (cube) => {
@@ -1917,18 +1826,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.BACK  + 2] != YELLOW) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_M, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_F, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R M' U R' U' R' M F R F'")
             ),
             // U
             //  + - - - +
@@ -1953,20 +1851,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.FRONT + 2] != YELLOW) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_D,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_D, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R R D R' U U R D' R' U U R'")
             ),
         ], true);
         // Ensure solution was found
@@ -2047,25 +1932,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.FRONT   + 2] != cube.data[cube.BACK    + 0]) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_F, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("F R U' R' U' R U R' F' R U R' U' R' F R F'")
             ),
             // Headlights - Adjacent corner swap (T-Perm)
             // Note: letters only show pairing - not exact colors
@@ -2078,6 +1945,7 @@ class CFOPSolver3x3
             //  + - - - +
             //    B   R
             // R U R' U' R' F R2 U' R' U' R U R' F'
+            // R U R' U' R' F R R U' R' U' R U R' F'
             new PatternAlgorithm (
                 "2LPLL:T-Perm",
                 (cube) => {
@@ -2087,23 +1955,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.RIGHT   + 0] != cube.data[cube.BACK    + 2]) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R U R' U' R' F R R U' R' U' R U R' F'")
             ),
         ], true);
         // Ensure solution was found
@@ -2144,6 +1996,7 @@ class CFOPSolver3x3
             //  + - - - +
             //    B G B
             // M2 U M2 U2 M2 U M2
+            // M M U M M U U M M U M M
             new PatternAlgorithm (
                 "2LPLL:H-Perm",
                 (cube) => {
@@ -2153,20 +2006,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.BACK    + 1] != cube.data[cube.FRONT  + 0]) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("M M U M M U U M M U M M")
             ),
             // PLL Ua-perm (cycle 3 edges counterclockwise)
             // Note: letters only show pairing - not exact colors
@@ -2188,20 +2028,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.BACK    + 1] != cube.data[cube.BACK   + 0]) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R U' R U R U R U' R' U' R R")
             ),
             // PLL Ub-perm (cycle 3 edges clockwise)
             // Note: letters only show pairing - not exact colors
@@ -2223,20 +2050,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.BACK    + 1] != cube.data[cube.BACK   + 0]) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R R U R U R' U' R' U' R' U R'")
             ),
             // PLL Z-perm (swap adjacent edges F<-->L R<-->B)
             // Note: letters only show pairing - not exact colors
@@ -2249,6 +2063,7 @@ class CFOPSolver3x3
             //  + - - - +
             //    O G O
             // M' U M2 U M2 U M' U2 M2
+            // M' U M M U M M U M' U U M M
             new PatternAlgorithm (
                 "2LPLL:Z-Perm",
                 (cube) => {
@@ -2258,21 +2073,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.BACK    + 1] != cube.data[cube.RIGHT  + 0]) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_M, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_M, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("M' U M M U M M U M' U U M M")
             ),
         ], true);
         // Ensure solution was found
@@ -2327,22 +2128,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.BACK  + 1, cube.LEFT  + 2, cube.LEFT  + 0])) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_X,  1),
-                    cubeNotationMove (MOVE_L,  1),
-                    cubeNotationMove (MOVE_L,  1),
-                    cubeNotationMove (MOVE_D,  1),
-                    cubeNotationMove (MOVE_D,  1),
-                    cubeNotationMove (MOVE_L, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_L,  1),
-                    cubeNotationMove (MOVE_D,  1),
-                    cubeNotationMove (MOVE_D,  1),
-                    cubeNotationMove (MOVE_L, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_L, -1),
-                    cubeNotationMove (MOVE_X, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("X L L D D L' U' L D D L' U L' X'")
             ),
             // PLL Ab-Perm
             // Note: letters only show pairing - not exact colors
@@ -2368,22 +2154,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.FRONT + 2, cube.BACK  + 0, cube.BACK  + 1])) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_X, -1),
-                    cubeNotationMove (MOVE_L,  1),
-                    cubeNotationMove (MOVE_L,  1),
-                    cubeNotationMove (MOVE_D,  1),
-                    cubeNotationMove (MOVE_D,  1),
-                    cubeNotationMove (MOVE_L,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_L, -1),
-                    cubeNotationMove (MOVE_D,  1),
-                    cubeNotationMove (MOVE_D,  1),
-                    cubeNotationMove (MOVE_L,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_L,  1),
-                    cubeNotationMove (MOVE_X,  1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("X' L L D D L U L' D D L U' L X")
             ),
             // PLL F-Perm
             // Note: letters only show pairing - not exact colors
@@ -2409,27 +2180,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.FRONT + 1, cube.RIGHT + 0, cube.BACK  + 2])) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_F, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R' U' F' R U R' U' R' F R R U' R' U' R U R' U R")
             ),
             // PLL Ga-Perm
             // Note: letters only show pairing - not exact colors
@@ -2455,25 +2206,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.LEFT  + 1, cube.RIGHT + 0, cube.BACK  + 2])) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_D,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_D, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R R U R' U R' U' R U' R R U' D R' U R D'")
             ),
             // PLL Gb-Perm
             // Note: letters only show pairing - not exact colors
@@ -2499,25 +2232,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.FRONT + 1, cube.RIGHT + 0, cube.BACK  + 2])) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_D, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_D,  1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R' U' R U D' R R U R' U R U' R U' R R D")
             ),
             // PLL Gc-Perm
             // Note: letters only show pairing - not exact colors
@@ -2543,25 +2258,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.FRONT + 1, cube.RIGHT + 0, cube.BACK  + 2])) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_D, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_D,  1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R R U' R U' R U R' U R R U D' R U' R' D")
             ),
             // PLL Gd-Perm
             // Note: letters only show pairing - not exact colors
@@ -2587,25 +2284,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.RIGHT + 0, cube.RIGHT + 1, cube.BACK  + 2])) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_D,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_D, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R U R' U' D R R U' R U' R' U R' U R R D'")
             ),
             // PLL Ja-Perm
             // Note: letters only show pairing - not exact colors
@@ -2618,7 +2297,7 @@ class CFOPSolver3x3
             //  + - - - +
             //    B B R
             // x R2 F R F' R U2 r' U r U2 x'
-            // x (R R) F R F' R (U U) (R' M) U (R M') (U U) x'
+            // X R R F R F' R U U R' M U R M' U U X'
             new PatternAlgorithm (
                 "PLL:Ja-Perm",
                 (cube) => {
@@ -2632,25 +2311,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.RIGHT + 0, cube.RIGHT + 1, cube.BACK  + 2])) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_X,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_F, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_M, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_X, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("X R R F R F' R U U R' M U R M' U U X'")
             ),
             // PLL Jb-Perm
             // Note: letters only show pairing - not exact colors
@@ -2676,22 +2337,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.LEFT  + 2, cube.LEFT  + 1, cube.LEFT  + 0])) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R U R' F' R U R' U' R' F R R U' R'")
             ),
             // PLL Ra-Perm
             // Note: letters only show pairing - not exact colors
@@ -2717,24 +2363,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.LEFT  + 2, cube.BACK  + 1, cube.LEFT  + 0])) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_D,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_D, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R U' R' U' R U R D R' U' R D' R' U U R'")
             ),
             // PLL Rb-Perm
             // Note: letters only show pairing - not exact colors
@@ -2760,24 +2389,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.FRONT + 2, cube.RIGHT + 1, cube.BACK  + 0])) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R R F R U R U' R' F' R U U R' U U R")
             ),
             // PLL T-Perm
             // Note: letters only show pairing - not exact colors
@@ -2803,23 +2415,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.RIGHT + 0, cube.BACK  + 1, cube.BACK  + 2])) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R U R' U' R' F R R U' R' U' R U R' F'")
             ),
             // PLL E-Perm
             // Note: letters only show pairing - not exact colors
@@ -2845,26 +2441,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.LEFT  + 2, cube.RIGHT + 0, cube.BACK  + 1])) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_X, -1),
-                    cubeNotationMove (MOVE_L, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_L,  1),
-                    cubeNotationMove (MOVE_D, -1),
-                    cubeNotationMove (MOVE_L, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_L,  1),
-                    cubeNotationMove (MOVE_D,  1),
-                    cubeNotationMove (MOVE_L, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_L,  1),
-                    cubeNotationMove (MOVE_D, -1),
-                    cubeNotationMove (MOVE_L, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_L,  1),
-                    cubeNotationMove (MOVE_D,  1),
-                    cubeNotationMove (MOVE_X,  1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("X' L' U L D' L' U' L D L' U' L D' L' U L D X")
             ),
             // PLL Na-Perm
             // Note: letters only show pairing - not exact colors
@@ -2890,31 +2467,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.FRONT + 0, cube.BACK  + 1, cube.BACK  + 2])) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R U R' U R U R' F' R U R' U' R' F R R U' R' U U R U' R'")
             ),
             // PLL Nb-Perm
             // Note: letters only show pairing - not exact colors
@@ -2940,25 +2493,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.FRONT + 2, cube.BACK  + 0, cube.BACK  + 1])) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R' U R U' R' F' U' F R U R' F R' F' R U' R")
             ),
             // PLL V-Perm
             // Note: letters only show pairing - not exact colors
@@ -2986,25 +2521,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.FRONT + 2, cube.RIGHT + 1, cube.BACK  + 0])) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_Y,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_Y, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R' U R' U' Y R' F' R R U' R' U R' F R F Y'")
             ),
             // PLL Y-Perm
             // Note: letters only show pairing - not exact colors
@@ -3030,25 +2547,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.LEFT  + 1, cube.FRONT + 2, cube.BACK  + 0])) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_F,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_F, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("F R U' R' U' R U R' F' R U R' U' R' F R F'")
             ),
             // PLL H-Perm (swap opposite edges vertically and horizontally)
             // Note: letters only show pairing - not exact colors
@@ -3061,6 +2560,7 @@ class CFOPSolver3x3
             //  + - - - +
             //    B G B
             // M2 U M2 U2 M2 U M2
+            // M M U M M U U M M U M M
             new PatternAlgorithm (
                 "PLL:H-Perm",
                 (cube) => {
@@ -3070,20 +2570,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.BACK    + 1] != cube.data[cube.FRONT  + 0]) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("M M U M M U U M M U M M")
             ),
             // PLL Ua-perm (cycle 3 edges counterclockwise)
             // Note: letters only show pairing - not exact colors
@@ -3105,20 +2592,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.BACK    + 1] != cube.data[cube.BACK   + 0]) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R U' R U R U R U' R' U' R R")
             ),
             // PLL Ub-perm (cycle 3 edges clockwise)
             // Note: letters only show pairing - not exact colors
@@ -3140,20 +2614,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.BACK    + 1] != cube.data[cube.BACK   + 0]) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U, -1),
-                    cubeNotationMove (MOVE_R, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_R, -1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("R R U R U R' U' R' U' R' U R'")
             ),
             // PLL Z-perm (swap adjacent edges F<-->L R<-->B)
             // Note: letters only show pairing - not exact colors
@@ -3166,6 +2627,7 @@ class CFOPSolver3x3
             //  + - - - +
             //    O G O
             // M' U M2 U M2 U M' U2 M2
+            // M' U M M U M M U M' U U M M
             new PatternAlgorithm (
                 "PLL:Z-Perm",
                 (cube) => {
@@ -3175,21 +2637,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.BACK    + 1] != cube.data[cube.RIGHT  + 0]) return false;
                     return true;
                 },
-                [
-                    cubeNotationMove (MOVE_M, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_M, -1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_U,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                    cubeNotationMove (MOVE_M,  1),
-                ],
+                cubeMoveNotation.stringToMoveSet ("M' U M M U M M U M' U U M M")
             ),
         ], true);
         // Ensure solution was found

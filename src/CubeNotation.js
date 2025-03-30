@@ -98,6 +98,19 @@ class CubeMoveNotation
 
     // ===================================================================
 
+    // Converts the given string representation of an algorithm to a
+    // set of moves.
+    stringToMoveSet (moveSetString)
+    {
+        const moveSetTokens = moveSetString.split (" ");
+        const moveSet = [];
+        for (const moveToken of moveSetTokens)
+            moveSet.push (this.stringToMove (moveToken));
+        return moveSet;
+    }
+
+    // ===================================================================
+
     toAxisNotation (move)
     {
         // axisNotation is the third element

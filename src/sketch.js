@@ -439,11 +439,8 @@ function scramble () {
 function applyMoveSetFromString (moveSetString) {
     console.log ("Applying move set");
     scrambled = true;
-    let moveStrings = moveSetString.split (" ");
-    let moves = [];
-    for (let moveString of moveStrings)
-        moves.push (cubeMoveNotation.stringToMove (moveString));
-    startApplyingMoveSet (moves);
+    const moveSet = cubeMoveNotation.stringToMoveSet (moveSetString);
+    startApplyingMoveSet (moveSet);
 }
 
 // =======================================================================

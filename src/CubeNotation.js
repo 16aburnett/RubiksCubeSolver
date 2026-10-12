@@ -92,6 +92,10 @@ class CubeMoveNotation
     // move representation
     stringToMove (moveString)
     {
+        // Ensure moveString is a valid string representation of a move
+        if (!this.stringToMoveMap.has(moveString)) {
+            throw new Error(`Invalid move string: ${moveString}`);
+        }
         // 0th position is the bitmask
         return this.stringToMoveMap.get (moveString)[0];
     }
@@ -102,7 +106,9 @@ class CubeMoveNotation
     // set of moves.
     stringToMoveSet (moveSetString)
     {
-        const moveSetTokens = moveSetString.split (" ");
+        // Convert the move set string into individual move tokens
+        // If the move set string is empty, return an empty array of moves
+        const moveSetTokens = moveSetString === "" ? [] : moveSetString.split (" ");
         const moveSet = [];
         for (const moveToken of moveSetTokens)
             moveSet.push (this.stringToMove (moveToken));

@@ -296,6 +296,14 @@ function setupCube (N)
                 return new RouxSolver3x3 ().findSolutionLastEdges (cube);
             });
         });
+
+        // Blindfolded solver
+        const BlindSolverSection = new UICollapsibleSection ("Blindfolded Solver");
+        BlindSolverSection.addButton ("Full Solve", () => {
+            solveFromGivenFunc ((cube) => {
+                return new BlindSolver3x3 ().findSolution (cube);
+            });
+        });
     }
     // NxN cube
     else {

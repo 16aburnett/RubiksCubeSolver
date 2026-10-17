@@ -259,7 +259,7 @@ function setupCube (N)
             {
                 label: "Solve 2-Look OLL",
                 description: "Orients the last layer in two passes (edges, then corners) so the whole top face is yellow. " +
-                    "Uses more algorithms than full OLL, but far fewer to memorize.",
+                    "Uses fewer algorithms than full OLL, but may require more moves.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
                         return new CFOPSolver3x3 ().solve2LookOLL (cube);
@@ -494,6 +494,7 @@ function setupCube (N)
                 }
             },
         ]);
+        buildBlindfoldedMemoPanel (BlindSolverSection);
     }
     // NxN cube
     else {
@@ -594,6 +595,208 @@ function solveFromGivenFunc (findSolutionFunc) {
     console.log ("Solution: ", moveSetToString (solution));
     console.log ("Applying solution...")
     startApplyingMoveSet (solution);
+}
+
+// =======================================================================
+
+// Valid blindfolded memorization letters (one letter per edge/corner
+// sticker position - see the lettering diagrams in BlindSolver3x3.js)
+const BLIND_VALID_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWX";
+
+/**
+ * Parses free-typed text into a memorization sequence (an array of
+ * single uppercase letters A-X). Whitespace is ignored so both
+ * "C K P R" and "CKPR" are accepted.
+ * @param {*} rawText the text typed into a memorization input box
+ * @returns { sequence } on success, or { error } with a user-facing
+ * message if any character isn't a valid memorization letter.
+ */
+function parseBlindMemoSequence (rawText) {
+    const cleaned = rawText.toUpperCase ().replace (/\s+/g, "");
+    const invalidLetters = [...new Set (
+        [...cleaned].filter (c => !BLIND_VALID_LETTERS.includes (c))
+    )];
+    if (invalidLetters.length > 0)
+    {
+        return { error: `Invalid letter(s): ${invalidLetters.join (", ")} (only A-X are valid)` };
+    }
+    return { sequence: cleaned.split ("") };
+}
+
+/**
+ * Builds the memorization-sequence controls for the Blindfolded solver
+ * section: a "Generate" button that reads the current cube and fills in
+ * the edge/corner letter sequences, editable text inputs so the player
+ * can transcribe their own memorization or tweak the generated one, an
+ * "Execute" button that solves using whatever sequence is currently
+ * shown, and a collapsible reference for the lettering scheme itself.
+ * @param {*} section the UICollapsibleSection to add these controls to
+ */
+function buildBlindfoldedMemoPanel (section) {
+    const panelDOM = document.createElement ("div");
+    panelDOM.className = "blindMemoPanel";
+    section.stepListDOM.appendChild (panelDOM);
+
+    const descriptionDOM = document.createElement ("div");
+    descriptionDOM.className = "stepDescription";
+    descriptionDOM.innerText = "Step through a real blindfolded solve: memorize the letters below (or type in " +
+        "your own), then execute purely from that sequence - without re-reading the cube.";
+    panelDOM.appendChild (descriptionDOM);
+
+    const edgesInputDOM = addBlindMemoInputRow (panelDOM, "Edges");
+    const cornersInputDOM = addBlindMemoInputRow (panelDOM, "Corners");
+
+    const errorDOM = document.createElement ("div");
+    errorDOM.className = "blindMemoError";
+    errorDOM.style.display = "none";
+    panelDOM.appendChild (errorDOM);
+
+    const buttonRowDOM = document.createElement ("div");
+    buttonRowDOM.className = "blindMemoButtonRow";
+    panelDOM.appendChild (buttonRowDOM);
+
+    const showError = (message) => {
+        errorDOM.innerText = message;
+        errorDOM.style.display = "";
+    };
+    const clearError = () => {
+        errorDOM.style.display = "none";
+    };
+
+    const generateButtonDOM = document.createElement ("button");
+    generateButtonDOM.className = "stepButton stage";
+    generateButtonDOM.innerText = "Generate Memorization";
+    generateButtonDOM.onclick = () => {
+        clearError ();
+        const solver = new BlindSolver3x3 ();
+        const edgesSequence = solver.determineMemorizationSequenceForEdges (rubiksCube);
+        const cornersSequence = solver.determineMemorizationSequenceForCorners (rubiksCube);
+        edgesInputDOM.value = edgesSequence.join (" ");
+        cornersInputDOM.value = cornersSequence.join (" ");
+    };
+    buttonRowDOM.appendChild (generateButtonDOM);
+
+    const executeButtonDOM = document.createElement ("button");
+    executeButtonDOM.className = "stepButton primary";
+    executeButtonDOM.innerText = "Execute From Above";
+    executeButtonDOM.onclick = () => {
+        clearError ();
+        const edgesResult = parseBlindMemoSequence (edgesInputDOM.value);
+        if (edgesResult.error)
+        {
+            showError ("Edges: " + edgesResult.error);
+            return;
+        }
+        const cornersResult = parseBlindMemoSequence (cornersInputDOM.value);
+        if (cornersResult.error)
+        {
+            showError ("Corners: " + cornersResult.error);
+            return;
+        }
+        if (edgesResult.sequence.length === 0 && cornersResult.sequence.length === 0)
+        {
+            showError ("Enter or generate a memorization sequence first.");
+            return;
+        }
+        const moves = new BlindSolver3x3 ().convertMemorizationSequenceToMoves (
+            edgesResult.sequence, cornersResult.sequence
+        );
+        startApplyingMoveSet (moves);
+    };
+    buttonRowDOM.appendChild (executeButtonDOM);
+
+    addBlindLetterSchemeReference (panelDOM);
+}
+
+/**
+ * Adds a labeled text input row (used for the edge/corner memorization
+ * sequences) to the given parent and returns the input element.
+ */
+function addBlindMemoInputRow (parentDOM, labelText) {
+    const rowDOM = document.createElement ("div");
+    rowDOM.className = "blindInputRow";
+    parentDOM.appendChild (rowDOM);
+
+    const labelDOM = document.createElement ("label");
+    labelDOM.className = "blindInputLabel";
+    labelDOM.innerText = labelText;
+    rowDOM.appendChild (labelDOM);
+
+    const inputDOM = document.createElement ("input");
+    inputDOM.type = "text";
+    inputDOM.className = "blindInput";
+    inputDOM.placeholder = "e.g. C K P R";
+    inputDOM.autocomplete = "off";
+    rowDOM.appendChild (inputDOM);
+
+    return inputDOM;
+}
+
+/**
+ * Adds a collapsible reference showing the edge/corner memorization
+ * lettering diagrams (see BlindSolver3x3.js), so the letters above are
+ * actually interpretable.
+ */
+function addBlindLetterSchemeReference (parentDOM) {
+    const toggleButtonDOM = document.createElement ("button");
+    toggleButtonDOM.className = "schemeToggleButton";
+    toggleButtonDOM.innerText = "\u25B8 Letter Scheme Reference";
+    parentDOM.appendChild (toggleButtonDOM);
+
+    const schemeBlockDOM = document.createElement ("div");
+    schemeBlockDOM.className = "schemeBlock";
+    schemeBlockDOM.style.display = "none";
+    parentDOM.appendChild (schemeBlockDOM);
+
+    const schemeCaptionDOM = document.createElement ("div");
+    schemeCaptionDOM.className = "schemeCaption";
+    schemeCaptionDOM.innerText = "Scheme matches unfolded minimap view of cube. Buffer pieces are skipped while memorizing " +
+        "(they're where you start), and the last letter in a cycle is the target - the piece already in place.";
+    schemeBlockDOM.appendChild (schemeCaptionDOM);
+
+    const edgesHeaderDOM = document.createElement ("div");
+    edgesHeaderDOM.className = "schemeHeader";
+    edgesHeaderDOM.innerText = "Edges - buffer: B (UR), target: D (UL)";
+    schemeBlockDOM.appendChild (edgesHeaderDOM);
+
+    const edgesDiagramDOM = document.createElement ("pre");
+    edgesDiagramDOM.className = "schemeDiagram";
+    edgesDiagramDOM.innerText =
+        "        .  A  .\n" +
+        "        D  .  B\n" +
+        "        .  C  .\n" +
+        ".  E  .|.  I  .|.  M  .|.  Q  .\n" +
+        "H  .  F|L  .  J|P  .  N|T  .  R\n" +
+        ".  G  .|.  K  .|.  O  .|.  S  .\n" +
+        "        .  U  .\n" +
+        "        X  .  V\n" +
+        "        .  W  .";
+    schemeBlockDOM.appendChild (edgesDiagramDOM);
+
+    const cornersHeaderDOM = document.createElement ("div");
+    cornersHeaderDOM.className = "schemeHeader";
+    cornersHeaderDOM.innerText = "Corners - buffer: E (LBU), target: V (BFR)";
+    schemeBlockDOM.appendChild (cornersHeaderDOM);
+
+    const cornersDiagramDOM = document.createElement ("pre");
+    cornersDiagramDOM.className = "schemeDiagram";
+    cornersDiagramDOM.innerText =
+        "        A  .  B\n" +
+        "        .  .  .\n" +
+        "        D  .  C\n" +
+        "E  .  F|I  .  J|M  .  N|Q  .  R\n" +
+        ".  .  .|.  .  .|.  .  .|.  .  .\n" +
+        "H  .  G|L  .  K|P  .  O|T  .  S\n" +
+        "        U  .  V\n" +
+        "        .  .  .\n" +
+        "        X  .  W";
+    schemeBlockDOM.appendChild (cornersDiagramDOM);
+
+    toggleButtonDOM.onclick = () => {
+        const isCollapsed = schemeBlockDOM.style.display === "none";
+        schemeBlockDOM.style.display = isCollapsed ? "" : "none";
+        toggleButtonDOM.innerText = (isCollapsed ? "\u25BE" : "\u25B8") + " Letter Scheme Reference";
+    };
 }
 
 // =======================================================================

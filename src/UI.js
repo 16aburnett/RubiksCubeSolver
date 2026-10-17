@@ -51,18 +51,24 @@ class UICollapsibleSection
 {
     // <div class="controlHeader collapsible">
     //     <h2>Solver Controls</h2>
+    //     <span class="sectionToggleIcon">▾</span>
     // </div>
     // <div class="collapsible-content">
-    //     <table class="controlGroup" id="solverControlsTable">
-    //         <!-- Solver controls will get populated here -->
-    //     </table>
+    //     <p class="sectionDescription">...</p>
+    //     <div class="stepList">
+    //         <!-- Solver steps will get populated here -->
+    //     </div>
     // </div>
-    constructor (sectionTitle)
+    //
+    // sectionDescription (optional): a short summary shown under the
+    // section header explaining what this solver/method is.
+    constructor (sectionTitle, sectionDescription = null)
     {
         // TODO: Make this not hardcoded to the solver tab
         const solverTab = document.getElementById ("solverTabContent");
 
         this.sectionDOM = document.createElement ("div");
+        this.sectionDOM.className = "solverSection";
         solverTab.appendChild (this.sectionDOM);
 
         const header = document.createElement ("div");
@@ -70,40 +76,131 @@ class UICollapsibleSection
         const h2 = document.createElement ("h2");
         h2.innerText = sectionTitle;
         header.appendChild (h2);
+        const toggleIconDOM = document.createElement ("span");
+        toggleIconDOM.className = "sectionToggleIcon";
+        toggleIconDOM.innerText = "\u25BE"; // ▾ (expanded by default)
+        header.appendChild (toggleIconDOM);
         this.sectionDOM.appendChild (header);
         header.addEventListener ("click", function() {
             this.classList.toggle("active");
+            const isCollapsed = this.classList.contains ("active");
             let content = this.nextElementSibling;
-            if (content.style.display === "") {
-                content.style.display = "none";
-            } else {
-                content.style.display = "";
-            }
+            content.style.display = isCollapsed ? "none" : "";
+            toggleIconDOM.innerText = isCollapsed ? "\u25B8" : "\u25BE"; // ▸ : ▾
         });
 
         this.contentDOM = document.createElement ("div");
         this.contentDOM.className = "collapsible-content";
         this.sectionDOM.appendChild (this.contentDOM);
 
-        // I really dont like this being a table
-        this.controlsTableDOM = document.createElement ("table");
-        this.controlsTableDOM.className = "controlGroup";
-        this.contentDOM.appendChild (this.controlsTableDOM);
+        if (sectionDescription)
+        {
+            const sectionDescriptionDOM = document.createElement ("p");
+            sectionDescriptionDOM.className = "sectionDescription";
+            sectionDescriptionDOM.innerText = sectionDescription;
+            this.contentDOM.appendChild (sectionDescriptionDOM);
+        }
+
+        this.stepListDOM = document.createElement ("div");
+        this.stepListDOM.className = "stepList";
+        this.contentDOM.appendChild (this.stepListDOM);
     }
 
-    addButton (buttonLabel, onclickFunction)
+    // Adds a single flat button/step at the top level of this section.
+    // description (optional): short explanation shown under the button.
+    addButton (buttonLabel, onclickFunction, description = null)
     {
-        const tr = document.createElement ("tr");
-        tr.className = "controlRow";
-        const td = document.createElement ("td");
-        td.colSpan = 4
-        const btn = document.createElement ("button");
-        btn.className = "controlButton";
-        btn.onclick = onclickFunction;
-        btn.innerText = buttonLabel;
-        td.appendChild (btn);
-        tr.appendChild (td);
-        this.controlsTableDOM.appendChild (tr);
+        this.addStep ({
+            label: buttonLabel,
+            fn: onclickFunction,
+            description: description
+        });
+    }
+
+    // Adds a list of steps (see addStep for the expected shape of each
+    // step) at the top level of this section. This is the preferred,
+    // data-driven way to populate a solver section.
+    addSteps (steps)
+    {
+        for (const step of steps)
+        {
+            this.addStep (step);
+        }
+    }
+
+    // Recursively renders a step (and any nested sub-steps) as:
+    //   [Run button] [▸/▾ toggle if it has sub-steps]
+    //   description text (optional, small/muted)
+    //   indented sub-steps (collapsed by default)
+    //
+    // step shape:
+    // {
+    //     label:       string, button text
+    //     fn:          function, onclick handler that runs this step
+    //     description: string (optional), short explanation of the step
+    //     primary:     bool (optional), marks this as the "main" action
+    //                  of the section (e.g. a full/complete solve)
+    //     children:    array of steps (optional), sub-steps that make up
+    //                  this step (e.g. the 4 F2L pairs under "Solve F2L")
+    // }
+    addStep (step, parentDOM = this.stepListDOM, depth = 0)
+    {
+        const hasChildren = step.children && step.children.length > 0;
+
+        const rowDOM = document.createElement ("div");
+        rowDOM.className = "stepRow";
+        parentDOM.appendChild (rowDOM);
+
+        const mainRowDOM = document.createElement ("div");
+        mainRowDOM.className = "stepMainRow";
+        rowDOM.appendChild (mainRowDOM);
+
+        const buttonDOM = document.createElement ("button");
+        buttonDOM.className = "stepButton " + (
+            step.primary ? "primary" : depth == 0 ? "stage" : "substep"
+        );
+        buttonDOM.innerText = step.label;
+        buttonDOM.onclick = step.fn;
+        mainRowDOM.appendChild (buttonDOM);
+
+        // Steps with sub-steps get a toggle to expand/collapse them
+        // separately from running the step itself.
+        if (hasChildren)
+        {
+            const toggleDOM = document.createElement ("button");
+            toggleDOM.className = "stepToggle";
+            toggleDOM.innerText = "\u25B8"; // ▸ (collapsed by default)
+            toggleDOM.title = "Show/hide sub-steps";
+            mainRowDOM.appendChild (toggleDOM);
+        }
+
+        if (step.description)
+        {
+            const descriptionDOM = document.createElement ("div");
+            descriptionDOM.className = "stepDescription";
+            descriptionDOM.innerText = step.description;
+            rowDOM.appendChild (descriptionDOM);
+        }
+
+        if (hasChildren)
+        {
+            const childrenDOM = document.createElement ("div");
+            childrenDOM.className = "stepChildren";
+            childrenDOM.style.display = "none";
+            rowDOM.appendChild (childrenDOM);
+
+            const toggleDOM = mainRowDOM.querySelector (".stepToggle");
+            toggleDOM.addEventListener ("click", () => {
+                const isCollapsed = childrenDOM.style.display === "none";
+                childrenDOM.style.display = isCollapsed ? "" : "none";
+                toggleDOM.innerText = isCollapsed ? "\u25BE" : "\u25B8"; // ▾ : ▸
+            });
+
+            for (const childStep of step.children)
+            {
+                this.addStep (childStep, childrenDOM, depth + 1);
+            }
+        }
     }
 }
 

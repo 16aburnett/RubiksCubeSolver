@@ -424,6 +424,39 @@ button:hover {
     white-space: pre;
 }
 
+/* Algorithms tab: recently-applied custom algorithm chips */
+
+.recentAlgoList {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5vh;
+    margin-top: 0.6vh;
+}
+
+.recentAlgoChip {
+    flex: 0 1 auto;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: 'Courier New', monospace;
+    font-size: 1.1vh;
+    padding: 0.3vh 0.8vh;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    color: #444;
+}
+
+.recentAlgoChip:hover {
+    background-color: rgb(130, 130, 250);
+    color: #fff;
+    border-color: rgb(130, 130, 250);
+}
+
 /* Sliders */
 
 .sliderContainer {

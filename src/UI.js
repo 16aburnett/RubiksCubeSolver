@@ -24,6 +24,15 @@ function clearSolverControls ()
 
 // =======================================================================
 
+function clearAlgorithmsControls ()
+{
+    const algorithmsTab = document.getElementById ("algorithmsTabContent");
+    // Remove all controls
+    algorithmsTab.innerHTML = '';
+}
+
+// =======================================================================
+
 function openTab (event, tabContentID)
 {
     // Ensure all other tab contents are closed/hidden
@@ -62,14 +71,16 @@ class UICollapsibleSection
     //
     // sectionDescription (optional): a short summary shown under the
     // section header explaining what this solver/method is.
-    constructor (sectionTitle, sectionDescription = null)
+    // containerID (optional): id of the element to append this section
+    // to. Defaults to the Solver tab; pass "algorithmsTabContent" to
+    // instead add this section to the Algorithms tab.
+    constructor (sectionTitle, sectionDescription = null, containerID = "solverTabContent")
     {
-        // TODO: Make this not hardcoded to the solver tab
-        const solverTab = document.getElementById ("solverTabContent");
+        const container = document.getElementById (containerID);
 
         this.sectionDOM = document.createElement ("div");
         this.sectionDOM.className = "solverSection";
-        solverTab.appendChild (this.sectionDOM);
+        container.appendChild (this.sectionDOM);
 
         const header = document.createElement ("div");
         header.className = "controlHeader collapsible";

@@ -92,6 +92,7 @@ function setupCube (N)
 {
     clearCubeControls ();
     clearSolverControls ();
+    clearAlgorithmsControls ();
 
     scrambled = false;
     isApplyingMoveSet = false;
@@ -503,6 +504,8 @@ function setupCube (N)
     cubeMoveNotation = new CubeMoveNotation (rubiksCube.dim);
     // Setup cube control buttons
     addCubeControlButtons ();
+    // Setup Algorithms tab (custom input works for any N; presets are 3x3-specific)
+    buildAlgorithmsTab (N);
 
     // Sync turn speed
     const turnSpeedTextbox = document.getElementById ("turnSpeedTextbox");
@@ -797,6 +800,266 @@ function addBlindLetterSchemeReference (parentDOM) {
         schemeBlockDOM.style.display = isCollapsed ? "" : "none";
         toggleButtonDOM.innerText = (isCollapsed ? "\u25BE" : "\u25B8") + " Letter Scheme Reference";
     };
+}
+
+// =======================================================================
+// Algorithms tab: a place to apply preset named algorithms (OLL, PLL,
+// common finger-trick triggers) and to type in and apply any custom
+// algorithm string, independent of the step-by-step solvers.
+// =======================================================================
+
+// Remembers the last few custom algorithms applied this session so they
+// can be re-applied without retyping them.
+let recentCustomAlgorithms = [];
+
+/**
+ * (Re)builds the Algorithms tab for the current cube. The custom
+ * algorithm input works for any cube size; the named preset algorithms
+ * (OLL/PLL/triggers) assume a standard 3x3 last-layer, so they're only
+ * shown for N == 3.
+ * @param {*} N the number of layers for the current cube (NxNxN)
+ */
+function buildAlgorithmsTab (N) {
+    const customSection = new UICollapsibleSection (
+        "Custom Algorithm",
+        "Type any sequence of moves in standard cube notation (e.g. \"R U R' U'\") and apply it directly to the cube.",
+        "algorithmsTabContent"
+    );
+    buildCustomAlgorithmPanel (customSection);
+
+    if (N !== 3)
+    {
+        return;
+    }
+
+    const ollSection = new UICollapsibleSection (
+        "OLL Algorithms",
+        "Orients the last layer so the whole top face is one color. A few commonly named cases/triggers.",
+        "algorithmsTabContent"
+    );
+    ollSection.addSteps ([
+        {
+            label: "Sune",
+            description: "R U R' U R U2 R' - cycles/orients 3 corners. Order 6 (applying it 6 times returns to solved).",
+            fn: () => applyAlgorithmMoves ("R U R' U R U U R'")
+        },
+        {
+            label: "Anti-Sune",
+            description: "R U2 R' U' R U' R' - the mirror of Sune.",
+            fn: () => applyAlgorithmMoves ("R U U R' U' R U' R'")
+        },
+    ]);
+
+    const pllSection = new UICollapsibleSection (
+        "PLL Algorithms",
+        "Permutes the last layer pieces into their correct spots, assuming orientation is already solved.",
+        "algorithmsTabContent"
+    );
+    pllSection.addSteps ([
+        {
+            label: "T-Perm",
+            description: "R U R' U' R' F R2 U' R' U' R U R' F' - swaps 2 corners and 2 edges.",
+            fn: () => applyAlgorithmMoves ("R U R' U' R' F R R U' R' U' R U R' F'")
+        },
+        {
+            label: "Y-Perm",
+            description: "F R U' R' U' R U R' F' R U R' U' R' F R F' - swaps 2 corners and 2 edges (diagonal).",
+            fn: () => applyAlgorithmMoves ("F R U' R' U' R U R' F' R U R' U' R' F R F'")
+        },
+        {
+            label: "A-Perm",
+            description: "R' F R' B2 R F' R' B2 R2 - cycles 3 corners.",
+            fn: () => applyAlgorithmMoves ("R' F R' B B R F' R' B B R R")
+        },
+        {
+            label: "U-Perm",
+            description: "R U' R U R U R U' R' U' R2 - cycles 3 edges.",
+            fn: () => applyAlgorithmMoves ("R U' R U R U R U' R' U' R R")
+        },
+    ]);
+
+    const triggersSection = new UICollapsibleSection (
+        "Common Triggers",
+        "Short finger-trick building blocks that show up inside many longer algorithms.",
+        "algorithmsTabContent"
+    );
+    triggersSection.addSteps ([
+        {
+            label: "Sexy Move",
+            description: "R U R' U' - the most common trigger in speedsolving. Order 6.",
+            fn: () => applyAlgorithmMoves ("R U R' U'")
+        },
+        {
+            label: "Inverse Sexy Move",
+            description: "U R U' R' - the Sexy Move done backwards.",
+            fn: () => applyAlgorithmMoves ("U R U' R'")
+        },
+        {
+            label: "Sledgehammer",
+            description: "R' F R F' - another very common trigger.",
+            fn: () => applyAlgorithmMoves ("R' F R F'")
+        },
+        {
+            label: "Inverse Sledgehammer",
+            description: "F R' F' R - the Sledgehammer done backwards.",
+            fn: () => applyAlgorithmMoves ("F R' F' R")
+        },
+    ]);
+}
+
+/**
+ * Parses the given algorithm string and animates it on the current
+ * cube. Throws (via cubeMoveNotation.stringToMove) if any move token
+ * isn't valid for the current cube size - callers that take user input
+ * should catch that and report it, rather than let it propagate.
+ * @param {*} algorithmString space-delimited cube notation moves
+ */
+function applyAlgorithmMoves (algorithmString) {
+    const moveSet = cubeMoveNotation.stringToMoveSet (algorithmString);
+    startApplyingMoveSet (moveSet);
+}
+
+/**
+ * Returns the exact reverse of the given algorithm string: moves in
+ * reverse order, each one inverted, so applying it undoes the original.
+ */
+function reverseAlgorithmMoves (algorithmString) {
+    const moveSet = cubeMoveNotation.stringToMoveSet (algorithmString);
+    const reversed = [];
+    for (let i = moveSet.length - 1; i >= 0; --i)
+    {
+        reversed.push (cubeMoveNotation.getReverseMove (moveSet[i]));
+    }
+    return reversed;
+}
+
+/**
+ * Builds the free-text "type any algorithm" controls: an input, Apply/
+ * Apply Reversed buttons, an error message area, and a small list of
+ * recently-applied algorithms that can be re-applied with one click.
+ */
+function buildCustomAlgorithmPanel (section) {
+    const panelDOM = document.createElement ("div");
+    panelDOM.className = "blindMemoPanel";
+    section.stepListDOM.appendChild (panelDOM);
+
+    const inputRowDOM = document.createElement ("div");
+    inputRowDOM.className = "blindInputRow";
+    panelDOM.appendChild (inputRowDOM);
+
+    const labelDOM = document.createElement ("label");
+    labelDOM.className = "blindInputLabel";
+    labelDOM.innerText = "Alg";
+    inputRowDOM.appendChild (labelDOM);
+
+    const inputDOM = document.createElement ("input");
+    inputDOM.type = "text";
+    inputDOM.className = "blindInput";
+    inputDOM.placeholder = "e.g. R U R' U'";
+    inputDOM.autocomplete = "off";
+    inputRowDOM.appendChild (inputDOM);
+
+    const errorDOM = document.createElement ("div");
+    errorDOM.className = "blindMemoError";
+    errorDOM.style.display = "none";
+    panelDOM.appendChild (errorDOM);
+
+    const recentListDOM = document.createElement ("div");
+    recentListDOM.className = "recentAlgoList";
+    panelDOM.appendChild (recentListDOM);
+
+    const renderRecentList = () => {
+        recentListDOM.innerHTML = "";
+        for (const algorithmString of recentCustomAlgorithms)
+        {
+            const chipDOM = document.createElement ("button");
+            chipDOM.className = "recentAlgoChip";
+            chipDOM.innerText = algorithmString;
+            chipDOM.title = "Click to re-apply";
+            chipDOM.onclick = () => {
+                inputDOM.value = algorithmString;
+                applyFromInput ();
+            };
+            recentListDOM.appendChild (chipDOM);
+        }
+    };
+
+    const remember = (algorithmString) => {
+        recentCustomAlgorithms = recentCustomAlgorithms.filter (a => a !== algorithmString);
+        recentCustomAlgorithms.unshift (algorithmString);
+        recentCustomAlgorithms = recentCustomAlgorithms.slice (0, 5);
+        renderRecentList ();
+    };
+
+    const applyFromInput = () => {
+        errorDOM.style.display = "none";
+        // Move letters are always uppercase in cube notation (matching
+        // the input's uppercase display) - normalize so lowercase typing
+        // still parses correctly.
+        const trimmed = inputDOM.value.trim ().toUpperCase ();
+        if (trimmed === "")
+        {
+            errorDOM.innerText = "Enter an algorithm first.";
+            errorDOM.style.display = "";
+            return;
+        }
+        try
+        {
+            applyAlgorithmMoves (trimmed);
+            remember (trimmed);
+        }
+        catch (e)
+        {
+            errorDOM.innerText = "Invalid algorithm: " + e.message;
+            errorDOM.style.display = "";
+        }
+    };
+
+    const applyReversedFromInput = () => {
+        errorDOM.style.display = "none";
+        const trimmed = inputDOM.value.trim ().toUpperCase ();
+        if (trimmed === "")
+        {
+            errorDOM.innerText = "Enter an algorithm first.";
+            errorDOM.style.display = "";
+            return;
+        }
+        try
+        {
+            startApplyingMoveSet (reverseAlgorithmMoves (trimmed));
+            remember (trimmed);
+        }
+        catch (e)
+        {
+            errorDOM.innerText = "Invalid algorithm: " + e.message;
+            errorDOM.style.display = "";
+        }
+    };
+
+    const buttonRowDOM = document.createElement ("div");
+    buttonRowDOM.className = "blindMemoButtonRow";
+    panelDOM.appendChild (buttonRowDOM);
+
+    const applyButtonDOM = document.createElement ("button");
+    applyButtonDOM.className = "stepButton primary";
+    applyButtonDOM.innerText = "Apply";
+    applyButtonDOM.onclick = applyFromInput;
+    buttonRowDOM.appendChild (applyButtonDOM);
+
+    const applyReversedButtonDOM = document.createElement ("button");
+    applyReversedButtonDOM.className = "stepButton stage";
+    applyReversedButtonDOM.innerText = "Apply Reversed";
+    applyReversedButtonDOM.onclick = applyReversedFromInput;
+    buttonRowDOM.appendChild (applyReversedButtonDOM);
+
+    inputDOM.addEventListener ("keydown", (event) => {
+        if (event.key === "Enter")
+        {
+            applyFromInput ();
+        }
+    });
+
+    renderRecentList ();
 }
 
 // =======================================================================

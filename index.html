@@ -27,11 +27,11 @@
     </head>
     <body>
         <div class="header">
-            <h2>Rubik's Cube Solver</h2>
-            <h5>Created by Amy Burnett</h5>
+            <h2 class="header-title">Rubik's Cube Solver</h2>
+            <h5 class="header-subtitle">Created by Amy Burnett</h5>
         </div>
         <main></main>
-        <div class="controls">
+        <div class="controlsPanel">
             <div class="tab-list">
                 <div class="tab active" onclick="openTab (event, 'setup-tab')">Setup</div>
                 <div class="tab" onclick="openTab (event, 'controls-tab')">Controls</div>
@@ -42,59 +42,66 @@
                 <div class="tabHeader">
                     <h2>Cube Setup</h2>
                 </div>
-                <div class="tabHeader">
+                <div class="controlHeader">
                     <h2>Common Rubik's Cubes</h2>
+                    <!-- <span class="sectionToggleIcon">&#x25BE;</span> -->
                 </div>
-                <table class="controlGroup" id="cubeSetupTable">
-                    <tr class="controlRow">
-                        <td colspan="3">
-                            <button class="controlButton" onclick="setupCube (1)">Load 1x1 Rubik's Cube</button>
-                        </td>
-                    </tr>
-                    <tr class="controlRow">
-                        <td colspan="3">
-                            <button class="controlButton" onclick="setupCube (2)">Load 2x2 Rubik's Cube</button>
-                        </td>
-                    </tr>
-                    <tr class="controlRow">
-                        <td colspan="3">
-                            <button class="controlButton" onclick="setupCube (3)">Load 3x3 Rubik's Cube</button>
-                        </td>
-                    </tr>
-                    <!-- <tr class="controlRow">
-                        <td colspan="3">
-                            <form class="navForm" action="./index.html" method="GET">
-                                <input type="input" name="type" value="old 3x3" hidden>
-                                <input class="navButton" type="submit" value="old 3x3 Rubik's Cube">
-                            </form>
-                        </td>
-                    </tr> -->
-                    <tr class="controlRow">
-                        <td colspan="3">
-                            <button class="controlButton" onclick="setupCube (4)">Load 4x4 Rubik's Cube</button>
-                        </td>
-                    </tr>
-                    <tr class="controlRow">
-                        <td colspan="3">
-                            <button class="controlButton" onclick="setupCube (5)">Load 5x5 Rubik's Cube</button>
-                        </td>
-                    </tr>
-                </table>
-                <div class="tabHeader">
+                <div class="collapsible-content">
+                    <div class="stepList">
+                        <div class="stepRow">
+                            <div class="stepMainRow">
+                                <button class="stepButton stage" onclick="setupCube (1)">Load 1x1 Rubik's Cube</button>
+                            </div>
+                        </div>
+                        <div class="stepRow">
+                            <div class="stepMainRow">
+                                <button class="stepButton stage" onclick="setupCube (2)">Load 2x2 Rubik's Cube</button>
+                            </div>
+                        </div>
+                        <div class="stepRow">
+                            <div class="stepMainRow">
+                                <button class="stepButton stage" onclick="setupCube (3)">Load 3x3 Rubik's Cube</button>
+                            </div>
+                        </div>
+                        <div class="stepRow">
+                            <div class="stepMainRow">
+                                <button class="stepButton stage" onclick="setupCube (4)">Load 4x4 Rubik's Cube</button>
+                            </div>
+                        </div>
+                        <div class="stepRow">
+                            <div class="stepMainRow">
+                                <button class="stepButton stage" onclick="setupCube (5)">Load 5x5 Rubik's Cube</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controlHeader">
                     <h2>NxN Cubes</h2>
                 </div>
-                <div class="sliderContainer">
-                    <div class="sliderLabel">
-                        N
-                    </div>
-                    <div class="sliderSliderContainer">
-                        <input class="sliderSlider" type="range" min="1" max="20" value="3" id="NSlider">
-                    </div>
-                    <div class="sliderTextboxContainer">
-                        <input class="sliderTextbox" type="number" min="1" max="20" value="3" id="NTextbox">
+                <div class="collapsible-content">
+                    <p class="sectionDescription">Select the size of the NxN Rubik's Cube you want to load.</p>
+                    <div class="stepList">
+                        <div class="stepRow">
+                            <div class="sliderContainer">
+                                <div class="sliderLabel">
+                                    N
+                                </div>
+                                <div class="sliderSliderContainer">
+                                    <input class="sliderSlider" type="range" min="1" max="20" value="3" id="NSlider">
+                                </div>
+                                <div class="sliderTextboxContainer">
+                                    <input class="sliderTextbox" type="number" min="1" max="20" value="3" id="NTextbox">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stepRow">
+                            <div class="stepMainRow">
+                                <button class="stepButton stage" onclick="setupNxNCube ()">Load NxN Rubik's Cube</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <button class="controlButton" onclick="setupNxNCube ()">Load NxN Rubik's Cube</button>
             </div>
             <div class="tab-content" id="controls-tab" style="display: none;">
                 <div class="tabHeader">
@@ -103,10 +110,10 @@
                 <table class="controlGroup">
                     <tr class="controlRow">
                         <td colspan="2">
-                            <button class="controlButton" onclick="scramble()">Scramble</button>
+                            <button class="controlButton special" onclick="scramble()">Scramble</button>
                         </td>
                         <td colspan="2">
-                            <button class="controlButton" onclick="reset()">Reset</button>
+                            <button class="controlButton special" onclick="reset()">Reset</button>
                         </td>
                     </tr>
                 </table>

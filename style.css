@@ -24,36 +24,42 @@ main {
     margin: 0;
 }
 
-.controls {
-    background-color: #fff;
-    float: right;
-    width: 33%;
-    height: 90%;
-    overflow-y: scroll;
-    outline: solid 2px black;
-}
+/*************************************************************************
+   Header
+*************************************************************************/
 
 .header {
+    color: rgb(16, 16, 16);
     background-color: rgb(130, 130, 250);
     margin: 0;
-    height: 10%;
+    height: 10vh;
 }
 
-.header h2 {
+.header-title {
     margin: 0;
-    font-size: 5vh;
+    font-size: 6vh;
     padding-left: 1.25vh;
 }
 
-.header h5 {
+.header-subtitle {
     margin: 0;
-    font-size: 2.5vh;
+    font-size: 1.5vh;
     padding-left: 1.25vh;
+    font-weight: 100;
+}
+
+/*************************************************************************
+   Tabs
+*************************************************************************/
+
+.tab-list {
+    display: flex;
+    border-bottom: 2px solid rgb(35, 35, 35);
 }
 
 .tab {
     background-color: inherit;
-    float: left;
+    flex: 1;
     border: none;
     outline: none;
     cursor: pointer;
@@ -73,6 +79,7 @@ main {
 .tab-content {
     float: left;
     width: 100%;
+    padding-top: 1vh;
 }
 
 .tabHeader {
@@ -96,6 +103,19 @@ main {
     width: 100%;
     font-size: 2.5vh;
     min-height: 5vh;
+}
+
+/*************************************************************************
+   Controls
+*************************************************************************/
+
+.controlsPanel {
+    background-color: #fff;
+    float: right;
+    width: 33%;
+    height: 90%;
+    overflow-y: scroll;
+    border-left: 2px solid rgb(14, 14, 14);
 }
 
 .controlGroup {
@@ -153,7 +173,36 @@ h2 {
 .controlButton {
     width: 100%;
     font-size: 2.5vh;
-    min-height: 5vh;
+    text-align: center;
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 1.5vh;
+    min-height: 3.4vh;
+    border: none;
+    border-radius: 4px;
+    padding: 0 1vh;
+}
+
+.controlButton.primary {
+    background-color: #e3e3fb;
+    color: #222;
+    font-weight: 600;
+}
+
+.controlButton.primary:hover {
+    background-color: #d3d3f7;
+}
+
+.controlButton.special {
+    background-color: rgb(130, 130, 250);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.8vh;
+    min-height: 4.2vh;
+}
+
+.controlButton.special:hover {
+    background-color: rgb(110, 110, 230);
 }
 
 button:hover {
@@ -304,7 +353,9 @@ button:hover {
     border-left: 2px solid #ddd;
 }
 
-/* Blindfolded solver: memorization sequence controls */
+/*************************************************************************
+   Blindfolded Solver
+*************************************************************************/
 
 .blindMemoPanel {
     width: 100%;
@@ -424,7 +475,9 @@ button:hover {
     white-space: pre;
 }
 
-/* Algorithms tab: recently-applied custom algorithm chips */
+/*************************************************************************
+   Algorithms Tab
+*************************************************************************/
 
 .recentAlgoList {
     width: 100%;
@@ -457,99 +510,118 @@ button:hover {
     border-color: rgb(130, 130, 250);
 }
 
-/* Sliders */
+/*************************************************************************
+   Sliders
+*************************************************************************/
 
 .sliderContainer {
-    /* background-color: aqua; */
     width: 100%;
-    height: 5vh;
-    padding-left: 10px;
-    padding-right: 10px;
     box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 0.8vh;
+    padding: 0.8vh 1vh;
 }
 
 .sliderLabel {
-    /* background-color: red; */
-    width: 50%;
-    height: 100%;
-    float: left;
-    padding: 5px;
+    flex: 0 0 auto;
     box-sizing: border-box;
-    font-size: 2.5vh;
-    display: grid;
-    align-items: center;
+    font-size: 1.5vh;
+    font-weight: 600;
+    color: #444;
+    padding: 0;
 }
 
 .sliderSliderContainer {
-    /* background-color: green; */
-    width: 25%;
+    flex: 1 1 auto;
     min-width: 5vh;
-    height: 100%;
-    float: left;
-    padding: 5px;
     box-sizing: border-box;
+    padding: 0;
+    display: flex;
+    align-items: center;
 }
 
 .sliderSlider {
     -webkit-appearance: none;
+    appearance: none;
     width: 100%;
-    height: 100%;
-    background: #dddddd;
+    height: 3.4vh;
+    background: #e3e3fb;
+    border: 1px solid rgb(130, 130, 250);
     outline: none;
-    border-radius: 5px;
-    -webkit-transition: .2s;
-    transition: .2s;
+    border-radius: 4px;
+    transition: background-color .2s;
     margin: 0;
 }
 
 .sliderSlider:hover {
-    background-color: #d3d3d3;
+    background-color: #d3d3f7;
 }
-  
+
 .sliderSlider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    overflow: visible;
-    width: 5px;
-    height: 5vh;
+    width: 1.2vh;
+    height: 3.4vh;
+    border-radius: 10%;
     background: rgb(130, 130, 250);
+    border: none;
     cursor: pointer;
+    transition: background-color .2s;
 }
-  
+
+.sliderSlider::-webkit-slider-thumb:hover {
+    background: rgb(110, 110, 230);
+}
+
+.sliderSlider::-moz-range-track {
+    background: #e3e3fb;
+    border-radius: 4px;
+    height: 3.4vh;
+}
+
 .sliderSlider::-moz-range-thumb {
-    width: 5px;
-    height: 5vh;
+    width: 1.2vh;
+    height: 3.4vh;
+    border-radius: 10%;
     background: rgb(130, 130, 250);
+    border: none;
     cursor: pointer;
+    transition: background-color .2s;
+}
+
+.sliderSlider::-moz-range-thumb:hover {
+    background: rgb(110, 110, 230);
 }
 
 .sliderTextboxContainer {
-    /* background-color: blue; */
-    width: 25%;
-    min-width: 5vh;
-    height: 100%;
-    float: left;
-    padding: 5px;
+    flex: 0 0 auto;
+    width: 5.5vh;
     box-sizing: border-box;
+    padding: 0;
 }
 
 .sliderTextbox {
-    height: 100%;
     width: 100%;
-    border-radius: 5px;
-    background: #dddddd;
-    color: rgb(130, 130, 250);
-    outline: none;
-    border: none;
-    font-size: 2.5vh;
-    overflow: hidden;
-    padding-left: 5px;
+    height: 3.4vh;
     box-sizing: border-box;
-    -webkit-transition: .2s;
-    transition: .2s;
+    border-radius: 4px;
+    background: #fff;
+    color: rgb(80, 80, 210);
+    font-weight: 700;
+    outline: none;
+    border: 1px solid #bbb;
+    font-size: 1.5vh;
+    text-align: center;
+    padding: 0;
     margin: 0;
+    transition: border-color .2s;
 }
-  
+
 .sliderTextbox:hover {
-    background-color: #d3d3d3;
+    border-color: rgb(130, 130, 250);
+}
+
+.sliderTextbox:focus {
+    border-color: rgb(130, 130, 250);
 }

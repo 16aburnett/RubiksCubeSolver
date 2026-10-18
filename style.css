@@ -1,15 +1,67 @@
 /*
     Rubiks Cube Solver
     By Amy Burnett
-    January 2 2020
+    October 18, 2026
 */
+
+/*************************************************************************
+   Themes
+*************************************************************************/
+
+/* Periwinkle Theme */
+.periwinkle-theme {
+    --primary:               rgb(130, 130, 250);
+    --primary-hover:         rgb(110, 110, 230);
+    --primary-dark:          rgb(80, 80, 210);
+    --primary-text:          rgb(255, 255, 255);
+    --secondary:             #e3e3fb;
+    --secondary-hover:       #d3d3f7;
+    --secondary-light:       #f1f1fd;
+    --secondary-light-hover: #e4e4fb;
+    --secondary-text:        rgb(0, 0, 0);
+}
+
+/* The Cherry Blossom Sky */
+
+:root {
+    /* Main Actions: Crisp Sky Blue */
+    --primary:               rgb(123, 193, 250);
+    --primary-hover:         rgb(93, 173, 240);
+    --primary-dark:          rgb(63, 143, 220);
+    --primary-text:          rgb(255, 255, 255);
+    /* Background & Secondary: Pastel Cherry Blossom */
+    --secondary:             #FFF0F5;
+    --secondary-hover:       #FFE4E1;
+    --secondary-light:       #F4F9FF;
+    --secondary-light-hover: #EBF3FC;
+    --secondary-text:        rgb(0, 0, 0);
+}
+
+/* The Sky to Sea Palette */
+
+.sky-to-sea {
+    /* Main Actions: Vibrant Sea / Cyan Blue */
+    --primary:               rgb(78, 194, 204);  /* Bright Turquoise */
+    --primary-hover:         rgb(58, 174, 184);  /* Rich Teal-Blue */
+    --primary-dark:          rgb(38, 144, 154);  /* Deep Sea Anchor */
+    --primary-text:          rgb(255, 255, 255); /* Crisp White */
+    /* Background & Secondary: Soft Mint & Sky */
+    --secondary:             #E6F7F4;            /* Soft Pale Mint */
+    --secondary-hover:       #D2F1EC;            /* Light Seafoam */
+    --secondary-light:       #F0F8FF;            /* Alice Blue Canvas Background */
+    --secondary-light-hover: #E4F0FC;            /* Tinted Sky Hover */
+    --secondary-text:          rgb(0, 0, 0); /* Crisp Black for contrast with light background */
+}
+
+/*************************************************************************
+   Main
+*************************************************************************/
 
 html, body {
     height: 100%;
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background-color: #111;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     /* Without a <meta name="viewport"> tag, some browsers auto-boost small
        text size for readability, which badly inflates the rem-based solver
@@ -29,8 +81,8 @@ main {
 *************************************************************************/
 
 .header {
-    color: rgb(16, 16, 16);
-    background-color: rgb(130, 130, 250);
+    color: var(--primary-text);
+    background-color: var(--primary);
     margin: 0;
     height: 10vh;
 }
@@ -66,14 +118,22 @@ main {
     transition: 0.3s;
     font-size: 2.5vh;
     padding: 1.25vh;
+    text-align: center;
 }
 
 .tab:hover {
-    background-color: #ddd;
+    background-color: var(--secondary);
+    color: var(--secondary-text);
 }
 
 .tab.active {
-    background-color: #ccc;
+    background-color: var(--secondary-light);
+    border-top:   2px solid var(--primary);
+    border-left:  2px solid var(--primary);
+    border-right: 2px solid var(--primary);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    color: var(--primary-dark);
 }
 
 .tab-content {
@@ -84,7 +144,6 @@ main {
 
 .tabHeader {
     width: 100%;
-    /* background-color: rgb(130, 130, 250); */
     text-align: center;
     margin: 0;
     font-size: 2.5vh;
@@ -93,7 +152,6 @@ main {
 }
 
 .navForm {
-    /* background-color: yellow; */
     display: inline-block;
     width: 100%;
 }
@@ -137,8 +195,8 @@ main {
     align-items: center;
     justify-content: space-between;
     gap: 0.8vh;
-    background-color: #f1f1fd;
-    border: 2px solid rgb(130, 130, 250);
+    background-color: var(--secondary-light);
+    border: 2px solid var(--primary);
     border-radius: 6px;
     margin: 0 1.2vh;
     padding: 0.8vh 1.2vh;
@@ -147,13 +205,13 @@ main {
 }
 
 .controlHeader:hover {
-    background-color: #e4e4fb;
+    background-color: var(--secondary-light-hover);
 }
 
 .controlHeader h2 {
     font-size: 1.9vh;
     font-weight: 700;
-    color: rgb(80, 80, 210);
+    color: var(--primary-dark);
     line-height: 1.2;
 }
 
@@ -184,25 +242,25 @@ h2 {
 }
 
 .controlButton.primary {
-    background-color: #e3e3fb;
-    color: #222;
+    background-color: var(--secondary);
+    color: var(--secondary-text);
     font-weight: 600;
 }
 
 .controlButton.primary:hover {
-    background-color: #d3d3f7;
+    background-color: var(--secondary-hover);
 }
 
 .controlButton.special {
-    background-color: rgb(130, 130, 250);
-    color: #fff;
+    background-color: var(--primary);
+    color: var(--primary-text);
     font-weight: 700;
     font-size: 1.8vh;
     min-height: 4.2vh;
 }
 
 .controlButton.special:hover {
-    background-color: rgb(110, 110, 230);
+    background-color: var(--primary-hover);
 }
 
 button:hover {
@@ -222,16 +280,16 @@ button:hover {
     justify-content: center;
     font-size: 1.5vh;
     line-height: 1;
-    color: rgb(80, 80, 210);
+    color: var(--primary-dark);
     background-color: #fff;
-    border: 2px solid rgb(130, 130, 250);
+    border: 2px solid var(--primary);
     border-radius: 4px;
     box-sizing: border-box;
 }
 
 .collapsible:hover .sectionToggleIcon {
-    background-color: rgb(130, 130, 250);
-    color: #fff;
+    background-color: var(--primary);
+    color: var(--primary-text);
 }
 
 .collapsible-content {
@@ -246,7 +304,6 @@ button:hover {
     font-size: 1.3vh;
     line-height: 1.35;
     color: #555;
-    background-color: #f5f5f5;
 }
 
 .stepList {
@@ -279,25 +336,25 @@ button:hover {
 }
 
 .stepButton.primary {
-    background-color: rgb(130, 130, 250);
-    color: #fff;
+    background-color: var(--primary);
+    color: var(--primary-text);
     font-weight: 700;
     font-size: 1.8vh;
     min-height: 4.2vh;
 }
 
 .stepButton.primary:hover {
-    background-color: rgb(110, 110, 230);
+    background-color: var(--primary-hover);
 }
 
 .stepButton.stage {
-    background-color: #e3e3fb;
-    color: #222;
+    background-color: var(--secondary);
+    color: var(--secondary-text);
     font-weight: 600;
 }
 
 .stepButton.stage:hover {
-    background-color: #d3d3f7;
+    background-color: var(--secondary-hover);
 }
 
 .stepButton.substep {
@@ -321,16 +378,16 @@ button:hover {
     align-items: center;
     justify-content: center;
     background-color: #fff;
-    border: 2px solid rgb(130, 130, 250);
+    border: 2px solid var(--primary);
     border-radius: 4px;
     font-size: 1.9vh;
     line-height: 1;
-    color: rgb(130, 130, 250);
+    color: var(--primary);
     padding: 0;
 }
 
 .stepToggle:hover {
-    background-color: rgb(130, 130, 250);
+    background-color: var(--primary);
     color: #fff;
 }
 
@@ -398,7 +455,7 @@ button:hover {
 
 .blindInput:focus {
     outline: none;
-    border-color: rgb(130, 130, 250);
+    border-color: var(--primary);
 }
 
 .blindMemoButtonRow {
@@ -432,7 +489,7 @@ button:hover {
     text-align: left;
     background: none;
     border: none;
-    color: rgb(80, 80, 210);
+    color: var(--primary-dark);
     font-size: 1.3vh;
     font-weight: 600;
     padding: 0.4vh 0;
@@ -505,9 +562,9 @@ button:hover {
 }
 
 .recentAlgoChip:hover {
-    background-color: rgb(130, 130, 250);
+    background-color: var(--primary);
     color: #fff;
-    border-color: rgb(130, 130, 250);
+    border-color: var(--primary);
 }
 
 /*************************************************************************
@@ -546,8 +603,8 @@ button:hover {
     appearance: none;
     width: 100%;
     height: 3.4vh;
-    background: #e3e3fb;
-    border: 1px solid rgb(130, 130, 250);
+    background: var(--secondary);
+    border: 1px solid var(--primary);
     outline: none;
     border-radius: 4px;
     transition: background-color .2s;
@@ -555,7 +612,7 @@ button:hover {
 }
 
 .sliderSlider:hover {
-    background-color: #d3d3f7;
+    background-color: var(--secondary-hover);
 }
 
 .sliderSlider::-webkit-slider-thumb {
@@ -564,18 +621,18 @@ button:hover {
     width: 1.2vh;
     height: 3.4vh;
     border-radius: 10%;
-    background: rgb(130, 130, 250);
+    background: var(--primary);
     border: none;
     cursor: pointer;
     transition: background-color .2s;
 }
 
 .sliderSlider::-webkit-slider-thumb:hover {
-    background: rgb(110, 110, 230);
+    background: var(--primary-hover);
 }
 
 .sliderSlider::-moz-range-track {
-    background: #e3e3fb;
+    background: var(--secondary);
     border-radius: 4px;
     height: 3.4vh;
 }
@@ -584,14 +641,14 @@ button:hover {
     width: 1.2vh;
     height: 3.4vh;
     border-radius: 10%;
-    background: rgb(130, 130, 250);
+    background: var(--primary);
     border: none;
     cursor: pointer;
     transition: background-color .2s;
 }
 
 .sliderSlider::-moz-range-thumb:hover {
-    background: rgb(110, 110, 230);
+    background: var(--primary-hover);
 }
 
 .sliderTextboxContainer {
@@ -607,7 +664,7 @@ button:hover {
     box-sizing: border-box;
     border-radius: 4px;
     background: #fff;
-    color: rgb(80, 80, 210);
+    color: var(--primary-dark);
     font-weight: 700;
     outline: none;
     border: 1px solid #bbb;
@@ -619,9 +676,9 @@ button:hover {
 }
 
 .sliderTextbox:hover {
-    border-color: rgb(130, 130, 250);
+    border-color: var(--primary);
 }
 
 .sliderTextbox:focus {
-    border-color: rgb(130, 130, 250);
+    border-color: var(--primary);
 }

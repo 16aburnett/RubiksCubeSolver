@@ -25,7 +25,7 @@ function setup () {
     createCanvas (window.innerWidth * 0.7, window.innerHeight * 0.9);
     // We want to draw relative to 0, 0 rather than the center of the screen
     translate (0, 0);
-    backgroundColor = color ("#111");
+    backgroundColor = color ("#EEF0FC");
     background (backgroundColor);
     // Setup 3D canvas
     graphics = createGraphics (window.innerWidth * 0.7, window.innerHeight * 0.9, WEBGL);
@@ -122,12 +122,12 @@ function setupCube (N)
         rubiksCube = new RubiksCube (2);
         // Setup solver controls buttons
         const CFOPSolverSection = new UICollapsibleSection (
-            "CFOP-like Solver",
-            "A simplified CFOP for 2x2: there's no cross or edges, so it's just First Layer, then OLL, then PLL."
+            "Layer-by-Layer Solver",
+            "A simple layer-by-layer solver for the 2x2 cube. Solves one layer, then orients and permutes the last layer."
         );
         CFOPSolverSection.addSteps ([
             {
-                label: "Full CFOP-Like Solve",
+                label: "Full Solve",
                 primary: true,
                 description: "Runs every stage below in order: first layer, OLL, then PLL.",
                 fn: () => {
@@ -138,7 +138,7 @@ function setupCube (N)
             },
             {
                 label: "Solve First Layer",
-                description: "Solves one full layer of corners (there are no edges on a 2x2).",
+                description: "Solves one full layer of corners.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
                         return new CFOPSolver2x2 ().solveFirstLayer (cube);
@@ -182,7 +182,7 @@ function setupCube (N)
         );
         CFOPSolverSection.addSteps ([
             {
-                label: "Full CFOP-Like Solve",
+                label: "Full Solve",
                 primary: true,
                 description: "Runs every stage below in order: orient, cross, F2L, OLL, then PLL.",
                 fn: () => {
@@ -212,7 +212,7 @@ function setupCube (N)
             },
             {
                 label: "Solve F2L",
-                description: "Solves the first two layers by finding and inserting each of the four corner+edge pairs. Expand to run one pair at a time.",
+                description: "Solves the first two layers by finding and inserting each of the four corner+edge pairs. Expand to run one pair at a time. Note that this is currently very naive and is not optimized for move count.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
                         return new CFOPSolver3x3 ().solveF2L (cube);
@@ -290,7 +290,8 @@ function setupCube (N)
             {
                 label: "Solve 2-Look PLL",
                 description: "Permutes the last layer in two passes (corners, then edges). " +
-                    "Uses fewer algorithms than full PLL, but may require more moves.",
+                    "Uses fewer algorithms than full PLL, but may require more moves." +
+                    "Alternative: Full PLL.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
                         return new CFOPSolver3x3 ().solve2LookPLL (cube);
@@ -333,7 +334,7 @@ function setupCube (N)
         const RouxSolverSection = new UICollapsibleSection (
             "Roux Solver",
             "Builds two 1x3 blocks on the left/right, then solves the last layer corners and remaining " +
-            "edges mostly with M- and U-moves - far fewer cube rotations than CFOP."
+            "edges mostly with M- and U-moves - far fewer cube rotations and overall moves than CFOP."
         );
         RouxSolverSection.addSteps ([
             {
@@ -480,7 +481,7 @@ function setupCube (N)
         // Blindfolded solver
         const BlindSolverSection = new UICollapsibleSection (
             "Blindfolded Solver",
-            "Solves the cube using a memorization-based method (M2/old pochmann style letter scheme) rather than " +
+            "Solves the cube using a basic memorization-based method (Old Pochmann style letter scheme) rather than " +
             "pattern recognition - in a real blindfolded solve you'd memorize the letters, then execute from memory alone."
         );
         BlindSolverSection.addSteps ([

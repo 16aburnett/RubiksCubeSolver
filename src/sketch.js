@@ -25,7 +25,7 @@ function setup () {
     createCanvas (window.innerWidth * 0.7, window.innerHeight * 0.9);
     // We want to draw relative to 0, 0 rather than the center of the screen
     translate (0, 0);
-    backgroundColor = color ("#EEF0FC");
+    backgroundColor = color ("#eef7ff");
     background (backgroundColor);
     // Setup 3D canvas
     graphics = createGraphics (window.innerWidth * 0.7, window.innerHeight * 0.9, WEBGL);

@@ -647,9 +647,7 @@ class BlindSolver3x3
         if (memorizationSequenceEdges.length % 2 !== 0 || memorizationSequenceCorners.length % 2 !== 0)
         {
             console.log("Applying parity algorithm due to odd number of edges swaps.");
-            // FIXME: Support "U2" move
-            // parityMoves = cubeMoveNotation.stringToMoveSet("R U' R' U' R U R D R' U' R D' R' U2 R' U'");
-            parityMoves = cubeMoveNotation.stringToMoveSet("R U' R' U' R U R D R' U' R D' R' U U R' U'");
+            parityMoves = cubeMoveNotation.stringToMoveSet("R U' R' U' R U R D R' U' R D' R' U2 R' U'");
         }
 
         // Solver corners
@@ -675,22 +673,22 @@ class BlindSolver3x3
             'F': cubeMoveNotation.stringToMoveSet ("D' E' L"),                // Dw' L
             'G': cubeMoveNotation.stringToMoveSet ("L D E L'"),               // L Dw L'
             'H': cubeMoveNotation.stringToMoveSet ("D E L'"),                 // Dw L'
-            'I': cubeMoveNotation.stringToMoveSet ("L M D' L L"),             // Lw D' L2
+            'I': cubeMoveNotation.stringToMoveSet ("L M D' L2"),             // Lw D' L2
             'J': cubeMoveNotation.stringToMoveSet ("D E D E L"),              // Dw2 L
-            'K': cubeMoveNotation.stringToMoveSet ("L M D L L"),              // Lw D L2
+            'K': cubeMoveNotation.stringToMoveSet ("L M D L2"),              // Lw D L2
             'L': cubeMoveNotation.stringToMoveSet ("L'"),                     // L'
             'M': cubeMoveNotation.stringToMoveSet (""),                       // Ignoring buffer position
             'N': cubeMoveNotation.stringToMoveSet ("D E L"),                  // Dw L
-            'O': cubeMoveNotation.stringToMoveSet ("D' L M D L L"),           // D' Lw D L2
+            'O': cubeMoveNotation.stringToMoveSet ("D' L M D L2"),           // D' Lw D L2
             'P': cubeMoveNotation.stringToMoveSet ("D' E' L'"),               // Dw' L'
-            'Q': cubeMoveNotation.stringToMoveSet ("L' M' D L L"),            // Lw' D L2
+            'Q': cubeMoveNotation.stringToMoveSet ("L' M' D L2"),            // Lw' D L2
             'R': cubeMoveNotation.stringToMoveSet ("L"),                      // L
-            'S': cubeMoveNotation.stringToMoveSet ("L' M' D' L L"),           // Lw' D' L2
+            'S': cubeMoveNotation.stringToMoveSet ("L' M' D' L2"),           // Lw' D' L2
             'T': cubeMoveNotation.stringToMoveSet ("D E D E L'"),             // Dw2 L'
-            'U': cubeMoveNotation.stringToMoveSet ("D' L L"),                 // D' L2
-            'V': cubeMoveNotation.stringToMoveSet ("D D L L"),                // D2 L2
-            'W': cubeMoveNotation.stringToMoveSet ("D L L"),                  // D L2
-            'X': cubeMoveNotation.stringToMoveSet ("L L"),                    // L2
+            'U': cubeMoveNotation.stringToMoveSet ("D' L2"),                 // D' L2
+            'V': cubeMoveNotation.stringToMoveSet ("D2 L2"),                // D2 L2
+            'W': cubeMoveNotation.stringToMoveSet ("D L2"),                  // D L2
+            'X': cubeMoveNotation.stringToMoveSet ("L2"),                    // L2
         };
 
         for (let i = 0; i < memorizationSequence.length; i++) {
@@ -701,8 +699,7 @@ class BlindSolver3x3
                 for (let j = setupMoves.length - 1; j >= 0; j--) {
                     reverseSetupMoves.push(cubeMoveNotation.getReverseMove(setupMoves[j]));
                 }
-                // const edgeSwapAlgorithm = cubeMoveNotation.stringToMoveSet("R U R' U' R' F R2 U' R' U' R U R' F'");
-                const edgeSwapAlgorithm = cubeMoveNotation.stringToMoveSet("R U R' U' R' F R R U' R' U' R U R' F'");
+                const edgeSwapAlgorithm = cubeMoveNotation.stringToMoveSet("R U R' U' R' F R2 U' R' U' R U R' F'");
                 moves = moves.concat(setupMoves);
                 moves = moves.concat(edgeSwapAlgorithm);
                 moves = moves.concat(reverseSetupMoves);
@@ -724,9 +721,9 @@ class BlindSolver3x3
         // FIXME: Support missing moves here so we dont have to translate them to simpler move sequences.
         const cornerSetupMovesMapping = {
             'A': cubeMoveNotation.stringToMoveSet (""), // Ignoring buffer position
-            'B': cubeMoveNotation.stringToMoveSet ("R R"), // R2
-            'C': cubeMoveNotation.stringToMoveSet ("F F D"), // F2 D
-            'D': cubeMoveNotation.stringToMoveSet ("F F"), // F2
+            'B': cubeMoveNotation.stringToMoveSet ("R2"), // R2
+            'C': cubeMoveNotation.stringToMoveSet ("F2 D"), // F2 D
+            'D': cubeMoveNotation.stringToMoveSet ("F2"), // F2
             'E': cubeMoveNotation.stringToMoveSet (""), // Ignoring buffer position
             'F': cubeMoveNotation.stringToMoveSet ("F' D"), // F' D
             'G': cubeMoveNotation.stringToMoveSet ("F'"), // F'
@@ -734,10 +731,10 @@ class BlindSolver3x3
             'I': cubeMoveNotation.stringToMoveSet ("F R'"), // F R'
             'J': cubeMoveNotation.stringToMoveSet ("R'"), // R'
             'K': cubeMoveNotation.stringToMoveSet ("R' D'"), // R' D'
-            'L': cubeMoveNotation.stringToMoveSet ("D D R"), // D2 R
+            'L': cubeMoveNotation.stringToMoveSet ("D2 R"), // D2 R
             'M': cubeMoveNotation.stringToMoveSet ("F"), // F
             'N': cubeMoveNotation.stringToMoveSet ("R' F"), // R' F
-            'O': cubeMoveNotation.stringToMoveSet ("R R F"), // R2 F
+            'O': cubeMoveNotation.stringToMoveSet ("R2 F"), // R2 F
             'P': cubeMoveNotation.stringToMoveSet ("R F"), // R F
             'Q': cubeMoveNotation.stringToMoveSet ("R D'"), // R D'
             'R': cubeMoveNotation.stringToMoveSet (""), // Ignoring buffer position
@@ -746,7 +743,7 @@ class BlindSolver3x3
             'U': cubeMoveNotation.stringToMoveSet ("D"), // D
             'V': cubeMoveNotation.stringToMoveSet (""), // Target position - no moves needed
             'W': cubeMoveNotation.stringToMoveSet ("D'"), // D'
-            'X': cubeMoveNotation.stringToMoveSet ("D D"), // D2
+            'X': cubeMoveNotation.stringToMoveSet ("D2"), // D2
         };
 
         for (let i = 0; i < memorizationSequence.length; i++) {

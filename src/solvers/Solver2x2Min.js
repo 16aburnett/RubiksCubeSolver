@@ -25,6 +25,8 @@
 class Solver2x2Min {
 
     constructor() {
+        this.name = "Solver2x2Min";
+        this.supportedSizes = [2];
         this.maxMoves = 8;
     }
 

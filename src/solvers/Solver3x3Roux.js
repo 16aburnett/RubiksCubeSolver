@@ -10,6 +10,8 @@ class Solver3x3Roux
 
     constructor ()
     {
+        this.name = "Solver3x3Roux";
+        this.supportedSizes = [3];
         this.MAX_CUBE_ORIENTATION_MOVES = 4;
         this.MAX_FIRST_BLOCK_BOTTOM_EDGE_MOVES = 7;
         this.MAX_FIRST_BLOCK_FIRST_PAIR_MOVES = 12;
@@ -2109,6 +2111,160 @@ class Solver3x3Roux
             && cube.data[cube.LEFT  + 2] == ORANGE;
     }
 
+    // ===================================================================
+
+    renderUI () {
+        // Roux solver
+        const RouxSolverSection = new UICollapsibleSection (
+            "Roux Solver",
+            "Builds two 1x3 blocks on the left/right, then solves the last layer corners and remaining " +
+            "edges mostly with M- and U-moves - far fewer cube rotations and overall moves than CFOP."
+        );
+        RouxSolverSection.addSteps ([
+            {
+                label: "Full Roux Solve",
+                primary: true,
+                description: "Runs every stage below in order: orient, first block, second block, 2LCMLL, then the last six edges.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3Roux ().findSolution (cube);
+                    });
+                }
+            },
+            {
+                label: "Orient Cube",
+                description: "Rotates the whole cube (no face turns) so white is down and blue is in front, the standard starting orientation.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3Roux ().findSolutionToOrientTheCube (cube);
+                    });
+                }
+            },
+            {
+                label: "First Block's Bottom Edge",
+                description: "Places one bottom-layer edge on the left side to start the first 1x3 block.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3Roux ().findSolutionToFirstBlocksBottomEdge (cube);
+                    });
+                }
+            },
+            {
+                label: "First Block's First Pair",
+                description: "Pairs and inserts a corner+edge piece next to the bottom edge to grow the first block.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3Roux ().findSolutionToFirstBlockFirstPair (cube);
+                    });
+                }
+            },
+            {
+                label: "First Block's Second Pair",
+                description: "Inserts the final corner+edge pair, completing the first 1x3 block.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3Roux ().findSolutionToFirstBlockSecondPair (cube);
+                    });
+                }
+            },
+            {
+                label: "Second Block's Bottom Edge",
+                description: "Places one bottom-layer edge on the right side to start the second 1x3 block.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3Roux ().findSolutionToSecondBlocksBottomEdge (cube);
+                    });
+                }
+            },
+            {
+                label: "Second Block's First Pair",
+                description: "Pairs and inserts a corner+edge piece next to the bottom edge to grow the second block.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3Roux ().findSolutionToSecondBlockFirstPair (cube);
+                    });
+                }
+            },
+            {
+                label: "Second Block's Second Pair",
+                description: "Inserts the final corner+edge pair, completing the second 1x3 block (both blocks done).",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3Roux ().findSolutionToSecondBlockSecondPair (cube);
+                    });
+                }
+            },
+            {
+                label: "2LCMLL",
+                description: "Solves the last layer corners in two passes (orient, then permute), ignoring the M-slice edges - " +
+                    "fewer algorithms to learn than full CMLL.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3Roux ().findSolution2LookCMLL (cube);
+                    });
+                },
+                children: [
+                    {
+                        label: "Orient Corners",
+                        description: "Orients the last layer corners so their yellow/white stickers face up, ignoring position.",
+                        fn: () => {
+                            solveFromGivenFunc ((cube) => {
+                                return new Solver3x3Roux ().findSolution2LookCMLLOrientCorners (cube);
+                            });
+                        }
+                    },
+                    {
+                        label: "Permutate Corners",
+                        description: "Permutes the already-oriented corners into their correct positions.",
+                        fn: () => {
+                            solveFromGivenFunc ((cube) => {
+                                return new Solver3x3Roux ().findSolution2LookCMLLPermutateCorners (cube);
+                            });
+                        }
+                    },
+                ]
+            },
+            {
+                label: "M Orientation",
+                description: "Uses M-slice moves to bring the white/yellow centers back to the top and bottom - the first step of solving the last six edges.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3Roux ().findSolutionMOrientation (cube);
+                    });
+                }
+            },
+            {
+                label: "Edge Orientation",
+                description: "Orients all remaining edges so every top/bottom sticker is white or yellow (EO).",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3Roux ().findSolutionEdgeOrientation (cube);
+                    });
+                }
+            },
+            {
+                label: "L/R Edges",
+                description: "Places the left and right middle-layer edges into their correct spots using U/M moves.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3Roux ().findSolutionLREdges (cube);
+                    });
+                }
+            },
+            {
+                label: "Last Edges",
+                description: "Solves the final front/back edges, completing the cube.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3Roux ().findSolutionLastEdges (cube);
+                    });
+                }
+            },
+        ]);
+    }
 }
 
 // =======================================================================
+
+// Register solver
+solverRegistry.register (new Solver3x3Roux());

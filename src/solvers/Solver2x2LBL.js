@@ -11,6 +11,8 @@ class Solver2x2LBL
 
     constructor ()
     {
+        this.name = "Solver2x2LBL";
+        this.supportedSizes = [2];
         this.MAX_WHITE_FACE_MOVES = 10;
         this.MAX_OLL_MOVES  = 20;
         this.MAX_PLL_MOVES = 22;
@@ -550,7 +552,58 @@ class Solver2x2LBL
         return solution;
     }
 
+    // ===================================================================
+
+    renderUI () {
+        const SolverSection = new UICollapsibleSection (
+            "Layer-by-Layer Solver",
+            "A simple layer-by-layer solver for the 2x2 cube. Solves one layer, then orients and permutes the last layer."
+        );
+        SolverSection.addSteps ([
+            {
+                label: "Full Solve",
+                primary: true,
+                description: "Runs every stage below in order: first layer, OLL, then PLL.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver2x2LBL ().findSolution (cube);
+                    });
+                }
+            },
+            {
+                label: "Solve First Layer",
+                description: "Solves one full layer of corners.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver2x2LBL ().solveFirstLayer (cube);
+                    });
+                }
+            },
+            {
+                label: "Solve OLL",
+                description: "Orients the last layer so its face is a single color.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver2x2LBL ().solveOLL (cube);
+                    });
+                }
+            },
+            {
+                label: "Solve PLL",
+                description: "Permutes the last layer corners into their correct positions, finishing the cube.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver2x2LBL ().solvePLL (cube);
+                    });
+                }
+            },
+        ]);
+    }
+
 }
 
 
 // =======================================================================
+
+// Register solver
+solverRegistry.register (new Solver2x2LBL());

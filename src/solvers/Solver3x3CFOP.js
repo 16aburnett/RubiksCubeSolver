@@ -10,6 +10,8 @@ class Solver3x3CFOP
 
     constructor ()
     {
+        this.name = "Solver3x3CFOP";
+        this.supportedSizes = [3];
         this.MAX_CUBE_ORIENTATION_MOVES = 4;
         this.MAX_CROSS_MOVES = 8;
         this.MAX_F2L_MOVES = 12;
@@ -2808,7 +2810,168 @@ class Solver3x3CFOP
         return true;
     }
 
+    // ===================================================================
+
+    renderUI () {
+        const CFOPSolverSection = new UICollapsibleSection (
+            "CFOP Solver",
+            "Cross, F2L, OLL, PLL - the most popular speedsolving method. Solves layer-by-layer: a bottom cross, " +
+            "the first two layers as paired corner+edge pieces, then the last layer's orientation and positions."
+        );
+        CFOPSolverSection.addSteps ([
+            {
+                label: "Full Solve",
+                primary: true,
+                description: "Runs every stage below in order: orient, cross, F2L, OLL, then PLL.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3CFOP ().findSolution (cube);
+                    });
+                }
+            },
+            {
+                label: "Orient Cube",
+                description: "Rotates the whole cube (no face turns) so white is down and blue is in front, " +
+                    "the standard starting orientation for the rest of CFOP.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3CFOP ().findSolutionToOrientTheCube (cube);
+                    });
+                }
+            },
+            {
+                label: "Solve White Cross",
+                description: "Solves the four white edges into a cross on the bottom, aligned with their adjacent center colors.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3CFOP ().findSolutionToCross (cube);
+                    });
+                }
+            },
+            {
+                label: "Solve F2L",
+                description: "Solves the first two layers by finding and inserting each of the four corner+edge pairs. Expand to run one pair at a time. Note that this is currently very naive and is not optimized for move count.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3CFOP ().solveF2L (cube);
+                    });
+                },
+                children: [
+                    {
+                        label: "First Pair",
+                        description: "Finds and inserts the first corner-edge pair.",
+                        fn: () => {
+                            solveFromGivenFunc ((cube) => {
+                                return new Solver3x3CFOP ().solveFirstF2L (cube);
+                            });
+                        }
+                    },
+                    {
+                        label: "Second Pair",
+                        description: "Finds and inserts the second corner-edge pair.",
+                        fn: () => {
+                            solveFromGivenFunc ((cube) => {
+                                return new Solver3x3CFOP ().solveSecondF2L (cube);
+                            });
+                        }
+                    },
+                    {
+                        label: "Third Pair",
+                        description: "Finds and inserts the third corner-edge pair.",
+                        fn: () => {
+                            solveFromGivenFunc ((cube) => {
+                                return new Solver3x3CFOP ().solveThirdF2L (cube);
+                            });
+                        }
+                    },
+                    {
+                        label: "Fourth Pair",
+                        description: "Finds and inserts the fourth and final corner-edge pair, completing the first two layers.",
+                        fn: () => {
+                            solveFromGivenFunc ((cube) => {
+                                return new Solver3x3CFOP ().solveFourthF2L (cube);
+                            });
+                        }
+                    },
+                ]
+            },
+            {
+                label: "Solve 2-Look OLL",
+                description: "Orients the last layer in two passes (edges, then corners) so the whole top face is yellow. " +
+                    "Uses fewer algorithms than full OLL, but may require more moves.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3CFOP ().solve2LookOLL (cube);
+                    });
+                },
+                children: [
+                    {
+                        label: "Edges",
+                        description: "Orients the top edges into a yellow cross.",
+                        fn: () => {
+                            solveFromGivenFunc ((cube) => {
+                                return new Solver3x3CFOP ().solve2LookOLLEdges (cube);
+                            });
+                        }
+                    },
+                    {
+                        label: "Corners",
+                        description: "Orients the top corners, assuming the yellow cross is already solved.",
+                        fn: () => {
+                            solveFromGivenFunc ((cube) => {
+                                return new Solver3x3CFOP ().solve2LookOLLCorners (cube);
+                            });
+                        }
+                    },
+                ]
+            },
+            {
+                label: "Solve 2-Look PLL",
+                description: "Permutes the last layer in two passes (corners, then edges). " +
+                    "Uses fewer algorithms than full PLL, but may require more moves." +
+                    "Alternative: Full PLL.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3CFOP ().solve2LookPLL (cube);
+                    });
+                },
+                children: [
+                    {
+                        label: "Corners",
+                        description: "Positions the top corners into their correct spots (edges are handled next).",
+                        fn: () => {
+                            solveFromGivenFunc ((cube) => {
+                                return new Solver3x3CFOP ().solve2LookPLLCorners (cube);
+                            });
+                        }
+                    },
+                    {
+                        label: "Edges",
+                        description: "Cycles the top edges into their correct spots, assuming corners are already placed.",
+                        fn: () => {
+                            solveFromGivenFunc ((cube) => {
+                                return new Solver3x3CFOP ().solve2LookPLLEdges (cube);
+                            });
+                        }
+                    },
+                ]
+            },
+            {
+                label: "Solve PLL",
+                description: "One-look PLL: permutes both corners and edges directly using the full PLL algorithm set " +
+                    "(more algorithms to memorize, but fewer moves than 2-Look PLL).",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3CFOP ().solvePLL (cube);
+                    });
+                }
+            },
+        ]);
+    }
+
 }
 
-
 // =======================================================================
+
+// Register solver
+solverRegistry.register (new Solver3x3CFOP());

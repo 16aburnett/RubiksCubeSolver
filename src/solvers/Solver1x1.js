@@ -8,6 +8,8 @@ class Solver1x1
 
     constructor ()
     {
+        this.name = "Solver1x1";
+        this.supportedSizes = [1];
         this.MAX_CUBE_ORIENTATION_MOVES = 4;
     }
 
@@ -72,4 +74,29 @@ class Solver1x1
         return true;
     }
 
+    // =======================================================================
+
+    renderUI () {
+        const basicSolverSection = new UICollapsibleSection (
+            "Solver",
+            "A 1x1 cube only has centers, so it's already solved by definition - this just re-orients it."
+        );
+        basicSolverSection.addSteps ([
+            {
+                label: "Solve",
+                primary: true,
+                description: "Rotates the whole cube back to the standard orientation (white down, blue front).",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver1x1 ().findSolution (cube);
+                    });
+                }
+            },
+        ]);
+    }
 }
+
+// =======================================================================
+
+// Register solver
+solverRegistry.register (new Solver1x1());

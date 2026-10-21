@@ -1,9 +1,9 @@
-// Rubiks Cube Solver: CFOP for 1x1
+// Rubiks Cube Solver for 1x1
 // By Amy Burnett
 // August 18 2024
 // =======================================================================
 
-class CFOPSolver1x1
+class Solver1x1
 {
 
     constructor ()

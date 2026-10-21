@@ -33,7 +33,7 @@
 
 // =======================================================================
 
-class BlindSolver3x3
+class Solver3x3Blind
 {
     constructor ()
     {

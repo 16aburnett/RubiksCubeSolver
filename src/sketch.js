@@ -112,7 +112,7 @@ function setupCube (N)
                 description: "Rotates the whole cube back to the standard orientation (white down, blue front).",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new CFOPSolver1x1 ().findSolution (cube);
+                        return new Solver1x1 ().findSolution (cube);
                     });
                 }
             },
@@ -132,7 +132,7 @@ function setupCube (N)
                 description: "Runs every stage below in order: first layer, OLL, then PLL.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new CFOPSolver2x2 ().findSolution (cube);
+                        return new Solver2x2LBL ().findSolution (cube);
                     });
                 }
             },
@@ -141,7 +141,7 @@ function setupCube (N)
                 description: "Solves one full layer of corners.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new CFOPSolver2x2 ().solveFirstLayer (cube);
+                        return new Solver2x2LBL ().solveFirstLayer (cube);
                     });
                 }
             },
@@ -150,7 +150,7 @@ function setupCube (N)
                 description: "Orients the last layer so its face is a single color.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new CFOPSolver2x2 ().solveOLL (cube);
+                        return new Solver2x2LBL ().solveOLL (cube);
                     });
                 }
             },
@@ -159,7 +159,7 @@ function setupCube (N)
                 description: "Permutes the last layer corners into their correct positions, finishing the cube.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new CFOPSolver2x2 ().solvePLL (cube);
+                        return new Solver2x2LBL ().solvePLL (cube);
                     });
                 }
             },
@@ -187,7 +187,7 @@ function setupCube (N)
                 description: "Runs every stage below in order: orient, cross, F2L, OLL, then PLL.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new CFOPSolver3x3 ().findSolution (cube);
+                        return new Solver3x3CFOP ().findSolution (cube);
                     });
                 }
             },
@@ -197,7 +197,7 @@ function setupCube (N)
                     "the standard starting orientation for the rest of CFOP.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new CFOPSolver3x3 ().findSolutionToOrientTheCube (cube);
+                        return new Solver3x3CFOP ().findSolutionToOrientTheCube (cube);
                     });
                 }
             },
@@ -206,7 +206,7 @@ function setupCube (N)
                 description: "Solves the four white edges into a cross on the bottom, aligned with their adjacent center colors.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new CFOPSolver3x3 ().findSolutionToCross (cube);
+                        return new Solver3x3CFOP ().findSolutionToCross (cube);
                     });
                 }
             },
@@ -215,7 +215,7 @@ function setupCube (N)
                 description: "Solves the first two layers by finding and inserting each of the four corner+edge pairs. Expand to run one pair at a time. Note that this is currently very naive and is not optimized for move count.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new CFOPSolver3x3 ().solveF2L (cube);
+                        return new Solver3x3CFOP ().solveF2L (cube);
                     });
                 },
                 children: [
@@ -224,7 +224,7 @@ function setupCube (N)
                         description: "Finds and inserts the first corner-edge pair.",
                         fn: () => {
                             solveFromGivenFunc ((cube) => {
-                                return new CFOPSolver3x3 ().solveFirstF2L (cube);
+                                return new Solver3x3CFOP ().solveFirstF2L (cube);
                             });
                         }
                     },
@@ -233,7 +233,7 @@ function setupCube (N)
                         description: "Finds and inserts the second corner-edge pair.",
                         fn: () => {
                             solveFromGivenFunc ((cube) => {
-                                return new CFOPSolver3x3 ().solveSecondF2L (cube);
+                                return new Solver3x3CFOP ().solveSecondF2L (cube);
                             });
                         }
                     },
@@ -242,7 +242,7 @@ function setupCube (N)
                         description: "Finds and inserts the third corner-edge pair.",
                         fn: () => {
                             solveFromGivenFunc ((cube) => {
-                                return new CFOPSolver3x3 ().solveThirdF2L (cube);
+                                return new Solver3x3CFOP ().solveThirdF2L (cube);
                             });
                         }
                     },
@@ -251,7 +251,7 @@ function setupCube (N)
                         description: "Finds and inserts the fourth and final corner-edge pair, completing the first two layers.",
                         fn: () => {
                             solveFromGivenFunc ((cube) => {
-                                return new CFOPSolver3x3 ().solveFourthF2L (cube);
+                                return new Solver3x3CFOP ().solveFourthF2L (cube);
                             });
                         }
                     },
@@ -263,7 +263,7 @@ function setupCube (N)
                     "Uses fewer algorithms than full OLL, but may require more moves.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new CFOPSolver3x3 ().solve2LookOLL (cube);
+                        return new Solver3x3CFOP ().solve2LookOLL (cube);
                     });
                 },
                 children: [
@@ -272,7 +272,7 @@ function setupCube (N)
                         description: "Orients the top edges into a yellow cross.",
                         fn: () => {
                             solveFromGivenFunc ((cube) => {
-                                return new CFOPSolver3x3 ().solve2LookOLLEdges (cube);
+                                return new Solver3x3CFOP ().solve2LookOLLEdges (cube);
                             });
                         }
                     },
@@ -281,7 +281,7 @@ function setupCube (N)
                         description: "Orients the top corners, assuming the yellow cross is already solved.",
                         fn: () => {
                             solveFromGivenFunc ((cube) => {
-                                return new CFOPSolver3x3 ().solve2LookOLLCorners (cube);
+                                return new Solver3x3CFOP ().solve2LookOLLCorners (cube);
                             });
                         }
                     },
@@ -294,7 +294,7 @@ function setupCube (N)
                     "Alternative: Full PLL.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new CFOPSolver3x3 ().solve2LookPLL (cube);
+                        return new Solver3x3CFOP ().solve2LookPLL (cube);
                     });
                 },
                 children: [
@@ -303,7 +303,7 @@ function setupCube (N)
                         description: "Positions the top corners into their correct spots (edges are handled next).",
                         fn: () => {
                             solveFromGivenFunc ((cube) => {
-                                return new CFOPSolver3x3 ().solve2LookPLLCorners (cube);
+                                return new Solver3x3CFOP ().solve2LookPLLCorners (cube);
                             });
                         }
                     },
@@ -312,7 +312,7 @@ function setupCube (N)
                         description: "Cycles the top edges into their correct spots, assuming corners are already placed.",
                         fn: () => {
                             solveFromGivenFunc ((cube) => {
-                                return new CFOPSolver3x3 ().solve2LookPLLEdges (cube);
+                                return new Solver3x3CFOP ().solve2LookPLLEdges (cube);
                             });
                         }
                     },
@@ -324,7 +324,7 @@ function setupCube (N)
                     "(more algorithms to memorize, but fewer moves than 2-Look PLL).",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new CFOPSolver3x3 ().solvePLL (cube);
+                        return new Solver3x3CFOP ().solvePLL (cube);
                     });
                 }
             },
@@ -343,7 +343,7 @@ function setupCube (N)
                 description: "Runs every stage below in order: orient, first block, second block, 2LCMLL, then the last six edges.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new RouxSolver3x3 ().findSolution (cube);
+                        return new Solver3x3Roux ().findSolution (cube);
                     });
                 }
             },
@@ -352,7 +352,7 @@ function setupCube (N)
                 description: "Rotates the whole cube (no face turns) so white is down and blue is in front, the standard starting orientation.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new RouxSolver3x3 ().findSolutionToOrientTheCube (cube);
+                        return new Solver3x3Roux ().findSolutionToOrientTheCube (cube);
                     });
                 }
             },
@@ -361,7 +361,7 @@ function setupCube (N)
                 description: "Places one bottom-layer edge on the left side to start the first 1x3 block.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new RouxSolver3x3 ().findSolutionToFirstBlocksBottomEdge (cube);
+                        return new Solver3x3Roux ().findSolutionToFirstBlocksBottomEdge (cube);
                     });
                 }
             },
@@ -370,7 +370,7 @@ function setupCube (N)
                 description: "Pairs and inserts a corner+edge piece next to the bottom edge to grow the first block.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new RouxSolver3x3 ().findSolutionToFirstBlockFirstPair (cube);
+                        return new Solver3x3Roux ().findSolutionToFirstBlockFirstPair (cube);
                     });
                 }
             },
@@ -379,7 +379,7 @@ function setupCube (N)
                 description: "Inserts the final corner+edge pair, completing the first 1x3 block.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new RouxSolver3x3 ().findSolutionToFirstBlockSecondPair (cube);
+                        return new Solver3x3Roux ().findSolutionToFirstBlockSecondPair (cube);
                     });
                 }
             },
@@ -388,7 +388,7 @@ function setupCube (N)
                 description: "Places one bottom-layer edge on the right side to start the second 1x3 block.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new RouxSolver3x3 ().findSolutionToSecondBlocksBottomEdge (cube);
+                        return new Solver3x3Roux ().findSolutionToSecondBlocksBottomEdge (cube);
                     });
                 }
             },
@@ -397,7 +397,7 @@ function setupCube (N)
                 description: "Pairs and inserts a corner+edge piece next to the bottom edge to grow the second block.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new RouxSolver3x3 ().findSolutionToSecondBlockFirstPair (cube);
+                        return new Solver3x3Roux ().findSolutionToSecondBlockFirstPair (cube);
                     });
                 }
             },
@@ -406,7 +406,7 @@ function setupCube (N)
                 description: "Inserts the final corner+edge pair, completing the second 1x3 block (both blocks done).",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new RouxSolver3x3 ().findSolutionToSecondBlockSecondPair (cube);
+                        return new Solver3x3Roux ().findSolutionToSecondBlockSecondPair (cube);
                     });
                 }
             },
@@ -416,7 +416,7 @@ function setupCube (N)
                     "fewer algorithms to learn than full CMLL.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new RouxSolver3x3 ().findSolution2LookCMLL (cube);
+                        return new Solver3x3Roux ().findSolution2LookCMLL (cube);
                     });
                 },
                 children: [
@@ -425,7 +425,7 @@ function setupCube (N)
                         description: "Orients the last layer corners so their yellow/white stickers face up, ignoring position.",
                         fn: () => {
                             solveFromGivenFunc ((cube) => {
-                                return new RouxSolver3x3 ().findSolution2LookCMLLOrientCorners (cube);
+                                return new Solver3x3Roux ().findSolution2LookCMLLOrientCorners (cube);
                             });
                         }
                     },
@@ -434,7 +434,7 @@ function setupCube (N)
                         description: "Permutes the already-oriented corners into their correct positions.",
                         fn: () => {
                             solveFromGivenFunc ((cube) => {
-                                return new RouxSolver3x3 ().findSolution2LookCMLLPermutateCorners (cube);
+                                return new Solver3x3Roux ().findSolution2LookCMLLPermutateCorners (cube);
                             });
                         }
                     },
@@ -445,7 +445,7 @@ function setupCube (N)
                 description: "Uses M-slice moves to bring the white/yellow centers back to the top and bottom - the first step of solving the last six edges.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new RouxSolver3x3 ().findSolutionMOrientation (cube);
+                        return new Solver3x3Roux ().findSolutionMOrientation (cube);
                     });
                 }
             },
@@ -454,7 +454,7 @@ function setupCube (N)
                 description: "Orients all remaining edges so every top/bottom sticker is white or yellow (EO).",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new RouxSolver3x3 ().findSolutionEdgeOrientation (cube);
+                        return new Solver3x3Roux ().findSolutionEdgeOrientation (cube);
                     });
                 }
             },
@@ -463,7 +463,7 @@ function setupCube (N)
                 description: "Places the left and right middle-layer edges into their correct spots using U/M moves.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new RouxSolver3x3 ().findSolutionLREdges (cube);
+                        return new Solver3x3Roux ().findSolutionLREdges (cube);
                     });
                 }
             },
@@ -472,7 +472,7 @@ function setupCube (N)
                 description: "Solves the final front/back edges, completing the cube.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new RouxSolver3x3 ().findSolutionLastEdges (cube);
+                        return new Solver3x3Roux ().findSolutionLastEdges (cube);
                     });
                 }
             },
@@ -491,7 +491,7 @@ function setupCube (N)
                 description: "Determines the full memorization sequence for edges and corners, then immediately executes it.",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new BlindSolver3x3 ().findSolution (cube);
+                        return new Solver3x3Blind ().findSolution (cube);
                     });
                 }
             },
@@ -604,7 +604,7 @@ function solveFromGivenFunc (findSolutionFunc) {
 // =======================================================================
 
 // Valid blindfolded memorization letters (one letter per edge/corner
-// sticker position - see the lettering diagrams in BlindSolver3x3.js)
+// sticker position - see the lettering diagrams in Solver3x3Blind.js)
 const BLIND_VALID_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWX";
 
 /**
@@ -672,7 +672,7 @@ function buildBlindfoldedMemoPanel (section) {
     generateButtonDOM.innerText = "Generate Memorization";
     generateButtonDOM.onclick = () => {
         clearError ();
-        const solver = new BlindSolver3x3 ();
+        const solver = new Solver3x3Blind ();
         const edgesSequence = solver.determineMemorizationSequenceForEdges (rubiksCube);
         const cornersSequence = solver.determineMemorizationSequenceForCorners (rubiksCube);
         edgesInputDOM.value = edgesSequence.join (" ");
@@ -702,7 +702,7 @@ function buildBlindfoldedMemoPanel (section) {
             showError ("Enter or generate a memorization sequence first.");
             return;
         }
-        const moves = new BlindSolver3x3 ().convertMemorizationSequenceToMoves (
+        const moves = new Solver3x3Blind ().convertMemorizationSequenceToMoves (
             edgesResult.sequence, cornersResult.sequence
         );
         startApplyingMoveSet (moves);
@@ -738,7 +738,7 @@ function addBlindMemoInputRow (parentDOM, labelText) {
 
 /**
  * Adds a collapsible reference showing the edge/corner memorization
- * lettering diagrams (see BlindSolver3x3.js), so the letters above are
+ * lettering diagrams (see Solver3x3Blind.js), so the letters above are
  * actually interpretable.
  */
 function addBlindLetterSchemeReference (parentDOM) {

@@ -1,4 +1,4 @@
-// Rubiks Cube Solver 2 with CFOP-like algorithm
+// Rubiks Cube Solver 2x2 with Layer-by-Layer algorithm
 // By Amy Burnett
 // August 21 2024
 // =======================================================================
@@ -6,7 +6,7 @@
 
 // =======================================================================
 
-class CFOPSolver2x2
+class Solver2x2LBL
 {
 
     constructor ()

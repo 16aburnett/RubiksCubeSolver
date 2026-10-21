@@ -5,7 +5,7 @@
 
 // =======================================================================
 
-class RouxSolver3x3
+class Solver3x3Roux
 {
 
     constructor ()

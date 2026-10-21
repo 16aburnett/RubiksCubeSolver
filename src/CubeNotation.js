@@ -288,8 +288,6 @@ function generateMoves (dim)
             prefix = "";
         const lowSlices = createRange(low, low + i);
         const highSlices = createRange(high - i, high);
-        console.log(low, i, lowSlices);
-        console.log(high, i, highSlices);
         moves.push ([cubeNotationMove (MOVE_L,  1, i, 0, 1), prefix+"Lw" , [AXIS_X, lowSlices , -1]]);
         moves.push ([cubeNotationMove (MOVE_L, -1, i, 0, 1), prefix+"Lw'", [AXIS_X, lowSlices ,  1]]);
         moves.push ([cubeNotationMove (MOVE_L,  1, i, 1, 1), prefix+"Lw2", [AXIS_X, lowSlices , -2]]);

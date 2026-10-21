@@ -5,7 +5,7 @@
 
 // =======================================================================
 
-class CFOPSolver3x3
+class Solver3x3CFOP
 {
 
     constructor ()

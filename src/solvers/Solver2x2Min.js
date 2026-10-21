@@ -22,7 +22,7 @@
 
 // =======================================================================
 
-class FullSolver2 {
+class Solver2x2Min {
 
     constructor() {
         this.maxMoves = 8;

@@ -1592,9 +1592,7 @@ class CFOPSolver3x3
             //  |   |
             //  +---+
             //    x
-            // F R U R' U' F' f R U R' U' f'
-            // F R U R' U' F' F S R U R' U' F' S'
-            // FIXME: Support wide moves
+            // F R U R' U' F' Fw R U R' U' Fw'
             new PatternAlgorithm (
                 "2LOLL:Dot",
                 (cube) => {
@@ -1605,7 +1603,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.BACK  + 1] != YELLOW) return false;
                     return true;
                 },
-                cubeMoveNotation.stringToMoveSet ("F R U R' U' F' F S R U R' U' F' S'")
+                cubeMoveNotation.stringToMoveSet ("F R U R' U' F' Fw R U R' U' Fw'")
             ),
             // Bar (2 opposite edges solved)
             //    x
@@ -1635,9 +1633,7 @@ class CFOPSolver3x3
             // x| xx|
             //  | x |
             //  +---+
-            // f R U R' U' f'
-            // F S R U R' U' F' S'
-            // FIXME: Support wide moves
+            // Fw R U R' U' Fw'
             new PatternAlgorithm (
                 "2LOLL:L-Shape",
                 (cube) => {
@@ -1648,7 +1644,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.BACK  + 1] != YELLOW) return false;
                     return true;
                 },
-                cubeMoveNotation.stringToMoveSet ("F S R U R' U' F' S'")
+                cubeMoveNotation.stringToMoveSet ("Fw R U R' U' Fw'")
             ),
         ], true);
         // Ensure solution was found
@@ -1732,9 +1728,7 @@ class CFOPSolver3x3
             //  |   X X |
             //  + - - - +
             //    X
-            // F R' F' r U R U' r'
-            // F R' F' R M' U R U' R' M
-            // FIXME: Support wide moves
+            // F R' F' Rw U R U' Rw'
             new PatternAlgorithm (
                 "L",
                 (cube) => {
@@ -1749,7 +1743,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.RIGHT + 2] != YELLOW) return false;
                     return true;
                 },
-                cubeMoveNotation.stringToMoveSet ("F R' F' R M' U R U' R' M")
+                cubeMoveNotation.stringToMoveSet ("F R' F' Rw U R U' Rw'")
             ),
             // Pi
             //        X
@@ -1809,9 +1803,7 @@ class CFOPSolver3x3
             //  |   X X |
             //  + - - - +
             //    X
-            // r U R' U' r' F R F'
-            // R M' U R' U' R' M F R F'
-            // FIXME: Support wide moves
+            // Rw U R' U' Rw' F R F'
             new PatternAlgorithm (
                 "T",
                 (cube) => {
@@ -1826,7 +1818,7 @@ class CFOPSolver3x3
                     if (cube.data[cube.BACK  + 2] != YELLOW) return false;
                     return true;
                 },
-                cubeMoveNotation.stringToMoveSet ("R M' U R' U' R' M F R F'")
+                cubeMoveNotation.stringToMoveSet ("Rw U R' U' Rw' F R F'")
             ),
             // U
             //  + - - - +
@@ -2292,9 +2284,7 @@ class CFOPSolver3x3
             // O| Y Y Y |G
             //  + - - - +
             //    B B R
-            // x R2 F R F' R U2 r' U r U2 x'
-            // X R R F R F' R U U R' M U R M' U U X'
-            // FIXME: Support wide moves
+            // X R2 F R F' R U2 Rw' U Rw U2 X'
             new PatternAlgorithm (
                 "PLL:Ja-Perm",
                 (cube) => {
@@ -2308,7 +2298,7 @@ class CFOPSolver3x3
                     if (!areSameStickers(cube, [cube.RIGHT + 0, cube.RIGHT + 1, cube.BACK  + 2])) return false;
                     return true;
                 },
-                cubeMoveNotation.stringToMoveSet ("X R R F R F' R U U R' M U R M' U U X'")
+                cubeMoveNotation.stringToMoveSet ("X R2 F R F' R U2 Rw' U Rw U2 X'")
             ),
             // PLL Jb-Perm
             // Note: letters only show pairing - not exact colors

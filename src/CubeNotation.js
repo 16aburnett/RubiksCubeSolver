@@ -157,15 +157,13 @@ class CubeMoveNotation
 //     12 bits so max cube size can be 4096*2
 // R - denotes how much to rotate
 //     (0 for 90 degress or 1 for 180 degrees)
-//     not really using this yet
 // W - denotes wide move - ignore
 //     (0 for no wide move, 1 for wide move)
-//     not really using this yet - ignore
 // This method is SO MUCH FASTER than just using strings to denote moves
 // seconds vs milliseconds
-function cubeNotationMove (F, D=1, S=0, R=0, W=0)
+function cubeNotationMove (face, direction=1, slice=0, rotationAmount=0, isWide=0)
 {
-    return D * (((((((0 + W) << 4) + R) << 12) + S) << 4) + F);
+    return direction * (((((((0 + isWide) << 4) + rotationAmount) << 12) + slice) << 4) + face);
 }
 
 // =======================================================================
@@ -248,51 +246,68 @@ function generateMoves (dim)
         moves.push ([cubeNotationMove (MOVE_S, -1, 0, 0), "S'", [AXIS_Z, [0], -1]]);
         moves.push ([cubeNotationMove (MOVE_S,  1, 0, 1), "S2", [AXIS_Z, [0],  2]]);
     }
-    if (dim < 4) return moves;
     // Inner slice rotations (4x4 and larger)
-    moves.push ([cubeNotationMove (MOVE_L,  1, 1, 0), "l" , [AXIS_X, [low  + 1], -1]]);
-    moves.push ([cubeNotationMove (MOVE_L, -1, 1, 0), "l'", [AXIS_X, [low  + 1],  1]]);
-    moves.push ([cubeNotationMove (MOVE_L,  1, 1, 1), "l2", [AXIS_X, [low  + 1], -2]]);
-    moves.push ([cubeNotationMove (MOVE_R,  1, 1, 0), "r" , [AXIS_X, [high - 1],  1]]);
-    moves.push ([cubeNotationMove (MOVE_R, -1, 1, 0), "r'", [AXIS_X, [high - 1], -1]]);
-    moves.push ([cubeNotationMove (MOVE_R,  1, 1, 1), "r2", [AXIS_X, [high - 1],  2]]);
-    moves.push ([cubeNotationMove (MOVE_F,  1, 1, 0), "f" , [AXIS_Z, [high - 1],  1]]);
-    moves.push ([cubeNotationMove (MOVE_F, -1, 1, 0), "f'", [AXIS_Z, [high - 1], -1]]);
-    moves.push ([cubeNotationMove (MOVE_F,  1, 1, 1), "f2", [AXIS_Z, [high - 1],  2]]);
-    moves.push ([cubeNotationMove (MOVE_B,  1, 1, 0), "b" , [AXIS_Z, [low  + 1], -1]]);
-    moves.push ([cubeNotationMove (MOVE_B, -1, 1, 0), "b'", [AXIS_Z, [low  + 1],  1]]);
-    moves.push ([cubeNotationMove (MOVE_B,  1, 1, 1), "b2", [AXIS_Z, [low  + 1], -2]]);
-    moves.push ([cubeNotationMove (MOVE_U,  1, 1, 0), "u" , [AXIS_Y, [low  + 1], -1]]);
-    moves.push ([cubeNotationMove (MOVE_U, -1, 1, 0), "u'", [AXIS_Y, [low  + 1],  1]]);
-    moves.push ([cubeNotationMove (MOVE_U,  1, 1, 1), "u2", [AXIS_Y, [low  + 1], -2]]);
-    moves.push ([cubeNotationMove (MOVE_D,  1, 1, 0), "d" , [AXIS_Y, [high - 1],  1]]);
-    moves.push ([cubeNotationMove (MOVE_D, -1, 1, 0), "d'", [AXIS_Y, [high - 1], -1]]);
-    moves.push ([cubeNotationMove (MOVE_D,  1, 1, 1), "d2", [AXIS_Y, [high - 1],  2]]);
-    if (dim < 6) return moves;
-    // Further inner slice rotations (6x6 and larger)
     // [-3][-2][-1][ 0][ 1][ 2][ 3]
     // we need slices 1, 2, .. high-1 and low+1 ... -2, -1
-    let i = 2;
+    let i = 1;
     while (low + i < 0)
     {
-        moves.push ([cubeNotationMove (MOVE_L,  1, i, 0), i+"l" , [AXIS_X, [low  + i], -1]]);
-        moves.push ([cubeNotationMove (MOVE_L, -1, i, 0), i+"l'", [AXIS_X, [low  + i],  1]]);
-        moves.push ([cubeNotationMove (MOVE_L,  1, i, 1), i+"l2", [AXIS_X, [low  + i], -2]]);
-        moves.push ([cubeNotationMove (MOVE_R,  1, i, 0), i+"r" , [AXIS_X, [high - i],  1]]);
-        moves.push ([cubeNotationMove (MOVE_R, -1, i, 0), i+"r'", [AXIS_X, [high - i], -1]]);
-        moves.push ([cubeNotationMove (MOVE_R,  1, i, 1), i+"r2", [AXIS_X, [high - i],  2]]);
-        moves.push ([cubeNotationMove (MOVE_F,  1, i, 0), i+"f" , [AXIS_Z, [high - i],  1]]);
-        moves.push ([cubeNotationMove (MOVE_F, -1, i, 0), i+"f'", [AXIS_Z, [high - i], -1]]);
-        moves.push ([cubeNotationMove (MOVE_F,  1, i, 1), i+"f2", [AXIS_Z, [high - i],  2]]);
-        moves.push ([cubeNotationMove (MOVE_B,  1, i, 0), i+"b" , [AXIS_Z, [low  + i], -1]]);
-        moves.push ([cubeNotationMove (MOVE_B, -1, i, 0), i+"b'", [AXIS_Z, [low  + i],  1]]);
-        moves.push ([cubeNotationMove (MOVE_B,  1, i, 1), i+"b2", [AXIS_Z, [low  + i], -2]]);
-        moves.push ([cubeNotationMove (MOVE_U,  1, i, 0), i+"u" , [AXIS_Y, [low  + i], -1]]);
-        moves.push ([cubeNotationMove (MOVE_U, -1, i, 0), i+"u'", [AXIS_Y, [low  + i],  1]]);
-        moves.push ([cubeNotationMove (MOVE_U,  1, i, 1), i+"u2", [AXIS_Y, [low  + i], -2]]);
-        moves.push ([cubeNotationMove (MOVE_D,  1, i, 0), i+"d" , [AXIS_Y, [high - i],  1]]);
-        moves.push ([cubeNotationMove (MOVE_D, -1, i, 0), i+"d'", [AXIS_Y, [high - i], -1]]);
-        moves.push ([cubeNotationMove (MOVE_D,  1, i, 1), i+"d2", [AXIS_Y, [high - i],  2]]);
+        let prefix = i.toString();
+        // Second to outermost slice doesnt get a prefix
+        if (i == 1)
+            prefix = "";
+        moves.push ([cubeNotationMove (MOVE_L,  1, i, 0), prefix+"l" , [AXIS_X, [low  + i], -1]]);
+        moves.push ([cubeNotationMove (MOVE_L, -1, i, 0), prefix+"l'", [AXIS_X, [low  + i],  1]]);
+        moves.push ([cubeNotationMove (MOVE_L,  1, i, 1), prefix+"l2", [AXIS_X, [low  + i], -2]]);
+        moves.push ([cubeNotationMove (MOVE_R,  1, i, 0), prefix+"r" , [AXIS_X, [high - i],  1]]);
+        moves.push ([cubeNotationMove (MOVE_R, -1, i, 0), prefix+"r'", [AXIS_X, [high - i], -1]]);
+        moves.push ([cubeNotationMove (MOVE_R,  1, i, 1), prefix+"r2", [AXIS_X, [high - i],  2]]);
+        moves.push ([cubeNotationMove (MOVE_F,  1, i, 0), prefix+"f" , [AXIS_Z, [high - i],  1]]);
+        moves.push ([cubeNotationMove (MOVE_F, -1, i, 0), prefix+"f'", [AXIS_Z, [high - i], -1]]);
+        moves.push ([cubeNotationMove (MOVE_F,  1, i, 1), prefix+"f2", [AXIS_Z, [high - i],  2]]);
+        moves.push ([cubeNotationMove (MOVE_B,  1, i, 0), prefix+"b" , [AXIS_Z, [low  + i], -1]]);
+        moves.push ([cubeNotationMove (MOVE_B, -1, i, 0), prefix+"b'", [AXIS_Z, [low  + i],  1]]);
+        moves.push ([cubeNotationMove (MOVE_B,  1, i, 1), prefix+"b2", [AXIS_Z, [low  + i], -2]]);
+        moves.push ([cubeNotationMove (MOVE_U,  1, i, 0), prefix+"u" , [AXIS_Y, [low  + i], -1]]);
+        moves.push ([cubeNotationMove (MOVE_U, -1, i, 0), prefix+"u'", [AXIS_Y, [low  + i],  1]]);
+        moves.push ([cubeNotationMove (MOVE_U,  1, i, 1), prefix+"u2", [AXIS_Y, [low  + i], -2]]);
+        moves.push ([cubeNotationMove (MOVE_D,  1, i, 0), prefix+"d" , [AXIS_Y, [high - i],  1]]);
+        moves.push ([cubeNotationMove (MOVE_D, -1, i, 0), prefix+"d'", [AXIS_Y, [high - i], -1]]);
+        moves.push ([cubeNotationMove (MOVE_D,  1, i, 1), prefix+"d2", [AXIS_Y, [high - i],  2]]);
+        ++i;
+    }
+    // Wide moves (Moves multiple layers simultaneously, 3x3 and up)
+    i = 1;
+    const createRange = (start, end) => 
+        Array.from({ length: end - start + 1 }, (_, index) => start + index);
+    while (low + i <= 0)
+    {
+        let prefix = i.toString();
+        // Second to outermost slice doesnt get a prefix
+        if (i == 1)
+            prefix = "";
+        const lowSlices = createRange(low, low + i);
+        const highSlices = createRange(high - i, high);
+        console.log(low, i, lowSlices);
+        console.log(high, i, highSlices);
+        moves.push ([cubeNotationMove (MOVE_L,  1, i, 0, 1), prefix+"Lw" , [AXIS_X, lowSlices , -1]]);
+        moves.push ([cubeNotationMove (MOVE_L, -1, i, 0, 1), prefix+"Lw'", [AXIS_X, lowSlices ,  1]]);
+        moves.push ([cubeNotationMove (MOVE_L,  1, i, 1, 1), prefix+"Lw2", [AXIS_X, lowSlices , -2]]);
+        moves.push ([cubeNotationMove (MOVE_R,  1, i, 0, 1), prefix+"Rw" , [AXIS_X, highSlices,  1]]);
+        moves.push ([cubeNotationMove (MOVE_R, -1, i, 0, 1), prefix+"Rw'", [AXIS_X, highSlices, -1]]);
+        moves.push ([cubeNotationMove (MOVE_R,  1, i, 1, 1), prefix+"Rw2", [AXIS_X, highSlices,  2]]);
+        moves.push ([cubeNotationMove (MOVE_F,  1, i, 0, 1), prefix+"Fw" , [AXIS_Z, highSlices,  1]]);
+        moves.push ([cubeNotationMove (MOVE_F, -1, i, 0, 1), prefix+"Fw'", [AXIS_Z, highSlices, -1]]);
+        moves.push ([cubeNotationMove (MOVE_F,  1, i, 1, 1), prefix+"Fw2", [AXIS_Z, highSlices,  2]]);
+        moves.push ([cubeNotationMove (MOVE_B,  1, i, 0, 1), prefix+"Bw" , [AXIS_Z, lowSlices , -1]]);
+        moves.push ([cubeNotationMove (MOVE_B, -1, i, 0, 1), prefix+"Bw'", [AXIS_Z, lowSlices ,  1]]);
+        moves.push ([cubeNotationMove (MOVE_B,  1, i, 1, 1), prefix+"Bw2", [AXIS_Z, lowSlices , -2]]);
+        moves.push ([cubeNotationMove (MOVE_U,  1, i, 0, 1), prefix+"Uw" , [AXIS_Y, lowSlices , -1]]);
+        moves.push ([cubeNotationMove (MOVE_U, -1, i, 0, 1), prefix+"Uw'", [AXIS_Y, lowSlices ,  1]]);
+        moves.push ([cubeNotationMove (MOVE_U,  1, i, 1, 1), prefix+"Uw2", [AXIS_Y, lowSlices , -2]]);
+        moves.push ([cubeNotationMove (MOVE_D,  1, i, 0, 1), prefix+"Dw" , [AXIS_Y, highSlices,  1]]);
+        moves.push ([cubeNotationMove (MOVE_D, -1, i, 0, 1), prefix+"Dw'", [AXIS_Y, highSlices, -1]]);
+        moves.push ([cubeNotationMove (MOVE_D,  1, i, 1, 1), prefix+"Dw2", [AXIS_Y, highSlices,  2]]);
         ++i;
     }
     return moves;

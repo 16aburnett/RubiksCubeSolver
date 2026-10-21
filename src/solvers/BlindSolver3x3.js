@@ -663,32 +663,31 @@ class BlindSolver3x3
 
         // Buffer position: UR (letter 'B')
         // Target position: UL (letter 'D')
-        // FIXME: Support missing moves here so we dont have to translate them to simpler move sequences.
         const edgeSetupMovesMapping = {
-            'A': cubeMoveNotation.stringToMoveSet ("L' M' L' M' D' L M L M"), // Lw2 D' Lw2
-            'B': cubeMoveNotation.stringToMoveSet (""),                       // Ignoring buffer position
-            'C': cubeMoveNotation.stringToMoveSet ("L M L M D L' M' L' M'"),  // Lw2 D Lw2
-            'D': cubeMoveNotation.stringToMoveSet (""),                       // Target position: no setup moves needed
-            'E': cubeMoveNotation.stringToMoveSet ("L D' E' L"),              // Lw Dw' Lw
-            'F': cubeMoveNotation.stringToMoveSet ("D' E' L"),                // Dw' L
-            'G': cubeMoveNotation.stringToMoveSet ("L D E L'"),               // L Dw L'
-            'H': cubeMoveNotation.stringToMoveSet ("D E L'"),                 // Dw L'
-            'I': cubeMoveNotation.stringToMoveSet ("L M D' L2"),             // Lw D' L2
-            'J': cubeMoveNotation.stringToMoveSet ("D E D E L"),              // Dw2 L
-            'K': cubeMoveNotation.stringToMoveSet ("L M D L2"),              // Lw D L2
-            'L': cubeMoveNotation.stringToMoveSet ("L'"),                     // L'
-            'M': cubeMoveNotation.stringToMoveSet (""),                       // Ignoring buffer position
-            'N': cubeMoveNotation.stringToMoveSet ("D E L"),                  // Dw L
-            'O': cubeMoveNotation.stringToMoveSet ("D' L M D L2"),           // D' Lw D L2
-            'P': cubeMoveNotation.stringToMoveSet ("D' E' L'"),               // Dw' L'
-            'Q': cubeMoveNotation.stringToMoveSet ("L' M' D L2"),            // Lw' D L2
-            'R': cubeMoveNotation.stringToMoveSet ("L"),                      // L
-            'S': cubeMoveNotation.stringToMoveSet ("L' M' D' L2"),           // Lw' D' L2
-            'T': cubeMoveNotation.stringToMoveSet ("D E D E L'"),             // Dw2 L'
-            'U': cubeMoveNotation.stringToMoveSet ("D' L2"),                 // D' L2
-            'V': cubeMoveNotation.stringToMoveSet ("D2 L2"),                // D2 L2
-            'W': cubeMoveNotation.stringToMoveSet ("D L2"),                  // D L2
-            'X': cubeMoveNotation.stringToMoveSet ("L2"),                    // L2
+            'A': cubeMoveNotation.stringToMoveSet ("Lw2 D' Lw2"),
+            'B': cubeMoveNotation.stringToMoveSet (""), // Ignoring buffer position
+            'C': cubeMoveNotation.stringToMoveSet ("Lw2 D Lw2"),
+            'D': cubeMoveNotation.stringToMoveSet (""), // Target position: no setup moves needed
+            'E': cubeMoveNotation.stringToMoveSet ("Lw Dw' Lw"),
+            'F': cubeMoveNotation.stringToMoveSet ("Dw' L"),
+            'G': cubeMoveNotation.stringToMoveSet ("L Dw L'"),
+            'H': cubeMoveNotation.stringToMoveSet ("Dw L'"),
+            'I': cubeMoveNotation.stringToMoveSet ("Lw D' L2"),
+            'J': cubeMoveNotation.stringToMoveSet ("Dw2 L"),
+            'K': cubeMoveNotation.stringToMoveSet ("Lw D L2"),
+            'L': cubeMoveNotation.stringToMoveSet ("L'"),
+            'M': cubeMoveNotation.stringToMoveSet (""), // Ignoring buffer position
+            'N': cubeMoveNotation.stringToMoveSet ("Dw L"),
+            'O': cubeMoveNotation.stringToMoveSet ("D' Lw D L2"),
+            'P': cubeMoveNotation.stringToMoveSet ("Dw' L'"),
+            'Q': cubeMoveNotation.stringToMoveSet ("Lw' D L2"),
+            'R': cubeMoveNotation.stringToMoveSet ("L"),
+            'S': cubeMoveNotation.stringToMoveSet ("Lw' D' L2"),
+            'T': cubeMoveNotation.stringToMoveSet ("Dw2 L'"),
+            'U': cubeMoveNotation.stringToMoveSet ("D' L2"),
+            'V': cubeMoveNotation.stringToMoveSet ("D2 L2"),
+            'W': cubeMoveNotation.stringToMoveSet ("D L2"),
+            'X': cubeMoveNotation.stringToMoveSet ("L2"),
         };
 
         for (let i = 0; i < memorizationSequence.length; i++) {
@@ -718,32 +717,31 @@ class BlindSolver3x3
 
         // Buffer position: LBU (letter 'E')
         // Target position: BFR (letter 'V')
-        // FIXME: Support missing moves here so we dont have to translate them to simpler move sequences.
         const cornerSetupMovesMapping = {
             'A': cubeMoveNotation.stringToMoveSet (""), // Ignoring buffer position
-            'B': cubeMoveNotation.stringToMoveSet ("R2"), // R2
-            'C': cubeMoveNotation.stringToMoveSet ("F2 D"), // F2 D
-            'D': cubeMoveNotation.stringToMoveSet ("F2"), // F2
+            'B': cubeMoveNotation.stringToMoveSet ("R2"),
+            'C': cubeMoveNotation.stringToMoveSet ("F2 D"),
+            'D': cubeMoveNotation.stringToMoveSet ("F2"),
             'E': cubeMoveNotation.stringToMoveSet (""), // Ignoring buffer position
-            'F': cubeMoveNotation.stringToMoveSet ("F' D"), // F' D
-            'G': cubeMoveNotation.stringToMoveSet ("F'"), // F'
-            'H': cubeMoveNotation.stringToMoveSet ("D' R"), // D' R
-            'I': cubeMoveNotation.stringToMoveSet ("F R'"), // F R'
-            'J': cubeMoveNotation.stringToMoveSet ("R'"), // R'
-            'K': cubeMoveNotation.stringToMoveSet ("R' D'"), // R' D'
-            'L': cubeMoveNotation.stringToMoveSet ("D2 R"), // D2 R
-            'M': cubeMoveNotation.stringToMoveSet ("F"), // F
-            'N': cubeMoveNotation.stringToMoveSet ("R' F"), // R' F
-            'O': cubeMoveNotation.stringToMoveSet ("R2 F"), // R2 F
-            'P': cubeMoveNotation.stringToMoveSet ("R F"), // R F
-            'Q': cubeMoveNotation.stringToMoveSet ("R D'"), // R D'
+            'F': cubeMoveNotation.stringToMoveSet ("F' D"),
+            'G': cubeMoveNotation.stringToMoveSet ("F'"),
+            'H': cubeMoveNotation.stringToMoveSet ("D' R"),
+            'I': cubeMoveNotation.stringToMoveSet ("F R'"),
+            'J': cubeMoveNotation.stringToMoveSet ("R'"),
+            'K': cubeMoveNotation.stringToMoveSet ("R' D'"),
+            'L': cubeMoveNotation.stringToMoveSet ("D2 R"),
+            'M': cubeMoveNotation.stringToMoveSet ("F"),
+            'N': cubeMoveNotation.stringToMoveSet ("R' F"),
+            'O': cubeMoveNotation.stringToMoveSet ("R2 F"),
+            'P': cubeMoveNotation.stringToMoveSet ("R F"),
+            'Q': cubeMoveNotation.stringToMoveSet ("R D'"),
             'R': cubeMoveNotation.stringToMoveSet (""), // Ignoring buffer position
-            'S': cubeMoveNotation.stringToMoveSet ("D F'"), // D F'
-            'T': cubeMoveNotation.stringToMoveSet ("R"), // R
-            'U': cubeMoveNotation.stringToMoveSet ("D"), // D
+            'S': cubeMoveNotation.stringToMoveSet ("D F'"),
+            'T': cubeMoveNotation.stringToMoveSet ("R"),
+            'U': cubeMoveNotation.stringToMoveSet ("D"),
             'V': cubeMoveNotation.stringToMoveSet (""), // Target position - no moves needed
-            'W': cubeMoveNotation.stringToMoveSet ("D'"), // D'
-            'X': cubeMoveNotation.stringToMoveSet ("D2"), // D2
+            'W': cubeMoveNotation.stringToMoveSet ("D'"),
+            'X': cubeMoveNotation.stringToMoveSet ("D2"),
         };
 
         for (let i = 0; i < memorizationSequence.length; i++) {

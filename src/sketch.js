@@ -994,10 +994,7 @@ function buildCustomAlgorithmPanel (section) {
 
     const applyFromInput = () => {
         errorDOM.style.display = "none";
-        // Move letters are always uppercase in cube notation (matching
-        // the input's uppercase display) - normalize so lowercase typing
-        // still parses correctly.
-        const trimmed = inputDOM.value.trim ().toUpperCase ();
+        const trimmed = inputDOM.value.trim ();
         if (trimmed === "")
         {
             errorDOM.innerText = "Enter an algorithm first.";
@@ -1018,7 +1015,7 @@ function buildCustomAlgorithmPanel (section) {
 
     const applyReversedFromInput = () => {
         errorDOM.style.display = "none";
-        const trimmed = inputDOM.value.trim ().toUpperCase ();
+        const trimmed = inputDOM.value.trim ();
         if (trimmed === "")
         {
             errorDOM.innerText = "Enter an algorithm first.";

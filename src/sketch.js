@@ -494,14 +494,14 @@ function scramble () {
     // 1x1 only has cube rotations
     if (rubiksCube.dim === 1)
     {
-        console.log ("[scramble] 1x1 cube, only using cube rotations");
+        console.log ("1x1 cube, only using cube rotations");
         // For 1x1 cubes, only use cube rotations
         validMoves = [...cubeMoveNotation.getCubeNotationMoves ([MoveType.ROTATION])];
     }
     // 2x2 only has face moves
     else if (rubiksCube.dim === 2)
     {
-        console.log ("[scramble] 2x2 cube, only using face moves");
+        console.log ("2x2 cube, only using face moves");
         // For 2x2 cubes, only use face moves
         // Note: just adding this for symmetry, NxN case would work for this
         validMoves = [...cubeMoveNotation.getCubeNotationMoves ([MoveType.FACE])];
@@ -509,7 +509,7 @@ function scramble () {
     // WCA 3x3 Moves
     else if (rubiksCube.dim === 3)
     {
-        console.log ("[scramble] 3x3 cube, only using face moves");
+        console.log ("3x3 cube, only using face moves");
         // For 3x3 cubes, only use face moves to match WCA scramblers
         // Slices moves are not allowed bc they count as a cube rotation plus 2 face moves
         // Cube rotations on a 3x3 would turn the slice layer, which is not allowed in WCA scramblers
@@ -518,22 +518,37 @@ function scramble () {
     // NxN cubes
     else
     {
-        console.log (`[scramble] ${rubiksCube.dim}x${rubiksCube.dim} cube, using face moves and wide moves`);
+        console.log (`${rubiksCube.dim}x${rubiksCube.dim} cube, using face moves and wide moves`);
         // For NxN cubes larger than 3x3, use face moves and wide moves
         // WCA Article 12 only allows face moves and wide moves for NxN cubes
         // It makes no mention of slice or inner layer moves so let's exclude them
         validMoves = [...cubeMoveNotation.getCubeNotationMoves ([MoveType.FACE, MoveType.WIDE])];
     }
-    console.log ("[scramble] Valid moves:", validMoves);
+    // console.log ("Valid moves:", validMoves);
 
     // Generate a random scramble using the valid moves
     const scrambleMoves = [];
     for (let i = 0; i < SCRAMBLE_LENGTH; ++i)
     {
-        const randomMove = random (validMoves);
+        let availableMoves = [...validMoves];
+        const lastMove = scrambleMoves.length > 0 ? scrambleMoves[scrambleMoves.length - 1] : null;
+        const secondLastMove = scrambleMoves.length > 1 ? scrambleMoves[scrambleMoves.length - 2] : null;
+        // Rule 1: Never repeat moves of the same face (e.g., R followed by R', R R, R R2, R Rw, etc.)
+        if (lastMove) {
+            availableMoves = availableMoves.filter(move => getCubeNotationFace(move) !== getCubeNotationFace(lastMove));
+        }
+        // Rule 2: Prevent axis traps/cancellations (e.g., R followed by L, third cannot be R again)
+        if (lastMove && secondLastMove) {
+            const lastAxis = cubeMoveNotation.getAxis(lastMove);
+            const secondLastAxis = cubeMoveNotation.getAxis(secondLastMove);
+            if (lastAxis === secondLastAxis) {
+                availableMoves = availableMoves.filter(move => cubeMoveNotation.getAxis(move) !== lastAxis);
+            }
+        }
+        const randomMove = random (availableMoves);
         scrambleMoves.push (randomMove);
     }
-    console.log ("[scramble] Scramble:", moveSetToString (scrambleMoves));
+    console.log ("Scramble:", moveSetToString (scrambleMoves));
 
     startApplyingMoveSet (scrambleMoves);
     scrambled = true;

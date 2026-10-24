@@ -7,7 +7,6 @@
 let backgroundColor;
 let rubiksCube;
 let scrambled = false;
-const SCRAMBLE_LENGTH = 20;
 const DEFAULT_CUBE_N = 3;
 let cubeMoveNotation;
 let isApplyingMoveSet = false;
@@ -489,6 +488,26 @@ function scramble () {
         return;
     }
 
+    // Determine number of scramble moves based on cube dimension
+    let scrambleLength = 20;
+    // 1x1x1 cube only needs a few rotations to scramble
+    if (rubiksCube.dim === 1) scrambleLength = 5;
+    // 2x2x2 God's number is 11
+    else if (rubiksCube.dim === 2) scrambleLength = 11;
+    // 3x3x3 God's number is 20
+    else if (rubiksCube.dim === 3) scrambleLength = 20;
+    // 4x4x4 God's number is not precisely known, but 40 moves is reasonable
+    else if (rubiksCube.dim === 4) scrambleLength = 40;
+    // 5x5x5 God's number is not precisely known, but 60 moves is reasonable
+    else if (rubiksCube.dim === 5) scrambleLength = 60;
+    // 6x6x6 God's number is not precisely known, but 80 moves is reasonable
+    else if (rubiksCube.dim === 6) scrambleLength = 80;
+    // 7x7x7 God's number is not precisely known, but 100 moves is reasonable
+    else if (rubiksCube.dim === 7) scrambleLength = 100;
+    // For cubes larger than 7x7, use a scramble length proportional to the cube dimension
+    else if (rubiksCube.dim > 7) scrambleLength = (rubiksCube.dim - 2) * 20;
+    console.log (`Using Scramble length: ${scrambleLength} for ${rubiksCube.dim}x${rubiksCube.dim} cube`);
+
     // Determine valid moves based on cube dimension
     let validMoves = [];
     // 1x1 only has cube rotations
@@ -528,7 +547,7 @@ function scramble () {
 
     // Generate a random scramble using the valid moves
     const scrambleMoves = [];
-    for (let i = 0; i < SCRAMBLE_LENGTH; ++i)
+    for (let i = 0; i < scrambleLength; ++i)
     {
         let availableMoves = [...validMoves];
         const lastMove = scrambleMoves.length > 0 ? scrambleMoves[scrambleMoves.length - 1] : null;

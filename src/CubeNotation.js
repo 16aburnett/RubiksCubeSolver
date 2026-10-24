@@ -107,6 +107,7 @@ class CubeMoveNotation
         const moveInfo = this.moves.get(move);
         return moveInfo && moveInfo[1].endsWith("2");
     }
+
     // ===================================================================
 
     getReverseMove (move)
@@ -115,7 +116,7 @@ class CubeMoveNotation
         if (this.is180DegreeMove(move)) {
             return move;
         }
-        return -move;
+        return getCubeNotationReverseMove(move);
     }
 
     // ===================================================================
@@ -168,53 +169,94 @@ class CubeMoveNotation
         // axisNotation is the third element
         return this.moves.get (move)[2];
     }
+
+    // ===================================================================
+
+    getAxis (move)
+    {
+        // axisNotation is the third element
+        // axis is the first of the axis notation string
+        return this.moves.get (move)[2][0];
+    }
 }
 
 // =======================================================================
 
 // Cube Notation bitmask (32 bits)
-// D0000000 WWWWRRRR SSSSSSSS SSSSFFFF
-// D - signed bit, denotes direction
-//     +M = clockwise
-//     -M = counter clockwise
-//     reverse(move) = -move
-// F - denotes face (L R F B U D X Y Z)
-// S - denotes slice
+// 000000DW FFFFRRRR SSSSSSSS SSSSSSSS
+// D - denotes direction
+//     (1: clockwise, 0: counter clockwise)
+// W - denotes wide move
+//     (1: wide move, 0: not wide move)
+// F - denotes face (L R F B U D), middle slice (M E S), or full cube rotation axis (X Y Z)
+// R - denotes how much to rotate
+//     (0: 90 degress, 1: 180 degrees, 2: 270 degrees, 3: 360 degrees)
+// S - if not wide (W = 0), denotes slice
 //     (example: 2f, S would be 2 and F would be f's enum value)
 //     0 = outermost slice
 //     1 = slice in one layer from face
 //     2 = 2 slices in from the face
-//     12 bits so max cube size can be 4096*2
-// R - denotes how much to rotate
-//     (0 for 90 degress or 1 for 180 degrees)
-// W - denotes wide move - ignore
-//     (0 for no wide move, 1 for wide move)
-// This method is SO MUCH FASTER than just using strings to denote moves
-// seconds vs milliseconds
+//     if wide move (W = 1), denotes number of layers to turn from the face
+//     (example: 2Rw, S would be 2 and F would be R's enum value, W would be 1)
+//     16 bits so max cube size can be 65535
+// Note: This method is significantly faster than using strings or objects to denote moves
+// This has been observed to speedup some solvers from seconds to milliseconds.
 function cubeNotationMove (face, direction=1, slice=0, rotationAmount=0, isWide=0)
 {
-    return direction * (((((((0 + isWide) << 4) + rotationAmount) << 12) + slice) << 4) + face);
+    // Mask inputs to prevent overflow
+    let d = (direction === 1) ? 1 : 0   // 1 bit
+    let w = isWide & 0b1;               // 1 bit
+    let f = face & 0b1111;              // 4 bits
+    let r = rotationAmount & 0b1111;    // 4 bits
+    let s = slice & 0b1111111111111111; // 16 bits
+
+    let mask = (d << 25) | (w << 24) | (f << 20) | (r << 16) | s;
+
+    return mask;
+}
+
+// =======================================================================
+
+function getCubeNotationDirection (move)
+{
+    return (move & 0b00000010_00000000_00000000_00000000) >> 25;
 }
 
 // =======================================================================
 
 function getCubeNotationFace (move)
 {
-    return move & 0b1111;
+    return (move & 0b00000000_11110000_00000000_00000000) >> 20;
 }
 
 // =======================================================================
 
 function getCubeNotationSlice (move)
 {
-    return (move >> 4) & 0b111111111111;
+    return (move & 0b00000000_00000000_11111111_11111111);
 }
 
 // =======================================================================
 
 function getCubeNotationRotation (move)
 {
-    return (move >> 16) & 0b1111;
+    return (move & 0b00000000_00001111_00000000_00000000) >> 16;
+}
+
+// =======================================================================
+
+// Note: This just changes the direction, this does not handle the case of
+// 180 degree moves reversing back to the same move. (getCubeNotationReverseMove ("U2") != "U2")
+function getCubeNotationReverseMove (move)
+{
+    return move ^ (0b00000010_00000000_00000000_00000000);
+}
+
+// =======================================================================
+
+function is180DegreeMove (move)
+{
+    return getCubeNotationRotation (move) === 2;
 }
 
 // =======================================================================

@@ -354,6 +354,12 @@ function generateMoves (dim)
         Array.from({ length: end - start + 1 }, (_, index) => start + index);
     while (low + i <= 0)
     {
+        // Even cubes have a phantom middle slice at i = 0, so skip it
+        if (low + i == 0 && dim % 2 == 0)
+        {
+            ++i;
+            continue;
+        }
         let prefix = i.toString();
         // Second to outermost slice doesnt get a prefix
         if (i == 1)

@@ -223,7 +223,7 @@ function addCubeControlButtons ()
     // create a move button for each valid move
     // and pack buttons in rows
     let j = 0;
-    let max_col_per_row = 4;
+    let max_col_per_row = 3;
     let controls_tr = document.createElement ("tr");
     controls_tr.className = "controlRow";
     cubeControlsTable.appendChild (controls_tr);

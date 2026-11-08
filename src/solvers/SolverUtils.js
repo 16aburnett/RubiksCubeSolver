@@ -1,6 +1,53 @@
 // Rubiks Cube Solver: Common solver utilities
 // By Amy Burnett
-// =======================================================================
+// ================================================================================================
+
+// Solved cube representation
+//            +---------+
+//            | Y  Y  Y | <-- Top face (Yellow)
+//            | Y  Y  Y | 
+//   left     | Y  Y  Y | right      back
+// +----------+---------+----------+----------+
+// | O  O  O  | B  B  B | R  R  R  | G  G  G  |
+// | O  O  O  | B  B  B | R  R  R  | G  G  G  |
+// | O  O  O  | B  B  B | R  R  R  | G  G  G  |
+// +----------+---------+----------+----------+
+//            | W  W  W |
+//            | W  W  W |
+//            | W  W  W | <-- Bottom face (White)
+//            +---------+
+
+// Blank cube representation
+//            +---------+
+//            | .  .  . |
+//            | .  .  . |
+//            | .  .  . |
+// +----------+---------+----------+----------+
+// | .  .  .  | .  .  . | .  .  .  | .  .  .  |
+// | .  .  .  | .  .  . | .  .  .  | .  .  .  |
+// | .  .  .  | .  .  . | .  .  .  | .  .  .  |
+// +----------+---------+----------+----------+
+//            | .  .  . |
+//            | .  .  . |
+//            | .  .  . |
+//            +---------+
+
+// Offsets
+//            +---------+
+//            | 0  1  2 |
+//            | 3  4  5 |
+//            | 6  7  8 |
+// +----------+---------+----------+----------+
+// | 0  1  2  | 0  1  2 | 0  1  2  | 0  1  2  |
+// | 3  4  5  | 3  4  5 | 3  4  5  | 3  4  5  |
+// | 6  7  8  | 6  7  8 | 6  7  8  | 6  7  8  |
+// +----------+---------+----------+----------+
+//            | 0  1  2 |
+//            | 3  4  5 |
+//            | 6  7  8 |
+//            +---------+
+
+// ================================================================================================
 
 /**
  * Finds the minimum solution to reach the given solved state with the
@@ -49,7 +96,7 @@ function findMinSolution (cube, maxMoves, isSolved, moveSetsToTry, shouldCheckLe
     return solution;
 }
 
-// =======================================================================
+// ================================================================================================
 
 /**
  * Recursive helper function for findMinSolution. findMinSolution should
@@ -131,7 +178,7 @@ function findMinSolution_ (cube, path, prevMove, limit, isSolved, moveSetsToTry,
     return null;
 }
 
-// =======================================================================
+// ================================================================================================
 
 function areSameStickers (cube, stickerPositions) {
     const color = cube.data[stickerPositions[0]];
@@ -256,3 +303,120 @@ function solveWithAlgorithms (cube, isSolved, setupMoveSets, patternAlgorithms) 
     }
     return null;
 }
+
+// ================================================================================================
+
+const mapRotateFaceMoveY = {
+    0  : {
+            "U" : "U",
+            "D" : "D",
+            "F" : "F",
+            "B" : "B",
+            "L" : "L",
+            "R" : "R",
+        },
+
+    90 : {
+            "U" : "U",
+            "D" : "D",
+            "F" : "R",
+            "B" : "L",
+            "L" : "F",
+            "R" : "B",
+        },
+
+    180: {
+            "U" : "U",
+            "D" : "D",
+            "F" : "B",
+            "B" : "F",
+            "L" : "R",
+            "R" : "L",
+        },
+
+    270: {
+            "U" : "U",
+            "D" : "D",
+            "F" : "L",
+            "B" : "R",
+            "L" : "B",
+            "R" : "F",
+        }
+};
+
+// ================================================================================================
+
+const mapRotateSliceMoveY = {
+    0  : {
+            "M"  : "M",
+            "M'" : "M'",
+            "M2" : "M2",
+            "S"  : "S",
+            "S'" : "S'",
+            "S2" : "S2",
+            "E"  : "E",
+            "E'" : "E'",
+            "E2" : "E2",
+        },
+
+    90 : {
+            "M"  : "S",
+            "M'" : "S'",
+            "M2" : "S2",
+            "S"  : "M'",
+            "S'" : "M",
+            "S2" : "M2",
+            "E"  : "E",
+            "E'" : "E'",
+            "E2" : "E2",
+        },
+
+    180: {
+            "M"  : "M'",
+            "M'" : "M",
+            "M2" : "M2",
+            "S"  : "S'",
+            "S'" : "S",
+            "S2" : "S2",
+            "E"  : "E",
+            "E'" : "E'",
+            "E2" : "E2",
+        },
+
+    270: {
+            "M"  : "S'",
+            "M'" : "S",
+            "M2" : "S2",
+            "S"  : "M",
+            "S'" : "M'",
+            "S2" : "M2",
+            "E"  : "E",
+            "E'" : "E'",
+            "E2" : "E2",
+        }
+}
+
+/**
+ * Rotates a given algorithm around the Y-axis by the specified angle.
+ * @param {Array} algorithm - Array of moves representing the algorithm to rotate around the Y-axis
+ * @param {number} angle - The angle to rotate the algorithm around the Y-axis (0, 90, 180, 270)
+ * @returns {Array} - The rotated algorithm as an array of moves
+ */
+function rotateAlgorithmY (algorithm, angle) {
+    if (mapRotateFaceMoveY[angle] === undefined) throw new Error("Invalid angle for Y rotation");
+    // Construct full map for rotating around Y-axis
+    let fullMap = {};
+    for (let stringMoveFace in mapRotateFaceMoveY[angle]) {
+        for (let modifier of ["", "'", "2", "w", "w'", "w2"]) {
+            const cubeNotationMove = cubeMoveNotation.stringToMoveSet(stringMoveFace + modifier);
+            fullMap[cubeNotationMove] = cubeMoveNotation.stringToMoveSet(mapRotateFaceMoveY[angle][stringMoveFace] + modifier)[0];
+        }
+    }
+    for (let stringMoveSlice in mapRotateSliceMoveY[angle]) {
+        const cubeNotationMove = cubeMoveNotation.stringToMoveSet(stringMoveSlice);
+        fullMap[cubeNotationMove] = cubeMoveNotation.stringToMoveSet(mapRotateSliceMoveY[angle][stringMoveSlice])[0]
+    }
+    return algorithm.map(move => fullMap[move]);
+}
+
+// ================================================================================================

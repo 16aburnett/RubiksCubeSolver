@@ -3,6 +3,14 @@
 // =======================================================================
 // Globals/constants
 
+// Denotes F2L slots as constants for easy reference
+const F2LSlot = Object.freeze({
+    FR: "FR",
+    FL: "FL",
+    BL: "BL",
+    BR: "BR"
+});
+
 // =======================================================================
 
 class Solver3x3CFOP
@@ -49,7 +57,7 @@ class Solver3x3CFOP
         solution = solution.concat(temp);
 
         // solve f2l
-        temp = this.solveF2L (cube);
+        temp = this.solveF2LStandard (cube);
         // Ensure solution was found
         if (temp == null)
         {
@@ -273,8 +281,1367 @@ class Solver3x3CFOP
 
     // =======================================================================
 
-    solveF2L (cube) {
-        const name = "solveF2L";
+    solveF2LStandard (cube) {
+        const name = "solveF2LStandard";
+        console.log (name);
+        console.time (name);
+
+        let solution = [];
+        // FIXME: Implement logic to determine the order of F2L slots to solve for faster solving
+        // Currently this just solves the F2L slots in a fixed order
+        let slotsToSolve = [F2LSlot.BL, F2LSlot.BR, F2LSlot.FR, F2LSlot.FL];
+        for (let slot of slotsToSolve) {
+            // Check if the current slot is already solved
+            if (this.isF2LSlotSolved(cube, slot)) {
+                continue;
+            }
+
+            let f2lPairSolution = this.solveF2LPairStandard (cube, slot);
+            // Ensure solution for this F2L pair was found
+            if (f2lPairSolution == null) {
+                console.log (`Failed: Could not solve F2L pair ${JSON.stringify(slot)}`);
+                console.timeEnd (name);
+                return null;
+            }
+            solution = solution.concat(f2lPairSolution);
+        }
+
+        console.timeEnd (name);
+        return solution;
+    }
+
+    // =======================================================================
+
+    // Returns true if the given F2L slot is solved, false otherwise
+    isF2LSlotSolved (cube, slot) {
+        if (slot == F2LSlot.BL) {
+            if (!areSameStickers(cube, [cube.BACK  + 4, cube.BACK  + 5, cube.BACK  + 8])) return false;
+            if (!areSameStickers(cube, [cube.LEFT  + 3, cube.LEFT  + 4, cube.LEFT  + 6])) return false;
+            if (!areSameStickers(cube, [cube.DOWN  + 4, cube.DOWN  + 6])) return false;
+        }
+        else if (slot == F2LSlot.BR) {
+            if (!areSameStickers(cube, [cube.BACK  + 3, cube.BACK  + 4, cube.BACK  + 6])) return false;
+            if (!areSameStickers(cube, [cube.RIGHT + 4, cube.RIGHT + 5, cube.RIGHT + 8])) return false;
+            if (!areSameStickers(cube, [cube.DOWN  + 4, cube.DOWN  + 8])) return false;
+        }
+        else if (slot == F2LSlot.FR) {
+            if (!areSameStickers(cube, [cube.FRONT + 4, cube.FRONT + 5, cube.FRONT + 8])) return false;
+            if (!areSameStickers(cube, [cube.RIGHT + 3, cube.RIGHT + 4, cube.RIGHT + 6])) return false;
+            if (!areSameStickers(cube, [cube.DOWN  + 4, cube.DOWN  + 2])) return false;
+        }
+        else if (slot == F2LSlot.FL) {
+            if (!areSameStickers(cube, [cube.FRONT + 3, cube.FRONT + 4, cube.FRONT + 6])) return false;
+            if (!areSameStickers(cube, [cube.LEFT  + 4, cube.LEFT  + 5, cube.LEFT  + 8])) return false;
+            if (!areSameStickers(cube, [cube.DOWN  + 4, cube.DOWN  + 0])) return false;
+        }
+        return true;
+    }
+
+    // =======================================================================
+
+    getWrongSlotWithF2LPiece (cube, expectedSlot) {
+        // Determine F2L pieces
+        // Note: Assuming standard solution
+        const mapSlotToPositions = {
+            [F2LSlot.BL]: [cube.BACK, cube.LEFT],
+            [F2LSlot.BR]: [cube.BACK, cube.RIGHT],
+            [F2LSlot.FR]: [cube.FRONT, cube.RIGHT],
+            [F2LSlot.FL]: [cube.FRONT, cube.LEFT]
+        };
+        const positions = mapSlotToPositions[expectedSlot];
+        const edgePieceColors   = [cube.data[positions[0] + 4], cube.data[positions[1] + 4]];
+        const cornerPieceColors = [cube.data[positions[0] + 4], cube.data[positions[1] + 4], cube.data[cube.DOWN + 4]];
+
+        // Check if one of the F2L pieces is in the wrong slot
+        const isEdgePieceInLocation = (location0, location1) => {
+            return (edgePieceColors.includes(cube.data[location0]) && edgePieceColors.includes(cube.data[location1]));
+        };
+        const isCornerPieceInLocation = (location0, location1, location2) => {
+            return (cornerPieceColors.includes(cube.data[location0]) && cornerPieceColors.includes(cube.data[location1]) && cornerPieceColors.includes(cube.data[location2]));
+        };
+        const isEdgeInSlotBL   = isEdgePieceInLocation  (cube.BACK  + 5, cube.LEFT  + 3);
+        const isCornerInSlotBL = isCornerPieceInLocation(cube.BACK  + 8, cube.LEFT  + 6, cube.DOWN  + 6);
+        const isEdgeInSlotBR   = isEdgePieceInLocation  (cube.BACK  + 3, cube.RIGHT + 5);
+        const isCornerInSlotBR = isCornerPieceInLocation(cube.BACK  + 6, cube.RIGHT + 8, cube.DOWN  + 8);
+        const isEdgeInSlotFR   = isEdgePieceInLocation  (cube.FRONT + 5, cube.RIGHT + 3);
+        const isCornerInSlotFR = isCornerPieceInLocation(cube.FRONT + 8, cube.RIGHT + 6, cube.DOWN  + 2);
+        const isEdgeInSlotFL   = isEdgePieceInLocation  (cube.FRONT + 3, cube.LEFT  + 5);
+        const isCornerInSlotFL = isCornerPieceInLocation(cube.FRONT + 6, cube.LEFT  + 8, cube.DOWN  + 0);
+        const isPieceInSlotBL = isEdgeInSlotBL || isCornerInSlotBL;
+        const isPieceInSlotBR = isEdgeInSlotBR || isCornerInSlotBR;
+        const isPieceInSlotFR = isEdgeInSlotFR || isCornerInSlotFR;
+        const isPieceInSlotFL = isEdgeInSlotFL || isCornerInSlotFL;
+        if (expectedSlot != F2LSlot.BL && isPieceInSlotBL) return F2LSlot.BL;
+        if (expectedSlot != F2LSlot.BR && isPieceInSlotBR) return F2LSlot.BR;
+        if (expectedSlot != F2LSlot.FR && isPieceInSlotFR) return F2LSlot.FR;
+        if (expectedSlot != F2LSlot.FL && isPieceInSlotFL) return F2LSlot.FL;
+        // Reaches here if no F2L piece is found in the wrong slot
+        return null;
+    }
+
+    // =======================================================================
+
+    getMoveSetToExtractPieceFromSlot (cube, slot) {
+        let moveSet = cubeMoveNotation.stringToMoveSet ("R U R'");
+        const slotRotationDegree = {
+            [F2LSlot.BL]: 180,
+            [F2LSlot.BR]: 90,
+            [F2LSlot.FR]: 0,
+            [F2LSlot.FL]: 270
+        };
+        const rotationDegree = slotRotationDegree[slot];
+        return rotateAlgorithmY (moveSet, rotationDegree);
+    }
+
+    // =======================================================================
+    
+    solveF2LPairStandard (cube, slot) {
+        const name = "solveF2LPairStandard";
+        console.log (name);
+        console.time (name);
+        let solution = [];
+
+        // Extract F2L pieces if they are in the wrong slot
+        // We dont have an algorithm for every possible position, so work around piece-in-wrong-slot cases
+        let wrongSlotWithF2LPiece = this.getWrongSlotWithF2LPiece(cube, slot);
+        while (wrongSlotWithF2LPiece) {
+            // Extract the F2L piece from the wrong slot
+            // Note that if this is naively extracted, it might put the other F2L piece in this wrong slot
+            const extractionMoveSet = this.getMoveSetToExtractPieceFromSlot(cube, wrongSlotWithF2LPiece);
+            for (const move of extractionMoveSet) {
+                const axisMove = cubeMoveNotation.toAxisNotation(move);
+                cube.rotate(axisMove[0], axisMove[1], axisMove[2]);
+            }
+            console.log ("Evicting F2L piece from wrong slot:", wrongSlotWithF2LPiece, "with extraction moves:", extractionMoveSet);
+            solution = solution.concat(extractionMoveSet);
+            // Check if there is another F2L piece in the wrong slot
+            wrongSlotWithF2LPiece = this.getWrongSlotWithF2LPiece(cube, slot);
+        }
+
+        // Temporarily normalize cube rotation with the front-right slot position
+        // This allows us to easily match F2L patterns without needing to provide separate algorithms for each slot orientation.
+        const slotRotationMoveSet = {
+            [F2LSlot.BL]: cubeMoveNotation.stringToMoveSet("Y2"),
+            [F2LSlot.BR]: cubeMoveNotation.stringToMoveSet("Y"),
+            [F2LSlot.FR]: cubeMoveNotation.stringToMoveSet(""),
+            [F2LSlot.FL]: cubeMoveNotation.stringToMoveSet("Y'")
+        };
+        const rotationMoveSet = slotRotationMoveSet[slot];
+        const slotRotationDegree = {
+            [F2LSlot.BL]: 180,
+            [F2LSlot.BR]: 90,
+            [F2LSlot.FR]: 0,
+            [F2LSlot.FL]: 270
+        };
+        const rotationDegree = slotRotationDegree[slot];
+        for (const move of rotationMoveSet) {
+            const axisMove = cubeMoveNotation.toAxisNotation(move);
+            cube.rotate(axisMove[0], axisMove[1], axisMove[2]);
+        }
+
+        console.log ("Rotated cube for slot:", slot, "with rotation degree:", rotationDegree);
+        for (const move of rotationMoveSet) {
+            console.log ("Applied rotation move:", move);
+        }
+
+        // Match and find the appropriate F2L algorithm for the given pair
+        let normalizedF2LSolution = solveWithAlgorithms (
+            cube,
+            (cube) => {
+                // Use FR since we normalized the rotation
+                return this.isF2LSlotSolved (cube, F2LSlot.FR);
+            }, [
+                // Exhaustive possible U move sets before/after applying an algorithm
+                [],
+                cubeMoveNotation.stringToMoveSet ("U"),
+                cubeMoveNotation.stringToMoveSet ("U'"),
+                cubeMoveNotation.stringToMoveSet ("U2"),
+            ],
+            // F2L Algorithm database
+            // Based on the following guide by SpeedCubeDB: https://speedcubedb.com/a/3x3/F2L
+            // Note that colors in the diagrams are for reference only to show the pattern,
+            // any color can be matched.
+            [
+                // === Basic Inserts =====================================
+                // F2L 1: Basic Inserts - Connected - Right
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  G |
+                //            | .  .  G |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  W | O  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U R U' R'
+                new PatternAlgorithm (
+                    "F2L:1:BasicInserts:Connected:Right",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.UP    + 5, cube.UP    + 8, cube.FRONT + 4])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 0, cube.RIGHT + 1, cube.RIGHT + 4])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.FRONT + 2, cube.DOWN  + 4])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U R U' R'")
+                ),
+                // F2L 2: Basic Inserts - Connected - Left
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  O  O |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  G  G | W  .  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // F R' F' R
+                new PatternAlgorithm (
+                    "F2L:2:BasicInserts:Connected:Left",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 1, cube.FRONT + 2, cube.FRONT + 4])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.UP    + 7, cube.UP    + 8, cube.RIGHT + 4])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.RIGHT + 0, cube.DOWN  + 4])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("F R' F' R")
+                ),
+                // F2L 3: Basic Inserts - Disconnected - Left
+                //            +---------+
+                //            | .  .  . |
+                //            | O  .  . |
+                //            | .  .  G |
+                // +----------+---------+----------+----------+
+                // | .  G  .  | .  .  W | O  .  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // F' U' F
+                new PatternAlgorithm (
+                    "F2L:3:BasicInserts:Disconnected:Left",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.LEFT  + 1, cube.UP    + 8])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.RIGHT + 0, cube.UP    + 3])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.FRONT + 2])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("F' U' F")
+                ),
+                // F2L 4: Basic Inserts - Disconnected - Right
+                //            +---------+
+                //            | .  G  . |
+                //            | .  .  . |
+                //            | .  .  O |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  G | W  .  .  | .  O  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // R U R'
+                new PatternAlgorithm (
+                    "F2L:4:BasicInserts:Disconnected:Right",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.FRONT + 2, cube.UP    + 1])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.BACK  + 1, cube.UP    + 8])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.RIGHT + 0])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("R U R'")
+                ),
+                // === Disconnected Pairs ================================
+                // F2L 5: Disconnected Pairs
+                //            +---------+
+                //            | .  G  . |
+                //            | .  .  . |
+                //            | .  .  G |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  W | O  .  .  | .  O  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U' R U R' U2 R U' R'
+                new PatternAlgorithm (
+                    "F2L:5:DisconnectedPairs",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 1, cube.UP    + 8])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.RIGHT + 0, cube.BACK  + 1])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.FRONT + 2])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U' R U R' U2 R U' R'")
+                ),
+                // F2L 6: Disconnected Pairs
+                //            +---------+
+                //            | .  .  . |
+                //            | O  .  . |
+                //            | .  .  O |
+                // +----------+---------+----------+----------+
+                // | .  G  .  | .  .  G | W  .  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U' Rw U' R' U R U Rw'
+                new PatternAlgorithm (
+                    "F2L:6:DisconnectedPairs",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.FRONT + 2, cube.LEFT  + 1])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.UP    + 3, cube.UP    + 8])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.RIGHT + 0])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U' Rw U' R' U R U Rw'")
+                ),
+                // F2L 7: Disconnected Pairs
+                //            +---------+
+                //            | .  .  . |
+                //            | G  .  . |
+                //            | .  .  G |
+                // +----------+---------+----------+----------+
+                // | .  O  .  | .  .  W | O  .  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U' R U2 R' U' R U2 R'
+                new PatternAlgorithm (
+                    "F2L:7:DisconnectedPairs",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 3, cube.UP    + 8])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.LEFT  + 1, cube.RIGHT + 0])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.FRONT + 2])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U' R U2 R' U' R U2 R'")
+                ),
+                // F2L 8: Disconnected Pairs
+                //            +---------+
+                //            | .  O  . |
+                //            | .  .  . |
+                //            | .  .  O |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  G | W  .  .  | .  G  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // Rw' U2 R2 U R2 U Rw
+                new PatternAlgorithm (
+                    "F2L:8:DisconnectedPairs",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.FRONT + 2, cube.BACK  + 1])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.UP    + 1, cube.UP    + 8])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.RIGHT + 0])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("Rw' U2 R2 U R2 U Rw")
+                ),
+                // F2L 9: Disconnected Pairs
+                //            +---------+
+                //            | .  O  . |
+                //            | .  .  . |
+                //            | .  .  G |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  W | O  .  .  | .  G  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U' R U' R' U F' U' F
+                new PatternAlgorithm (
+                    "F2L:9:DisconnectedPairs",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 8, cube.BACK  + 1])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.UP    + 1, cube.RIGHT + 0])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.FRONT + 2])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U' R U' R' U F' U' F")
+                ),
+                // F2L 10: Disconnected Pairs
+                //            +---------+
+                //            | .  .  . |
+                //            | G  .  . |
+                //            | .  .  O |
+                // +----------+---------+----------+----------+
+                // | .  O  .  | .  .  G | W  .  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U' R U R' U R U R'
+                new PatternAlgorithm (
+                    "F2L:10:DisconnectedPairs",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 3, cube.FRONT + 2])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.UP    + 8, cube.LEFT  + 1])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.RIGHT + 0])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U' R U R' U R U R'")
+                ),
+                // F2L 11: Connected Pairs
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  O |
+                //            | .  .  G |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  W | O  G  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U' R U2 R' U F' U' F
+                new PatternAlgorithm (
+                    "F2L:11:ConnectedPairs",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 8, cube.RIGHT + 1])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.UP    + 5, cube.RIGHT + 0])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.FRONT + 2])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U' R U2 R' U F' U' F")
+                ),
+                // F2L 12: Connected Pairs
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  G  O |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  O  G | W  .  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // R U' R' U R U' R' U2 R U' R'
+                new PatternAlgorithm (
+                    "F2L:12:ConnectedPairs",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 7, cube.FRONT + 2])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.UP    + 8, cube.FRONT + 1])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.RIGHT + 0])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("R U' R' U R U' R' U2 R U' R'")
+                ),
+                // F2L 13: Connected Pairs
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  O  G |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  G  W | O  .  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // M' U' R U R' U2 R U' Rw'
+                new PatternAlgorithm (
+                    "F2L:13:ConnectedPairs",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 8, cube.FRONT + 1])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.UP    + 7, cube.RIGHT + 0])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.FRONT + 2])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("M' U' R U R' U2 R U' Rw'")
+                ),
+                // F2L 14: Connected Pairs
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  G |
+                //            | .  .  O |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  G | W  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U' R U' R' U R U R'
+                new PatternAlgorithm (
+                    "F2L:14:ConnectedPairs",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 5, cube.FRONT + 2])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.UP    + 8, cube.RIGHT + 1])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.RIGHT + 0])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U' R U' R' U R U R'")
+                ),
+                // F2L 15: Connected Pairs
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  G  G |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  O  W | O  .  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // M U Rw U' Rw' U' M'
+                new PatternAlgorithm (
+                    "F2L:15:ConnectedPairs",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 7, cube.UP    + 8])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.FRONT + 1, cube.RIGHT + 0])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.FRONT + 2])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("M U Rw U' Rw' U' M'")
+                ),
+                // F2L 16: Connected Pairs
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  O |
+                //            | .  .  O |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  G | W  G  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // R U' R' U2 F' U' F
+                new PatternAlgorithm (
+                    "F2L:16:ConnectedPairs",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.FRONT + 2, cube.RIGHT + 1])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.UP    + 5, cube.UP    + 8])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.RIGHT + 0])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("R U' R' U2 F' U' F")
+                ),
+                // F2L 17: Connected Pairs
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  G |
+                //            | .  .  W |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  O | G  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // R U2 R' U' R U R'
+                new PatternAlgorithm (
+                    "F2L:17:ConnectedPairs",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 5, cube.RIGHT + 0])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.FRONT + 2, cube.RIGHT + 1])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.UP    + 8])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("R U2 R' U' R U R'")
+                ),
+                // F2L 18: Connected Pairs
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  O  W |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  G  O | G  .  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // F' U2 F U F' U' F
+                new PatternAlgorithm (
+                    "F2L:18:ConnectedPairs",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.FRONT + 1, cube.RIGHT + 0])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.UP    + 7, cube.FRONT + 2])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.UP    + 8])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("F' U2 F U F' U' F")
+                ),
+                // F2L 19: Disconnected Pairs - White Up
+                //            +---------+
+                //            | .  G  . |
+                //            | .  .  . |
+                //            | .  .  W |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  O | G  .  .  | .  O  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U R U2 R' U R U' R'
+                new PatternAlgorithm (
+                    "F2L:19:DisconnectedPairs:WhiteUp",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 1, cube.RIGHT + 0])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.FRONT + 2, cube.BACK  + 1])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.UP    + 8])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U R U2 R' U R U' R'")
+                ),
+                // F2L 20: Disconnected Pairs - White Up
+                //            +---------+
+                //            | .  .  . |
+                //            | O  .  . |
+                //            | .  .  W |
+                // +----------+---------+----------+----------+
+                // | .  G  .  | .  .  O | G  .  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U' R U' R2 F R F' R U' R'
+                new PatternAlgorithm (
+                    "F2L:20:DisconnectedPairs:WhiteUp",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.LEFT  + 1, cube.RIGHT + 0])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.UP    + 3, cube.FRONT + 2])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.UP    + 8])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U' R U' R2 F R F' R U' R'")
+                ),
+                // F2L 21: Disconnected Pairs - White Up
+                //            +---------+
+                //            | .  .  . |
+                //            | G  .  . |
+                //            | .  .  W |
+                // +----------+---------+----------+----------+
+                // | .  O  .  | .  .  O | G  .  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U2 R U R' U R U' R'
+                new PatternAlgorithm (
+                    "F2L:21:DisconnectedPairs:WhiteUp",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 3, cube.RIGHT + 0])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.LEFT  + 1, cube.FRONT + 2])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.UP    + 8])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U2 R U R' U R U' R'")
+                ),
+                // F2L 22: Disconnected Pairs - White Up
+                //            +---------+
+                //            | .  O  . |
+                //            | .  .  . |
+                //            | .  .  W |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  O | G  .  .  | .  G  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // Rw U' Rw' U2 Rw U Rw'
+                new PatternAlgorithm (
+                    "F2L:22:DisconnectedPairs:WhiteUp",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.RIGHT + 0, cube.BACK  + 1])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.UP    + 1, cube.FRONT + 2])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.UP    + 8])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("Rw U' Rw' U2 Rw U Rw'")
+                ),
+                // F2L 23: Connected Pairs - White Up
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  G  W |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  O  O | G  .  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U R U' R' U' R U' R' U R U' R'
+                new PatternAlgorithm (
+                    "F2L:23:ConnectedPairs:WhiteUp",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 7, cube.RIGHT + 0])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.FRONT + 1, cube.FRONT + 2])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.UP    + 8])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U R U' R' U' R U' R' U R U' R'")
+                ),
+                // F2L 24: Connected Pairs - White Up
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  O |
+                //            | .  .  W |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  O | G  G  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // F U R U' R' F' R U' R'
+                new PatternAlgorithm (
+                    "F2L:24:ConnectedPairs:WhiteUp",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.RIGHT + 0, cube.RIGHT + 1])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.UP    + 5, cube.FRONT + 2])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.UP    + 8])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("F U R U' R' F' R U' R'")
+                ),
+                // F2L 25: Corner in slot
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  G |
+                //            | .  .  . |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  G | O  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  W |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U' R' F R F' R U R'
+                new PatternAlgorithm (
+                    "F2L:25:CornerInSlot",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 5, cube.FRONT + 8])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.RIGHT + 1, cube.RIGHT + 6])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.DOWN  + 2])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U' R' F R F' R U R'")
+                ),
+                // F2L 26: Corner in slot
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  O  . |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  G  . | .  .  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  G | O  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  W |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U R U' R' F R' F' R
+                new PatternAlgorithm (
+                    "F2L:26:CornerInSlot",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.FRONT + 1, cube.FRONT + 8])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.UP    + 7, cube.RIGHT + 6])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.DOWN  + 2])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U R U' R' F R' F' R")
+                ),
+                // F2L 27: Corner in slot
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  G |
+                //            | .  .  . |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  W | G  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  O |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // R U' R' U R U' R'
+                new PatternAlgorithm (
+                    "F2L:27:CornerInSlot",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 5, cube.RIGHT + 6])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.RIGHT + 1, cube.DOWN  + 2])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.FRONT + 8])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("R U' R' U R U' R'")
+                ),
+                // F2L 28: Corner in slot
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  O  . |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  G  . | .  .  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  O | W  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  G |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // R U R' U' F R' F' R
+                new PatternAlgorithm (
+                    "F2L:28:CornerInSlot",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.FRONT + 1, cube.DOWN  + 2])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.UP    + 7, cube.FRONT + 8])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.RIGHT + 6])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("R U R' U' F R' F' R")
+                ),
+                // F2L 29: Corner in slot
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  O  . |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  G  . | .  .  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  W | G  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  O |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // R' F R F' U R U' R'
+                new PatternAlgorithm (
+                    "F2L:29:CornerInSlot",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.FRONT + 1, cube.RIGHT + 6])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.UP    + 7, cube.DOWN  + 2])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.FRONT + 8])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("R' F R F' U R U' R'")
+                ),
+                // F2L 30: Corner in slot
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  G |
+                //            | .  .  . |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // | .  .  .  | .  G  O | W  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  G |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // R U R' U' R U R'
+                new PatternAlgorithm (
+                    "F2L:30:CornerInSlot",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 5, cube.DOWN  + 2])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.FRONT + 8, cube.RIGHT + 1])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.RIGHT + 6])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("R U R' U' R U R'")
+                ),
+                // F2L 31: Edge in slot
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  .  W |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  O | G  .  .  | .  .  .  |
+                // | .  .  .  | .  G  O | G  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U' R' F R F' R U' R'
+                new PatternAlgorithm (
+                    "F2L:31:EdgeInSlot",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.RIGHT + 0, cube.RIGHT + 3])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.FRONT + 2, cube.FRONT + 5])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.UP    + 8])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U' R' F R F' R U' R'")
+                ),
+                // F2L 32: Edge in slot
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  .  W |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  O | G  .  .  | .  .  .  |
+                // | .  .  .  | .  G  G | O  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U R U' R' U R U' R' U R U' R'
+                new PatternAlgorithm (
+                    "F2L:32:EdgeInSlot",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.FRONT + 5, cube.RIGHT + 0])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.FRONT + 2, cube.RIGHT + 3])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.UP    + 8])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U R U' R' U R U' R' U R U' R'")
+                ),
+                // F2L 33: Edge in slot
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  .  G |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  W | O  .  .  | .  .  .  |
+                // | .  .  .  | .  G  G | O  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U' R U' R' U2 R U' R'
+                new PatternAlgorithm (
+                    "F2L:33:EdgeInSlot",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 8, cube.FRONT + 5])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.RIGHT + 0, cube.RIGHT + 3])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.FRONT + 2])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U' R U' R' U2 R U' R'")
+                ),
+                // F2L 34: Edge in slot
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  .  O |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  G | W  .  .  | .  .  .  |
+                // | .  .  .  | .  G  G | O  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U R U R' U2 R U R'
+                new PatternAlgorithm (
+                    "F2L:34:EdgeInSlot",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.FRONT + 2, cube.FRONT + 5])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.UP    + 8, cube.RIGHT + 3])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.RIGHT + 0])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U R U R' U2 R U R'")
+                ),
+                // F2L 35: Edge in slot
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  .  G |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  W | O  .  .  | .  .  .  |
+                // | .  .  .  | .  G  O | G  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U' R U R' U F' U' F
+                new PatternAlgorithm (
+                    "F2L:35:EdgeInSlot",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.UP    + 8, cube.RIGHT + 3])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.FRONT + 5, cube.RIGHT + 0])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.FRONT + 2])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U' R U R' U F' U' F")
+                ),
+                // F2L 36: Edge in slot
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  .  O |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  G | W  .  .  | .  .  .  |
+                // | .  .  .  | .  G  O | G  O  .  | .  .  .  |
+                // | .  .  .  | .  G  . | .  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  . |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // U F' U' F U' R U R'
+                new PatternAlgorithm (
+                    "F2L:36:EdgeInSlot",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.FRONT + 2, cube.RIGHT + 3])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.FRONT + 5, cube.UP    + 8])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.RIGHT + 0])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("U F' U' F U' R U R'")
+                ),
+                // F2L 37: Pieces in slot
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  .  . |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  . | .  .  .  | .  .  .  |
+                // | .  .  .  | .  G  O | G  O  .  | .  .  .  |
+                // | .  .  .  | .  G  G | O  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  W |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // R2 U2 F R2 F' U2 R' U R'
+                new PatternAlgorithm (
+                    "F2L:37:PiecesInSlot",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.FRONT + 8, cube.RIGHT + 3])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.FRONT + 5, cube.RIGHT + 6])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.DOWN  + 2])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("R2 U2 F R2 F' U2 R' U R'")
+                ),
+                // F2L 38: Pieces in slot
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  .  . |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  . | .  .  .  | .  .  .  |
+                // | .  .  .  | .  G  G | O  O  .  | .  .  .  |
+                // | .  .  .  | .  G  W | G  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  O |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // R U' R' U' R U R' U2 R U' R'
+                new PatternAlgorithm (
+                    "F2L:38:PiecesInSlot",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.FRONT + 5, cube.RIGHT + 6])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.DOWN  + 2, cube.RIGHT + 3])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.FRONT + 8])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("R U' R' U' R U R' U2 R U' R'")
+                ),
+                // F2L 39: Pieces in slot
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  .  . |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  . | .  .  .  | .  .  .  |
+                // | .  .  .  | .  G  G | O  O  .  | .  .  .  |
+                // | .  .  .  | .  G  O | W  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  G |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // R U' R' U R U2 R' U R U' R'
+                new PatternAlgorithm (
+                    "F2L:39:PiecesInSlot",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.FRONT + 5, cube.DOWN  + 2])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.FRONT + 8, cube.RIGHT + 3])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.RIGHT + 6])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("R U' R' U R U2 R' U R U' R'")
+                ),
+                // F2L 40: Pieces in slot
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  .  . |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  . | .  .  .  | .  .  .  |
+                // | .  .  .  | .  G  O | G  O  .  | .  .  .  |
+                // | .  .  .  | .  G  W | G  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  O |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // Rw U' Rw' U2 Rw U Rw' R U R'
+                new PatternAlgorithm (
+                    "F2L:40:PiecesInSlot",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.RIGHT + 3, cube.RIGHT + 6])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.FRONT + 5, cube.DOWN  + 2])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.FRONT + 8])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("Rw U' Rw' U2 Rw U Rw' R U R'")
+                ),
+                // F2L 41: Pieces in slot
+                //            +---------+
+                //            | .  .  . |
+                //            | .  .  . |
+                //            | .  .  . |
+                // +----------+---------+----------+----------+
+                // | .  .  .  | .  .  . | .  .  .  | .  .  .  |
+                // | .  .  .  | .  G  O | G  O  .  | .  .  .  |
+                // | .  .  .  | .  G  O | W  O  .  | .  .  .  |
+                // +----------+---------+----------+----------+
+                //            | .  W  G |
+                //            | W  W  W |
+                //            | .  W  . |
+                //            +---------+
+                // R U' R' Rw U' Rw' U2 Rw U Rw'
+                new PatternAlgorithm (
+                    "F2L:41:PiecesInSlot",
+                    (cube) => {
+                        // Green
+                        if (!areSameStickers(cube, [cube.FRONT + 4, cube.DOWN  + 2, cube.RIGHT + 3])) return false;
+                        // Orange
+                        if (!areSameStickers(cube, [cube.RIGHT + 4, cube.FRONT + 5, cube.FRONT + 8])) return false;
+                        // White
+                        if (!areSameStickers(cube, [cube.DOWN  + 4, cube.RIGHT + 6])) return false;
+                        return true;
+                    },
+                    cubeMoveNotation.stringToMoveSet ("R U' R' Rw U' Rw' U2 Rw U Rw'")
+                ),
+            ]
+        );
+
+        // Ensure solution was found
+        if (normalizedF2LSolution == null)
+        {
+            console.log (`Failed: Could not find solution to ${name}`);
+            console.timeEnd (name);
+            return null;
+        }
+
+        // Undo the temporary rotation to restore the original cube orientation
+        for (let i = rotationMoveSet.length-1; i >= 0; --i) {
+            const move = rotationMoveSet[i];
+            const axisMove = cubeMoveNotation.toAxisNotation (move);
+            // Do the reverse move to undo (-direction)
+            cube.rotate (axisMove[0], axisMove[1], -axisMove[2]);
+        }
+        // Rotate the normalized algorithm to match the original cube orientation
+        let unnormalizedF2LSolution = rotateAlgorithmY (normalizedF2LSolution, rotationDegree);
+        solution = solution.concat(unnormalizedF2LSolution);
+
+        console.timeEnd (name);
+        return solution;
+    }
+
+    // =======================================================================
+
+    solveF2LNaive (cube) {
+        const name = "solveF2LNaive";
         console.log (name);
         console.time (name);
 
@@ -2849,11 +4216,58 @@ class Solver3x3CFOP
                 }
             },
             {
-                label: "Solve F2L",
-                description: "Solves the first two layers by finding and inserting each of the four corner+edge pairs. Expand to run one pair at a time. Note that this is currently very naive and is not optimized for move count.",
+                label: "Solve F2L Standard",
+                description: "Solves the first two layers by finding and inserting each of the four corner+edge pairs using standard F2L algorithms. Expand to run one pair at a time",
                 fn: () => {
                     solveFromGivenFunc ((cube) => {
-                        return new Solver3x3CFOP ().solveF2L (cube);
+                        return new Solver3x3CFOP ().solveF2LStandard (cube);
+                    });
+                },
+                children: [
+                    {
+                        label: "Back-Left Pair",
+                        description: "Finds and inserts the back-left corner-edge pair.",
+                        fn: () => {
+                            solveFromGivenFunc ((cube) => {
+                                return new Solver3x3CFOP ().solveF2LPairStandard (cube, F2LSlot.BL);
+                            });
+                        }
+                    },
+                    {
+                        label: "Back-Right Pair",
+                        description: "Finds and inserts the back-right corner-edge pair.",
+                        fn: () => {
+                            solveFromGivenFunc ((cube) => {
+                                return new Solver3x3CFOP ().solveF2LPairStandard (cube, F2LSlot.BR);
+                            });
+                        }
+                    },
+                    {
+                        label: "Front-Left Pair",
+                        description: "Finds and inserts the front-left corner-edge pair.",
+                        fn: () => {
+                            solveFromGivenFunc ((cube) => {
+                                return new Solver3x3CFOP ().solveF2LPairStandard (cube, F2LSlot.FL);
+                            });
+                        }
+                    },
+                    {
+                        label: "Front-Right Pair",
+                        description: "Finds and inserts the front-right corner-edge pair, completing the first two layers.",
+                        fn: () => {
+                            solveFromGivenFunc ((cube) => {
+                                return new Solver3x3CFOP ().solveF2LPairStandard (cube, F2LSlot.FR);
+                            });
+                        }
+                    },
+                ]
+            },
+            {
+                label: "Solve F2L Naive",
+                description: "Solves the first two layers by solving the edge, then corner. This is technically not F2L since it solves pieces individually rather than together as a pair.",
+                fn: () => {
+                    solveFromGivenFunc ((cube) => {
+                        return new Solver3x3CFOP ().solveF2LNaive (cube);
                     });
                 },
                 children: [
